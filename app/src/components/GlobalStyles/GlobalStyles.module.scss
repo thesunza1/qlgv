@@ -4,18 +4,14 @@
 
 :root {
     --primary: #fe2c55;
-    --black: #000;
-    --white: #fff;
+    --black: #333;
+    --white: #f0f0f0;
     --text-color: #161823;
     --orange: #ff7800;
     --light-color: #666;
 
     --font-family: "Poppins", sans-serif;
 
-    // Default layout
-    --default-layout-header-height: 85px;
-    --default-layout-width: 1300px;
-    --default-layout-horizontal-spacer: 24px;
 }
 
 * {

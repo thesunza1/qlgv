@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './LoginLayout.module.scss';
-import Logo from '~/assets/images/logo.jpg';
+import Logo from '~/assets/images/logo.png';
 
 const cx = classNames.bind(styles);
 
@@ -9,7 +9,9 @@ function LoginLayout({ children }) {
     return (
         <div className={cx('wrapper')}>
             <heading className={cx('inner')}>
-                <img src={Logo} alt="Logo VNPT" />
+                <a href="https://www.facebook.com/haugiang.vnpt.vn" target="blank">
+                    <img src={Logo} alt="Logo VNPT" />
+                </a>
                 <ul>
                     <li>
                         <Link>Giới thiệu</Link>
@@ -22,19 +24,7 @@ function LoginLayout({ children }) {
                     </li>
                 </ul>
             </heading>
-            <div className={cx('container')}>
-                <div className={cx('content')}>{children}</div>
-            </div>
-            <footer className={cx('footer')}>
-                <img src={Logo} alt="Logo VNPT" />
-                <a
-                    href="https://www.facebook.com/haugiang.vnpt.vn"
-                    target="blank"
-                    alt="Facebook_VNPT_HauGiang"
-                >
-                    https://www.facebook.com/haugiang.vnpt.vn
-                </a>
-            </footer>
+            <div className={cx('content')}>{children}</div>
         </div>
     );
 }

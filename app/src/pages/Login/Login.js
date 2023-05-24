@@ -16,16 +16,18 @@ function Login() {
                 </p>
             </div>
             <form className={cx('form-login')}>
-                <h2>Đăng nhập</h2>
+                <h3>Đăng nhập</h3>
                 <div className={cx('form-group')}>
                     <label>Tài khoản</label>
                     <input type="text" required />
                 </div>
                 <div className={cx('form-group')}>
                     <label>Mật khẩu</label>
-                    <input type="email" required />
+                    <input type="password" required></input>
                 </div>
-                <button>Đăng nhập</button>
+                <div className={cx('login-btn')}>
+                    <button>Đăng nhập</button>
+                </div>
                 <div className={cx('forgot-pw')}>
                     <a href="/">Quên mật khẩu</a>
                 </div>
