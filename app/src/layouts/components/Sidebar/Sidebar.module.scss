@@ -1,0 +1,23 @@
+.sidebar {
+    height: 900px;
+    width: 300px;
+    top: 0;
+    right: 0;
+    position: relative;
+    background-color: #006699;
+    border-radius: 2px;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.12), 0 2px 3px 0 rgba(0, 0, 0, 0.22);
+}
+
+.sidebar-list {
+    list-style: none;
+    text-align: center;
+}
+
+.sidebar-item {
+    padding: 40px;
+}
+.sidebar-item:hover{
+    color: black;
+    background: rgb(174,225,238);
+}
