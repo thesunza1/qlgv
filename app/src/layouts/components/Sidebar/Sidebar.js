@@ -7,11 +7,11 @@ const cx = classNames.bind(styles);
 function Sidebar() {
     return <div className={cx("sidebar")}>
         <ul className={cx("sidebar-list")}>
-            <li className={cx("sidebar-item")}><Link to="/" class="sidebar-anchor">Item 1</Link></li>
-            <li className={cx("sidebar-item")}><Link to="/" class="sidebar-anchor">Item 2</Link></li>
-            <li className={cx("sidebar-item")}><Link to="/" class="sidebar-anchor">Item 3</Link></li>
-            <li className={cx("sidebar-item")}><Link to="/" class="sidebar-anchor">Item 4</Link></li>
-            <li className={cx("sidebar-item")}><Link to="/" class="sidebar-anchor">Item 5</Link></li>
+            <li className={cx("sidebar-item")}><Link to="/home" className={cx("sidebar-link")}>Trang chủ</Link></li>
+            <li className={cx("sidebar-item")}><Link to="/" className={cx("sidebar-link")}>Danh sách đơn vị</Link></li>
+            <li className={cx("sidebar-item")}><Link to="/" className={cx("sidebar-link")}>Kế hoạch</Link></li>
+            <li className={cx("sidebar-item")}><Link to="/" className={cx("sidebar-link")}>Báo cáo</Link></li>
+            <li className={cx("sidebar-item")}><Link to="/" className={cx("sidebar-link")}>Log out</Link></li>
         </ul>
     </div>
 }
