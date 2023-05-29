@@ -21,7 +21,7 @@ function Login() {
     const handleSubmitLogin = (e) => {
         e.preventDefault();
         setValues({ password: '' });
-        navigate('/home');
+        navigate('/trangchu');
     };
 
     return (

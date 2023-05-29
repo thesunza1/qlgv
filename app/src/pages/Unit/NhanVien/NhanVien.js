@@ -1,13 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faCirclePlus,
-    faEye,
-    faPenToSquare,
-    faSearch,
-    faTrash,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faPenToSquare, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { visuallyHidden } from '@mui/utils';
 import { Button, ButtonGroup, InputAdornment, TextField } from '@mui/material';
 import { alpha } from '@mui/material/styles';
@@ -30,33 +24,109 @@ import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-function createData(id, ten_don_vi, don_vi_truong, ghi_chu) {
+function createData(id, ma_nhan_vien, ten_nhan_vien, chuc_vu, quyen, sdt, dia_chi) {
     return {
         id,
-        ten_don_vi,
-        don_vi_truong,
-        ghi_chu,
+        ma_nhan_vien,
+        ten_nhan_vien,
+        chuc_vu,
+        quyen,
+        sdt,
+        dia_chi,
     };
 }
 
 const rows = [
-    createData(1, 'Đơn vị 1', 'Đơn vị trưởng 1', 'Ghi chú 1'),
-    createData(2, 'Đơn vị 2', 'Đơn vị trưởng 2', 'Ghi chú 2'),
-    createData(3, 'Đơn vị 3', 'Đơn vị trưởng 3', 'Ghi chú 3'),
-    createData(4, 'Đơn vị 4', 'Đơn vị trưởng 4', 'Ghi chú 4'),
-    createData(5, 'Đơn vị 5', 'Đơn vị trưởng 5', 'Ghi chú 5'),
-    createData(6, 'Đơn vị 6', 'Đơn vị trưởng 6', 'Ghi chú 6'),
-    createData(7, 'Đơn vị 7', 'Đơn vị trưởng 7', 'Ghi chú 7'),
-    createData(8, 'Đơn vị 8', 'Đơn vị trưởng 8', 'Ghi chú 8'),
-    createData(9, 'Đơn vị 9', 'Đơn vị trưởng 9', 'Ghi chú 9'),
-    createData(10, 'Đơn vị 10', 'Đơn vị trưởng 10', 'Ghi chú 10'),
-    createData(11, 'Đơn vị 11', 'Đơn vị trưởng 11', 'Ghi chú 11'),
-    createData(12, 'Đơn vị 12', 'Đơn vị trưởng 12', 'Ghi chú 12'),
-    createData(13, 'Đơn vị 13', 'Đơn vị trưởng 13', 'Ghi chú 13'),
-    createData(14, 'Đơn vị 14', 'Đơn vị trưởng 14', 'Ghi chú 14'),
-    createData(15, 'Đơn vị 15', 'Đơn vị trưởng 15', 'Ghi chú 15'),
-    createData(16, 'Đơn vị 16', 'Đơn vị trưởng 16', 'Ghi chú 16'),
-    createData(17, 'Đơn vị 17', 'Đơn vị trưởng 17', 'Ghi chú 17'),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        2,
+        'Mã nhân viên 2 ',
+        'Tên nhân viên 2',
+        'Chức vụ 2',
+        'Quyền 2',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
+    createData(
+        1,
+        'Mã nhân viên 1 ',
+        'Tên nhân viên 1',
+        'Chức vụ 1',
+        'Quyền 1',
+        '012345678',
+        'Địa chỉ',
+    ),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -95,22 +165,40 @@ const headCells = [
         label: 'ID',
     },
     {
-        id: 'ten_don_vi',
+        id: 'ma_nhan_vien',
         numeric: false,
         disablePadding: false,
-        label: 'Tên đơn vị',
+        label: 'Mã nhân viên',
     },
     {
-        id: 'don_vi_truong',
+        id: 'ten_nhan_vien',
         numeric: false,
         disablePadding: false,
-        label: 'Đơn vị trưởng',
+        label: 'Tên nhân viên',
     },
     {
-        id: 'ghi_chu',
+        id: 'chuc_vu',
         numeric: false,
         disablePadding: false,
-        label: 'Ghi chú',
+        label: 'Chức vụ',
+    },
+    {
+        id: 'quyen',
+        numeric: false,
+        disablePadding: false,
+        label: 'Quyền',
+    },
+    {
+        id: 'sdt',
+        numeric: true,
+        disablePadding: false,
+        label: 'SĐT',
+    },
+    {
+        id: 'dia_chi',
+        numeric: false,
+        disablePadding: false,
+        label: 'Địa chỉ',
     },
     {
         id: 'xu_ly',
@@ -214,7 +302,7 @@ function EnhancedTableToolbar(props) {
                 </Typography>
             ) : (
                 <TextField
-                    label="Tìm kiếm đơn vị hoặc đơn vị trưởng"
+                    label="Tìm kiếm nhân viên"
                     onInput={(e) => {
                         setSearchQuery(e.target.value);
                     }}
@@ -231,7 +319,7 @@ function EnhancedTableToolbar(props) {
                         ),
                     }}
                     sx={{
-                        width: '300px',
+                        width: '250px',
                         '& .MuiInputLabel-root': {
                             fontSize: '1.4rem',
                         },
@@ -287,13 +375,13 @@ const filterData = (query, data) => {
     } else {
         return data.filter(
             (d) =>
-                d.ten_don_vi.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
-                d.don_vi_truong.toLowerCase().indexOf(query.toLowerCase()) > -1,
+                d.ma_nhan_vien.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
+                d.ten_nhan_vien.toLowerCase().indexOf(query.toLowerCase()) > -1,
         );
     }
 };
 
-function Unit() {
+function NhanVien() {
     const [searchQuery, setSearchQuery] = useState('');
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('id');
@@ -378,7 +466,7 @@ function Unit() {
                 id="tableTitle"
                 component="div"
             >
-                Danh sách đơn vị
+                Danh sách nhân viên
             </Typography>
             <Paper sx={{ width: '100%' }} elevation={5}>
                 <EnhancedTableToolbar
@@ -442,32 +530,28 @@ function Unit() {
                                                 {row.id}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ten_don_vi}
+                                                {row.ma_nhan_vien}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.don_vi_truong}
+                                                {row.ten_nhan_vien}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ghi_chu}
+                                                {row.chuc_vu}
+                                            </TableCell>
+                                            <TableCell sx={{ fontSize: 14 }} align="left">
+                                                {row.quyen}
+                                            </TableCell>
+                                            <TableCell sx={{ fontSize: 14 }} align="left">
+                                                {row.sdt}
+                                            </TableCell>
+                                            <TableCell sx={{ fontSize: 14 }} align="left">
+                                                {row.dia_chi}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="center">
                                                 <ButtonGroup
                                                     size="large"
                                                     aria-label="small button group"
                                                 >
-                                                    <Tooltip title="Xem chi tiết">
-                                                        <Link to="/donvi/nhanvien">
-                                                            <IconButton>
-                                                                <FontAwesomeIcon
-                                                                    icon={faEye}
-                                                                    style={{
-                                                                        fontSize: '16px',
-                                                                        color: '#000',
-                                                                    }}
-                                                                />
-                                                            </IconButton>
-                                                        </Link>
-                                                    </Tooltip>
                                                     <Tooltip title="Sửa">
                                                         <Link to="/plan">
                                                             <IconButton>
@@ -548,4 +632,4 @@ function Unit() {
     );
 }
 
-export default Unit;
+export default NhanVien;
