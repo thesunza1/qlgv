@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames/bind';
-import styles from './Login.module.scss';
+import styles from './DangNhap.module.scss';
 import Logo from '~/assets/images/logo.png';
 import Background from '~/assets/images/background_vnpt.jpg';
 
 const cx = classNames.bind(styles);
 
-function Login() {
+function DangNhap() {
     const navigate = useNavigate();
 
     const [values, setValues] = useState({ name: '', password: '' });
@@ -66,4 +66,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default DangNhap;
