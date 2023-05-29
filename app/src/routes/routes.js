@@ -1,16 +1,19 @@
-import Login from '~/pages/Login';
-import Home from '~/pages/Home';
-import Unit from '~/pages/Unit';
-import Plan from '~/pages/Plan';
-import Report from '~/pages/Report';
+import DangNhap from '~/pages/DangNhap';
+import TrangChu from '~/pages/TrangChu';
+import DonVi from '~/pages/DonVi';
+import KeHoach from '~/pages/KeHoach';
+import BaoCao from '~/pages/BaoCao';
+import NhanVien from '~/pages/DonVi/NhanVien';
 
 // Public routes
 const publicRoutes = [
-    { path: '/', component: Login, layout: null },
-    { path: '/home', component: Home },
-    { path: '/unit', component: Unit },
-    { path: '/plan', component: Plan },
-    { path: '/report', component: Report },
+    { path: '/', component: DangNhap, layout: null },
+    { path: '/trangchu', component: TrangChu },
+    { path: '/donvi', component: DonVi },
+    { path: '/donvi/nhanvien', component: NhanVien },
+
+    { path: '/kehoach', component: KeHoach },
+    { path: '/baocao', component: BaoCao },
 ];
 
 const privateRoutes = [];

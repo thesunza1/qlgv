@@ -33,22 +33,22 @@ const Sidebar = () => {
     const toggle = () => setIsOpen(!isOpen);
     const menuItem = [
         {
-            path: '/home',
+            path: '/trangchu',
             name: 'Trang chủ',
             icon: <FontAwesomeIcon icon={faHome} />,
         },
         {
-            path: '/unit',
+            path: '/donvi',
             name: 'Danh sách đơn vị',
             icon: <FontAwesomeIcon icon={faList} />,
         },
         {
-            path: '/plan',
+            path: '/kehoach',
             name: 'Kế hoạch',
             icon: <FontAwesomeIcon icon={faClipboard} />,
         },
         {
-            path: '/report',
+            path: '/baocao',
             name: 'Báo cáo',
             icon: <FontAwesomeIcon icon={faTh} />,
         },
