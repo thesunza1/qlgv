@@ -1,21 +1,11 @@
 @import 'normalize.css';
-@import url(
-"https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 :root {
+    --text-white: #f0f0f0;
+    --text-black: #000000;
     --primary: #fe2c55;
-    --black: #000;
-    --white: #fff;
-    --text-color: #161823;
-    --orange: #ff7800;
-    --light-color: #666;
 
-    --font-family: "Poppins", sans-serif;
-
-    // Default layout
-    --default-layout-header-height: 85px;
-    --default-layout-width: 1300px;
-    --default-layout-horizontal-spacer: 24px;
+    --font-family: "Segoe UI", "Segoe WP", Arial, Sans-Serif;
 }
 
 * {
@@ -37,7 +27,6 @@ body {
 
 a {
     text-decoration: none;
-    color: black;
 }
 
 ul {
