@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'oracle'),
 
     /*
     |--------------------------------------------------------------------------
@@ -63,18 +63,6 @@ return [
             ]) : [],
         ],
 
-        'oracle' => [
-            'driver' => 'oracle',
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '1521'),
-            'database' => env('DB_DATABASE', 'htql'),
-            'username' => env('DB_USERNAME', 'DBHTQL'),
-            'password' => env('DB_PASSWORD', 'Admin123'),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'options' => [],
-        ],
-
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
@@ -104,6 +92,22 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        
+        'oracle' => [
+            'driver' => 'oracle',
+            'host' => env('DB_HOST', '10.102.24.83'),
+            'port' => env('DB_PORT', '1521'),
+            'database' => env('DB_DATABASE', 'orcl'),
+            'username' => env('DB_USERNAME', 'thuctap'),
+            'password' => env('DB_PASSWORD', 'thuctap2023'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'options' => [],
+        ],
+
+        
+        
+        
 
     ],
 
