@@ -1,7 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePlus, faPenToSquare, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCircleLeft,
+    faCirclePlus,
+    faPenToSquare,
+    faSearch,
+    faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { visuallyHidden } from '@mui/utils';
 import { Button, ButtonGroup, InputAdornment, TextField } from '@mui/material';
 import { alpha } from '@mui/material/styles';
@@ -23,6 +29,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import swal from 'sweetalert';
 
 function createData(id, ma_nhan_vien, ten_nhan_vien, chuc_vu, quyen, sdt, dia_chi) {
     return {
@@ -37,96 +44,16 @@ function createData(id, ma_nhan_vien, ten_nhan_vien, chuc_vu, quyen, sdt, dia_ch
 }
 
 const rows = [
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        2,
-        'Mã nhân viên 2 ',
-        'Tên nhân viên 2',
-        'Chức vụ 2',
-        'Quyền 2',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
-    createData(
-        1,
-        'Mã nhân viên 1 ',
-        'Tên nhân viên 1',
-        'Chức vụ 1',
-        'Quyền 1',
-        '012345678',
-        'Địa chỉ',
-    ),
+    createData(1, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(2, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(3, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(4, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(5, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(6, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(7, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(8, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(9, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+    createData(10, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -302,12 +229,15 @@ function EnhancedTableToolbar(props) {
                 </Typography>
             ) : (
                 <TextField
-                    label="Tìm kiếm nhân viên"
+                    type="search"
                     onInput={(e) => {
                         setSearchQuery(e.target.value);
                     }}
+                    InputLabelProps={{
+                        shrink: false,
+                    }}
                     variant="outlined"
-                    placeholder="Search..."
+                    placeholder="Tìm kiếm nhân viên..."
                     size="small"
                     InputProps={{
                         endAdornment: (
@@ -331,20 +261,19 @@ function EnhancedTableToolbar(props) {
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Xóa tất cả">
+                <Tooltip title={<h1 style={{ color: 'lightblue' }}>Xóa tất cả</h1>}>
                     <IconButton>
                         <FontAwesomeIcon
                             icon={faTrash}
                             style={{
                                 fontSize: '16px',
                                 color: 'var(--primary)',
-                                marginRight: '10px',
                             }}
                         />
                     </IconButton>
                 </Tooltip>
             ) : (
-                <Link to="/plan">
+                <Link to="them">
                     <Button
                         startIcon={
                             <FontAwesomeIcon icon={faCirclePlus} style={{ color: '#0B7A4B' }} />
@@ -382,7 +311,9 @@ const filterData = (query, data) => {
 };
 
 function NhanVien() {
+    const [staffs, setStaffs] = useState(rows);
     const [searchQuery, setSearchQuery] = useState('');
+
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('id');
     const [selected, setSelected] = useState([]);
@@ -442,7 +373,7 @@ function NhanVien() {
 
     const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    const dataFiltered = filterData(searchQuery, rows);
+    const dataFiltered = filterData(searchQuery, staffs);
 
     const visibleRows = useMemo(
         () =>
@@ -453,21 +384,53 @@ function NhanVien() {
         [dataFiltered, order, orderBy, page, rowsPerPage],
     );
 
+    const handleDeleteStaff = (staffId) => {
+        swal({
+            title: `Bạn muốn xóa ${staffId.ten_nhan_vien} này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục nhân viên này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                setStaffs((prev) => prev.filter((item) => item.id !== staffId.id));
+                swal(`${staffId.ten_nhan_vien} đã được xóa`, {
+                    icon: 'success',
+                });
+            } else {
+                return;
+            }
+        });
+    };
+
     return (
         <Box sx={{ width: '100%' }}>
-            <Typography
+            <Box
                 sx={{
-                    flex: '1 1 100%',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '350px',
+                    margin: '10px 0 20px 0',
                 }}
-                variant="h3"
-                id="tableTitle"
-                component="div"
             >
-                Danh sách nhân viên
-            </Typography>
+                <Link to="/donvi">
+                    <FontAwesomeIcon
+                        icon={faCircleLeft}
+                        style={{ fontSize: '2.5rem', color: 'green', marginLeft: '150px' }}
+                    />
+                </Link>
+                <Typography
+                    sx={{
+                        flex: '1 1 80%',
+                        fontWeight: 'bold',
+                    }}
+                    variant="h3"
+                    id="tableTitle"
+                    component="div"
+                >
+                    Danh sách nhân viên
+                </Typography>
+            </Box>
             <Paper sx={{ width: '100%' }} elevation={5}>
                 <EnhancedTableToolbar
                     numSelected={selected.length}
@@ -552,8 +515,14 @@ function NhanVien() {
                                                     size="large"
                                                     aria-label="small button group"
                                                 >
-                                                    <Tooltip title="Sửa">
-                                                        <Link to="/plan">
+                                                    <Tooltip
+                                                        title={
+                                                            <h1 style={{ color: 'lightblue' }}>
+                                                                Sửa
+                                                            </h1>
+                                                        }
+                                                    >
+                                                        <Link to="chinhsua">
                                                             <IconButton>
                                                                 <FontAwesomeIcon
                                                                     icon={faPenToSquare}
@@ -565,18 +534,24 @@ function NhanVien() {
                                                             </IconButton>
                                                         </Link>
                                                     </Tooltip>
-                                                    <Tooltip title="Xóa">
-                                                        <Link to="/plan">
-                                                            <IconButton>
-                                                                <FontAwesomeIcon
-                                                                    icon={faTrash}
-                                                                    style={{
-                                                                        fontSize: '16px',
-                                                                        color: 'var(--primary)',
-                                                                    }}
-                                                                />
-                                                            </IconButton>
-                                                        </Link>
+                                                    <Tooltip
+                                                        title={
+                                                            <h1 style={{ color: 'lightblue' }}>
+                                                                Xóa
+                                                            </h1>
+                                                        }
+                                                    >
+                                                        <IconButton
+                                                            onClick={() => handleDeleteStaff(row)}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faTrash}
+                                                                style={{
+                                                                    fontSize: '16px',
+                                                                    color: 'var(--primary)',
+                                                                }}
+                                                            />
+                                                        </IconButton>
                                                     </Tooltip>
                                                 </ButtonGroup>
                                             </TableCell>

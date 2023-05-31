@@ -29,6 +29,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import swal from 'sweetalert';
 
 function createData(id, ten_don_vi, don_vi_truong, ghi_chu) {
     return {
@@ -214,12 +215,15 @@ function EnhancedTableToolbar(props) {
                 </Typography>
             ) : (
                 <TextField
-                    label="Tìm kiếm đơn vị hoặc đơn vị trưởng"
+                    type="search"
                     onInput={(e) => {
                         setSearchQuery(e.target.value);
                     }}
+                    InputLabelProps={{
+                        shrink: false,
+                    }}
                     variant="outlined"
-                    placeholder="Search..."
+                    placeholder="Tìm kiếm đơn vị..."
                     size="small"
                     InputProps={{
                         endAdornment: (
@@ -231,7 +235,7 @@ function EnhancedTableToolbar(props) {
                         ),
                     }}
                     sx={{
-                        width: '300px',
+                        width: '250px',
                         '& .MuiInputLabel-root': {
                             fontSize: '1.4rem',
                         },
@@ -243,7 +247,7 @@ function EnhancedTableToolbar(props) {
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Xóa tất cả">
+                <Tooltip title={<h1 style={{ color: 'lightblue' }}>Xóa tất cả</h1>}>
                     <IconButton>
                         <FontAwesomeIcon
                             icon={faTrash}
@@ -256,7 +260,7 @@ function EnhancedTableToolbar(props) {
                     </IconButton>
                 </Tooltip>
             ) : (
-                <Link to="/plan">
+                <Link to="them">
                     <Button
                         startIcon={
                             <FontAwesomeIcon icon={faCirclePlus} style={{ color: '#0B7A4B' }} />
@@ -293,8 +297,10 @@ const filterData = (query, data) => {
     }
 };
 
-function Unit() {
+function DonVi() {
+    const [units, setUnits] = useState(rows);
     const [searchQuery, setSearchQuery] = useState('');
+
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('id');
     const [selected, setSelected] = useState([]);
@@ -354,7 +360,7 @@ function Unit() {
 
     const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    const dataFiltered = filterData(searchQuery, rows);
+    const dataFiltered = filterData(searchQuery, units);
 
     const visibleRows = useMemo(
         () =>
@@ -365,6 +371,25 @@ function Unit() {
         [dataFiltered, order, orderBy, page, rowsPerPage],
     );
 
+    const handleDeleteUnit = (unitId) => {
+        swal({
+            title: `Bạn muốn xóa ${unitId.ten_don_vi} này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục đơn vị này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                setUnits((prev) => prev.filter((item) => item.id !== unitId.id));
+                swal(`${unitId.ten_don_vi} đã được xóa`, {
+                    icon: 'success',
+                });
+            } else {
+                return;
+            }
+        });
+    };
+
     return (
         <Box sx={{ width: '100%' }}>
             <Typography
@@ -372,7 +397,7 @@ function Unit() {
                     flex: '1 1 100%',
                     textAlign: 'center',
                     fontWeight: 'bold',
-                    marginBottom: '10px',
+                    margin: '10px 0 20px 0',
                 }}
                 variant="h3"
                 id="tableTitle"
@@ -455,7 +480,13 @@ function Unit() {
                                                     size="large"
                                                     aria-label="small button group"
                                                 >
-                                                    <Tooltip title="Xem chi tiết">
+                                                    <Tooltip
+                                                        title={
+                                                            <h1 style={{ color: 'lightblue' }}>
+                                                                Xem chi tiết
+                                                            </h1>
+                                                        }
+                                                    >
                                                         <Link to="/donvi/nhanvien">
                                                             <IconButton>
                                                                 <FontAwesomeIcon
@@ -468,8 +499,14 @@ function Unit() {
                                                             </IconButton>
                                                         </Link>
                                                     </Tooltip>
-                                                    <Tooltip title="Sửa">
-                                                        <Link to="/plan">
+                                                    <Tooltip
+                                                        title={
+                                                            <h1 style={{ color: 'lightblue' }}>
+                                                                Sửa
+                                                            </h1>
+                                                        }
+                                                    >
+                                                        <Link to="chinhsua">
                                                             <IconButton>
                                                                 <FontAwesomeIcon
                                                                     icon={faPenToSquare}
@@ -481,18 +518,24 @@ function Unit() {
                                                             </IconButton>
                                                         </Link>
                                                     </Tooltip>
-                                                    <Tooltip title="Xóa">
-                                                        <Link to="/plan">
-                                                            <IconButton>
-                                                                <FontAwesomeIcon
-                                                                    icon={faTrash}
-                                                                    style={{
-                                                                        fontSize: '16px',
-                                                                        color: 'var(--primary)',
-                                                                    }}
-                                                                />
-                                                            </IconButton>
-                                                        </Link>
+                                                    <Tooltip
+                                                        title={
+                                                            <h1 style={{ color: 'lightblue' }}>
+                                                                Xóa
+                                                            </h1>
+                                                        }
+                                                    >
+                                                        <IconButton
+                                                            onClick={() => handleDeleteUnit(row)}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faTrash}
+                                                                style={{
+                                                                    fontSize: '16px',
+                                                                    color: 'var(--primary)',
+                                                                }}
+                                                            />
+                                                        </IconButton>
                                                     </Tooltip>
                                                 </ButtonGroup>
                                             </TableCell>
@@ -548,4 +591,4 @@ function Unit() {
     );
 }
 
-export default Unit;
+export default DonVi;
