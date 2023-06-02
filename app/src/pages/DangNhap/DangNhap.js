@@ -2,26 +2,46 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 import classNames from 'classnames/bind';
 import styles from './DangNhap.module.scss';
 import Logo from '~/assets/images/logo.png';
 import Background from '~/assets/images/background_vnpt.jpg';
+import cogoToast from 'cogo-toast';
 
 const cx = classNames.bind(styles);
 
 function DangNhap() {
     const navigate = useNavigate();
 
-    const [values, setValues] = useState({ name: '', password: '' });
+    const [values, setValues] = useState({ nv_taikhoan: '', nv_matkhau: '' });
 
     const handleChangeInput = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value });
     };
 
-    const handleSubmitLogin = (e) => {
+    const handleSubmitLogin = async (e) => {
         e.preventDefault();
-        setValues({ password: '' });
-        navigate('/trangchu');
+
+        try {
+            const response = await axios.post('http://localhost:8000/api/auth/SignIn', values);
+
+            if (response.status === 200) {
+                const token = response.data.token;
+
+                localStorage.setItem('Token', token);
+
+                navigate('/trangchu');
+            }
+        } catch (e) {
+            if (e.response && e.response.status === 422) {
+                cogoToast.error('Tên tài khoản hoặc mật khẩu không hợp lệ', {
+                    position: 'top-right',
+                });
+            } else {
+                alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+            }
+        }
     };
 
     return (
@@ -36,7 +56,12 @@ function DangNhap() {
                     <form onSubmit={handleSubmitLogin}>
                         <h2>ĐĂNG NHẬP</h2>
                         <div className={cx('form-group')}>
-                            <input type="text" required name="name" onChange={handleChangeInput} />
+                            <input
+                                type="text"
+                                required
+                                name="nv_taikhoan"
+                                onChange={handleChangeInput}
+                            />
                             <label>Tài khoản</label>
                             <FontAwesomeIcon className={cx('icon-btn')} icon={faUser} />
                         </div>
@@ -45,7 +70,7 @@ function DangNhap() {
                             <input
                                 type="password"
                                 required
-                                name="password"
+                                name="nv_matkhau"
                                 pattern=".{8,}"
                                 title="Mật khẩu phải có ít nhất 8 ký tự"
                                 onChange={handleChangeInput}

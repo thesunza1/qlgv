@@ -54,7 +54,7 @@ const Sidebar = () => {
         },
         {
             path: '/',
-            name: 'Logout',
+            name: 'Đăng xuất',
             icon: <FontAwesomeIcon icon={faPowerOff} />,
         },
     ];
