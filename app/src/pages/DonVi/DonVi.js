@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -8,6 +8,7 @@ import {
     faSearch,
     faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import axiosClient from '~/api/axiosClient';
 import { visuallyHidden } from '@mui/utils';
 import { Button, ButtonGroup, InputAdornment, TextField } from '@mui/material';
 import { alpha } from '@mui/material/styles';
@@ -31,34 +32,34 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import swal from 'sweetalert';
 
-function createData(id, ten_don_vi, don_vi_truong, ghi_chu) {
-    return {
-        id,
-        ten_don_vi,
-        don_vi_truong,
-        ghi_chu,
-    };
-}
+// function createData(id, ten_don_vi, don_vi_truong, ghi_chu) {
+//     return {
+//         id,
+//         ten_don_vi,
+//         don_vi_truong,
+//         ghi_chu,
+//     };
+// }
 
-const rows = [
-    createData(1, 'Đơn vị 1', 'Đơn vị trưởng 1', 'Ghi chú 1'),
-    createData(2, 'Đơn vị 2', 'Đơn vị trưởng 2', 'Ghi chú 2'),
-    createData(3, 'Đơn vị 3', 'Đơn vị trưởng 3', 'Ghi chú 3'),
-    createData(4, 'Đơn vị 4', 'Đơn vị trưởng 4', 'Ghi chú 4'),
-    createData(5, 'Đơn vị 5', 'Đơn vị trưởng 5', 'Ghi chú 5'),
-    createData(6, 'Đơn vị 6', 'Đơn vị trưởng 6', 'Ghi chú 6'),
-    createData(7, 'Đơn vị 7', 'Đơn vị trưởng 7', 'Ghi chú 7'),
-    createData(8, 'Đơn vị 8', 'Đơn vị trưởng 8', 'Ghi chú 8'),
-    createData(9, 'Đơn vị 9', 'Đơn vị trưởng 9', 'Ghi chú 9'),
-    createData(10, 'Đơn vị 10', 'Đơn vị trưởng 10', 'Ghi chú 10'),
-    createData(11, 'Đơn vị 11', 'Đơn vị trưởng 11', 'Ghi chú 11'),
-    createData(12, 'Đơn vị 12', 'Đơn vị trưởng 12', 'Ghi chú 12'),
-    createData(13, 'Đơn vị 13', 'Đơn vị trưởng 13', 'Ghi chú 13'),
-    createData(14, 'Đơn vị 14', 'Đơn vị trưởng 14', 'Ghi chú 14'),
-    createData(15, 'Đơn vị 15', 'Đơn vị trưởng 15', 'Ghi chú 15'),
-    createData(16, 'Đơn vị 16', 'Đơn vị trưởng 16', 'Ghi chú 16'),
-    createData(17, 'Đơn vị 17', 'Đơn vị trưởng 17', 'Ghi chú 17'),
-];
+// const rows = [
+//     createData(1, 'Đơn vị 1', 'Đơn vị trưởng 1', 'Ghi chú 1'),
+//     createData(2, 'Đơn vị 2', 'Đơn vị trưởng 2', 'Ghi chú 2'),
+//     createData(3, 'Đơn vị 3', 'Đơn vị trưởng 3', 'Ghi chú 3'),
+//     createData(4, 'Đơn vị 4', 'Đơn vị trưởng 4', 'Ghi chú 4'),
+//     createData(5, 'Đơn vị 5', 'Đơn vị trưởng 5', 'Ghi chú 5'),
+//     createData(6, 'Đơn vị 6', 'Đơn vị trưởng 6', 'Ghi chú 6'),
+//     createData(7, 'Đơn vị 7', 'Đơn vị trưởng 7', 'Ghi chú 7'),
+//     createData(8, 'Đơn vị 8', 'Đơn vị trưởng 8', 'Ghi chú 8'),
+//     createData(9, 'Đơn vị 9', 'Đơn vị trưởng 9', 'Ghi chú 9'),
+//     createData(10, 'Đơn vị 10', 'Đơn vị trưởng 10', 'Ghi chú 10'),
+//     createData(11, 'Đơn vị 11', 'Đơn vị trưởng 11', 'Ghi chú 11'),
+//     createData(12, 'Đơn vị 12', 'Đơn vị trưởng 12', 'Ghi chú 12'),
+//     createData(13, 'Đơn vị 13', 'Đơn vị trưởng 13', 'Ghi chú 13'),
+//     createData(14, 'Đơn vị 14', 'Đơn vị trưởng 14', 'Ghi chú 14'),
+//     createData(15, 'Đơn vị 15', 'Đơn vị trưởng 15', 'Ghi chú 15'),
+//     createData(16, 'Đơn vị 16', 'Đơn vị trưởng 16', 'Ghi chú 16'),
+//     createData(17, 'Đơn vị 17', 'Đơn vị trưởng 17', 'Ghi chú 17'),
+// ];
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -291,14 +292,15 @@ const filterData = (query, data) => {
     } else {
         return data.filter(
             (d) =>
-                d.ten_don_vi.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
-                d.don_vi_truong.toLowerCase().indexOf(query.toLowerCase()) > -1,
+                d.dv_ten.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
+                d.dv_id_dvtruong.toLowerCase().indexOf(query.toLowerCase()) > -1,
         );
     }
 };
 
 function DonVi() {
-    const [units, setUnits] = useState(rows);
+    const [listUnit, setListUnit] = useState([]);
+    // const [units, setUnits] = useState(listUnit);
     const [searchQuery, setSearchQuery] = useState('');
 
     const [order, setOrder] = useState('asc');
@@ -308,6 +310,14 @@ function DonVi() {
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    useEffect(() => {
+        async function getListUnit() {
+            const response = await axiosClient.get('/getDonVi');
+            setListUnit(response.data.don_vis);
+        }
+        getListUnit();
+    }, []);
+
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -316,7 +326,7 @@ function DonVi() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.id);
+            const newSelected = listUnit.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -358,9 +368,9 @@ function DonVi() {
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUnit.length) : 0;
 
-    const dataFiltered = filterData(searchQuery, units);
+    const dataFiltered = filterData(searchQuery, listUnit);
 
     const visibleRows = useMemo(
         () =>
@@ -380,7 +390,7 @@ function DonVi() {
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                setUnits((prev) => prev.filter((item) => item.id !== unitId.id));
+                setListUnit((prev) => prev.filter((item) => item.id !== unitId.id));
                 swal(`${unitId.ten_don_vi} đã được xóa`, {
                     icon: 'success',
                 });
@@ -423,22 +433,22 @@ function DonVi() {
                                 orderBy={orderBy}
                                 onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
-                                rowCount={rows.length}
+                                rowCount={listUnit.length}
                             />
 
                             <TableBody>
-                                {visibleRows.map((row, index) => {
-                                    const isItemSelected = isSelected(row.id);
+                                {visibleRows.map((unit, index) => {
+                                    const isItemSelected = isSelected(unit.dv_id);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={(event) => handleClick(event, row.id)}
+                                            onClick={(event) => handleClick(event, unit.dv_id)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.id}
+                                            key={unit.dv_id}
                                             selected={isItemSelected}
                                             sx={{ cursor: 'pointer' }}
                                         >
@@ -450,7 +460,9 @@ function DonVi() {
                                                         'aria-labelledby': labelId,
                                                     }}
                                                     sx={{
-                                                        '& .MuiSvgIcon-root': { fontSize: 20 },
+                                                        '& .MuiSvgIcon-root': {
+                                                            fontSize: 20,
+                                                        },
                                                     }}
                                                 />
                                             </TableCell>
@@ -464,16 +476,16 @@ function DonVi() {
                                                 scope="row"
                                                 padding="none"
                                             >
-                                                {row.id}
+                                                {unit.dv_id}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ten_don_vi}
+                                                {unit.dv_ten}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.don_vi_truong}
+                                                {unit.dv_id_dvtruong}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ghi_chu}
+                                                {unit.ghi_chu}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="center">
                                                 <ButtonGroup
@@ -487,7 +499,7 @@ function DonVi() {
                                                             </h1>
                                                         }
                                                     >
-                                                        <Link to="/donvi/nhanvien">
+                                                        <Link to={`/donvi/${unit.dv_id}/nhanvien`}>
                                                             <IconButton>
                                                                 <FontAwesomeIcon
                                                                     icon={faEye}
@@ -526,7 +538,7 @@ function DonVi() {
                                                         }
                                                     >
                                                         <IconButton
-                                                            onClick={() => handleDeleteUnit(row)}
+                                                            onClick={() => handleDeleteUnit(unit)}
                                                         >
                                                             <FontAwesomeIcon
                                                                 icon={faTrash}
@@ -560,7 +572,7 @@ function DonVi() {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={rows.length}
+                    count={listUnit.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     labelRowsPerPage="Số hàng:"

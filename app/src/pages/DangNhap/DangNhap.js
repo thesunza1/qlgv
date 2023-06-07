@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './DangNhap.module.scss';
 import Logo from '~/assets/images/logo.png';
@@ -24,7 +24,7 @@ function DangNhap() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/SignIn', values);
+            const response = await axiosClient.post('/auth/SignIn', values);
 
             if (response.status === 200) {
                 const token = response.data.token;
@@ -39,7 +39,9 @@ function DangNhap() {
                     position: 'top-right',
                 });
             } else {
-                alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+                cogoToast.error('Đã xảy ra lỗi. Vui lòng thử lại sau', {
+                    position: 'top-right',
+                });
             }
         }
     };

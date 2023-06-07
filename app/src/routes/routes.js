@@ -19,7 +19,7 @@ const publicRoutes = [
     { path: '/donvi', component: DonVi },
     { path: '/donvi/them', component: ThemDonVi },
     { path: '/donvi/chinhsua', component: ChinhSuaDonVi },
-    { path: '/donvi/nhanvien', component: NhanVien },
+    { path: '/donvi/:dv_id/nhanvien', component: NhanVien },
     { path: '/donvi/nhanvien/them', component: ThemNhanVien },
     { path: '/donvi/nhanvien/chinhsua', component: ChinhSuaNhanVien },
 

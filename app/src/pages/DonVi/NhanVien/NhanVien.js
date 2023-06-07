@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCircleLeft,
@@ -30,31 +30,32 @@ import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import swal from 'sweetalert';
+import axiosClient from '~/api/axiosClient';
 
-function createData(id, ma_nhan_vien, ten_nhan_vien, chuc_vu, quyen, sdt, dia_chi) {
-    return {
-        id,
-        ma_nhan_vien,
-        ten_nhan_vien,
-        chuc_vu,
-        quyen,
-        sdt,
-        dia_chi,
-    };
-}
+// function createData(id, ma_nhan_vien, ten_nhan_vien, chuc_vu, quyen, sdt, dia_chi) {
+//     return {
+//         id,
+//         ma_nhan_vien,
+//         ten_nhan_vien,
+//         chuc_vu,
+//         quyen,
+//         sdt,
+//         dia_chi,
+//     };
+// }
 
-const rows = [
-    createData(1, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(2, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(3, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(4, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(5, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(6, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(7, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(8, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(9, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-    createData(10, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
-];
+// const rows = [
+//     createData(1, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(2, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(3, '123BA', 'Nguyễn Văn B', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(4, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(5, '123BA', 'Nguyễn Văn C', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(6, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(7, '123BA', 'Nguyễn Văn D', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(8, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(9, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+//     createData(10, '123BA', 'Nguyễn Văn A', 'Giám đốc', 'User', '0123456', 'Hậu Giang'),
+// ];
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -311,7 +312,12 @@ const filterData = (query, data) => {
 };
 
 function NhanVien() {
-    const [staffs, setStaffs] = useState(rows);
+    const { dv_id } = useParams();
+
+    const [dsNhanVien, setDSNhanVien] = useState([]);
+    const [dsNhanVienTheoDV, setDSNhanVienTheoDV] = useState([]);
+    console.log(dsNhanVienTheoDV);
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const [order, setOrder] = useState('asc');
@@ -321,6 +327,19 @@ function NhanVien() {
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    useEffect(() => {
+        async function getDSNhanVien() {
+            const response = await axiosClient.get('/getNhanVien');
+            setDSNhanVien(response.data.nhanViens);
+        }
+        getDSNhanVien();
+    }, []);
+
+    useEffect(() => {
+        const filteredNhanVien = dsNhanVien.filter((nv) => nv.dv_id.toString() === dv_id);
+        setDSNhanVienTheoDV(filteredNhanVien);
+    }, [dv_id, dsNhanVien]);
+
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -329,7 +348,7 @@ function NhanVien() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.id);
+            const newSelected = dsNhanVienTheoDV.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -371,9 +390,10 @@ function NhanVien() {
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const emptyRows =
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - dsNhanVienTheoDV.length) : 0;
 
-    const dataFiltered = filterData(searchQuery, staffs);
+    const dataFiltered = filterData(searchQuery, dsNhanVienTheoDV);
 
     const visibleRows = useMemo(
         () =>
@@ -393,7 +413,7 @@ function NhanVien() {
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                setStaffs((prev) => prev.filter((item) => item.id !== staffId.id));
+                setDSNhanVienTheoDV((prev) => prev.filter((item) => item.id !== staffId.id));
                 swal(`${staffId.ten_nhan_vien} đã được xóa`, {
                     icon: 'success',
                 });
@@ -449,22 +469,22 @@ function NhanVien() {
                                 orderBy={orderBy}
                                 onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
-                                rowCount={rows.length}
+                                rowCount={dsNhanVienTheoDV.length}
                             />
 
                             <TableBody>
-                                {visibleRows.map((row, index) => {
-                                    const isItemSelected = isSelected(row.id);
+                                {visibleRows.map((nv, index) => {
+                                    const isItemSelected = isSelected(nv.nv_id);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={(event) => handleClick(event, row.id)}
+                                            onClick={(event) => handleClick(event, nv.nv_id)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.id}
+                                            key={nv.nv_id}
                                             selected={isItemSelected}
                                             sx={{ cursor: 'pointer' }}
                                         >
@@ -490,25 +510,25 @@ function NhanVien() {
                                                 scope="row"
                                                 padding="none"
                                             >
-                                                {row.id}
+                                                {nv.nv_id}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ma_nhan_vien}
+                                                {nv.nv_stt}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.ten_nhan_vien}
+                                                {nv.nv_ten}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.chuc_vu}
+                                                {nv.chuc_vu}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.quyen}
+                                                {nv.nv_quyen}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.sdt}
+                                                {nv.sdt}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="left">
-                                                {row.dia_chi}
+                                                {nv.dia_chi}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: 14 }} align="center">
                                                 <ButtonGroup
@@ -542,7 +562,7 @@ function NhanVien() {
                                                         }
                                                     >
                                                         <IconButton
-                                                            onClick={() => handleDeleteStaff(row)}
+                                                            onClick={() => handleDeleteStaff(nv)}
                                                         >
                                                             <FontAwesomeIcon
                                                                 icon={faTrash}
@@ -576,7 +596,7 @@ function NhanVien() {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={rows.length}
+                    count={dsNhanVienTheoDV.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     labelRowsPerPage="Số hàng:"
