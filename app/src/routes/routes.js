@@ -1,5 +1,5 @@
 import TrangChu from '~/pages/TrangChu';
-
+import CongViec from '~/pages/KeHoach/CongViec/CongViec';
 import DonVi from '~/pages/DonVi';
 import ThemDonVi from '~/pages/DonVi/ThemDonVi';
 import ChinhSuaDonVi from '~/pages/DonVi/ChinhSuaDonVi';
@@ -9,6 +9,7 @@ import ChinhSuaNhanVien from '~/pages/DonVi/NhanVien/ChinhSuaNhanVien';
 
 import KeHoach from '~/pages/KeHoach';
 import BaoCao from '~/pages/BaoCao';
+import ThemKeHoach from '~/pages/KeHoach/ThemKeHoach/ThemKeHoach';
 
 // Public routes
 const publicRoutes = [
@@ -22,6 +23,8 @@ const publicRoutes = [
     { path: 'donvi/nhanvien/chinhsua', component: ChinhSuaNhanVien },
 
     { path: 'kehoach', component: KeHoach },
+    { path: 'congviec', component: CongViec },
+    { path: 'kehoach/them', component: ThemKeHoach },
     { path: 'baocao', component: BaoCao },
 ];
 
