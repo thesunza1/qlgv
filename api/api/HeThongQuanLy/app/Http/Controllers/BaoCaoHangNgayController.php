@@ -9,5 +9,5 @@ use Illuminate\Http\Request;
 
 class BaoCaoHangNgayController extends Controller
 {
-  
+  //BaoCaoHangNgayController
 }
