@@ -22,9 +22,13 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         
 >>>>>>> dev
+=======
+        
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     ];
 
     /**
@@ -68,8 +72,12 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         'jwt.auth' => \App\Http\Middleware\VerifyJWTToken::class,
 >>>>>>> dev
+=======
+        'jwt.auth' => \App\Http\Middleware\VerifyJWTToken::class,
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     ];
 }

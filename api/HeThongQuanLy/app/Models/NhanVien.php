@@ -1,22 +1,49 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <?php
+=======
+<?php 
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class NhanVien extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+class NhanVien extends Authenticatable implements JWTSubject
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'nhanvien';
-    protected $fillable = ['id', 'stt', 'ten', 'quyen', 'tentaikhoan', 'matkhau', 'id_donvi', 'id_phong'];
-    public function donvi()
+    protected $primaryKey = 'nv_id';
+    public $timestamps = false;
+
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'nv_ten',
+        'nv_taikhoan',
+        'nv_matkhau',
+        'nv_quyen',
+        'nv_quyenthamdinh',
+    ];
+
+
+    public function donVi()
     {
-        return $this->belongsTo(DonVi::class, 'id_donvi', 'id');
+        return $this->belongsTo(DonVi::class, 'dv_id', 'dv_id');
     }
-    public function phong()
+
+
+    public function keHoachs()
     {
+<<<<<<< HEAD
         return $this->belongsTo(Phong::class, 'id_phong', 'id');
 =======
 <?php 
@@ -59,6 +86,8 @@ class NhanVien extends Authenticatable implements JWTSubject
 
     public function keHoachs()
     {
+=======
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
         return $this->hasMany(KeHoach::class, 'nv_id', 'nv_id');
     }
 
@@ -71,11 +100,15 @@ class NhanVien extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'id');
     }
+<<<<<<< HEAD
     
     public function xinGiaHans()
     {
         return $this->hasMany(XinGiaHan::class, 'nv_id', 'nv_id');
     }
+=======
+
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -93,6 +126,10 @@ class NhanVien extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+<<<<<<< HEAD
+=======
+        'nv_matkhau' => 'hashed',
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     ];
 
     /**
@@ -113,6 +150,9 @@ class NhanVien extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+<<<<<<< HEAD
 >>>>>>> dev
+=======
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     }
 }

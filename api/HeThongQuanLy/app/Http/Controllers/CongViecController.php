@@ -5,7 +5,10 @@ use App\Models\NhanVien;
 use App\Models\KeHoach;
 use App\Models\DonVi;
 use App\Models\CongViec;
+<<<<<<< HEAD
 use App\Models\XinGiaHan;
+=======
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 use Illuminate\Http\Request;
 
 class CongViecController extends Controller
@@ -31,6 +34,7 @@ class CongViecController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy danh sách công việc: ' . $e->getMessage()], 500);
         }
     }
+<<<<<<< HEAD
 
     public function get_CV_Thang($thang)
     {
@@ -245,5 +249,9 @@ class CongViecController extends Controller
         return response()->json(['message' => 'Đã xóa công việc thành công'], 200);
     }
 
+=======
+    
+ 
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 
 }

@@ -26,13 +26,22 @@ Route::post('auth/SignIn', [NhanVienController::class, 'SignIn']);
 // Các route yêu cầu xác thực
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user-info', [NhanVienController::class, 'getUserInfo']);
+<<<<<<< HEAD
+=======
+    Route::get('getKeHoach', [KeHoachController::class, 'getKeHoach']);
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     Route::post('auth/logout', [NhanVienController::class, 'logout']);
     Route::get('/get_CV_KeHoach', [KeHoachController::class, 'get_CV_KeHoach']);
     Route::post('/create_KeHoach', [KeHoachController::class, 'create_KeHoach']);
     Route::put('/update_KeHoach/{kh_id}', [KeHoachController::class, 'update_KeHoach']);
+<<<<<<< HEAD
     Route::delete('/delete_KeHoach', [KeHoachController::class, 'delete_KeHoach']);
     Route::get('/get_CV_Thang/{thang}', [CongViecController::class, 'get_CV_Thang']);
 
+=======
+    Route::delete('/delete_KeHoach/{kh_id}', [KeHoachController::class, 'delete_KeHoach']);
+    Route::get('/get_CV_Thang/{thang}', [KeHoachController::class, 'get_CV_Thang']);
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 });
 
 // Các route khác liên quan đến nhân viên, đơn vị, phòng, ...
@@ -40,6 +49,7 @@ Route::group(['middleware' => 'jwt.auth'], function () {
 //Router lấy danh sách Nhân Viên
 Route::get('/getNhanVien', [NhanVienController::class, 'getNhanVien']);
 //Router lấy danh sách Công Việc
+<<<<<<< HEAD
 
 //Kế hoạch
 
@@ -62,3 +72,18 @@ Route::delete('/xoaCongViec', [CongViecController::class, 'xoaCongViec']);
 Route::post('/add_nhanvien', [NhanVienController::class, 'add_nhanvien']);
 Route::put('/update_nhanvien/{nv_id}', [NhanVienController::class, 'update_nhanvien']);
 Route::delete('/delete_nhanvien/{nv_id}', [NhanVienController::class, 'delete_nhanvien']);
+=======
+Route::get('/getCongViec', [CongViecController::class, 'getCongViec']);
+//Kế hoạch
+
+//Đơn vị
+Route::get('/list_donvi', [DonViController::class, 'index']);
+Route::post('/add_donvi', [DonViController::class, 'store']);
+Route::put('/update_donvi/{dv_id}', [DonViController::class, 'update']);
+Route::delete('/delete_donvi/{dv_id}', [DonViController::class, 'destroy']);
+Route::post('/get_DV_NhanVien', [DonViController::class, 'get_DV_NhanVien']);
+
+//công việc 
+Route::post('/kehoach/{kh_id}/congviec', [KeHoachController::class, 'themCongViec']);
+Route::post('addKeHoach', [KeHoachController::class, 'store']);
+>>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
