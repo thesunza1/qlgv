@@ -1,9 +1,4 @@
 <?php
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -22,36 +17,11 @@ class NhanVienController extends Controller
         $this->user = $user;
     }
     
-<<<<<<< HEAD
-}
-=======
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\NhanVien;
-use App\Models\KeHoach;
-use App\Http\Controllers\Controller;
-use JWTAuth;
-use JWTAuthException;
-use Hash;
-use Illuminate\Support\Facades\Validator;
-class NhanVienController extends Controller
-{
-    private $user;
-
-    public function __construct(NhanVien $user){
-        $this->user = $user;
-    }
-    
-=======
-
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     //Đăng nhập
     public function SignIn(Request $request)
     {
         $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
         $token = null;
-<<<<<<< HEAD
     
         try {
             $user = NhanVien::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
@@ -64,25 +34,10 @@ class NhanVienController extends Controller
                 return response()->json(['invalid_email_or_password'], 422);
             }
     
-=======
-
-        try {
-            $user = NhanVien::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
-
-            if (!$user) {
-                return response()->json(['invalid_email_or_password'], 422);
-            }
-
-            if ($credentials['nv_matkhau'] !== $user->nv_matkhau) {
-                return response()->json(['invalid_email_or_password'], 422);
-            }
-
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
             $token = JWTAuth::fromUser($user);
         } catch (JWTException $e) {
             return response()->json(['failed_to_create_token'], 500);
         }
-<<<<<<< HEAD
     
         return response()->json(['message' => 'Login successful', 'token' => $token]);
     }
@@ -145,13 +100,6 @@ class NhanVienController extends Controller
 
         return response()->json(['message' => 'Xóa nhân viên thành công'], 200);
     }
-=======
-
-        return response()->json(['message' => 'Login successful', 'token' => $token]);
-
-    }
-
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 
     //Đăng xuất 
     public function logout()
@@ -181,13 +129,4 @@ class NhanVienController extends Controller
             'nhanViens' => $nhanViens
         ]);
     }
-<<<<<<< HEAD
 }
->>>>>>> dev
-=======
-
-    
-   
-
-}
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa

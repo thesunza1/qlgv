@@ -14,10 +14,7 @@ class CongViec extends Model
     
     protected $fillable = [
         'cv_ten',
-<<<<<<< HEAD
         'cv_trangthai'
-=======
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
     
     ];
     public function nhanVien()
@@ -39,7 +36,6 @@ class CongViec extends Model
     {
         return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'id');
     }
-<<<<<<< HEAD
 
     public function xinGiaHans()
     {
@@ -50,6 +46,4 @@ class CongViec extends Model
     {
         return $this->belongsTo(XinGiaHan::class, 'n_cv_id', 'n_cv_id');
     }
-=======
->>>>>>> b31fa8fe2001388e4e94c86a7ca70858da7023fa
 }
