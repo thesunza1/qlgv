@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+<<<<<<< HEAD
+=======
+use Illuminate\Support\Facades\Validator;
+>>>>>>> dev
 
 class AppServiceProvider extends ServiceProvider
 {

@@ -8,14 +8,13 @@ import {
     faAnglesLeft,
     faAnglesRight,
     faSave,
-    faPlus,
+    faCaretRight,
+    faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import 'tippy.js/dist/tippy.css';
 import ReactPaginate from 'react-paginate';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
-import BaoCaoKeHoach from './BaoCaoKeHoach';
-import BaoCaoCongViec from './BaoCaoCongViec';
 
 const cx = classNames.bind(styles);
 
@@ -68,42 +67,23 @@ const rows = [
     createData(12, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
 ];
 
-function BaoCao() {
-    const [dSBaocao, setDSBaocao] = useState(
-        rows.map((row) => ({
-            ...row,
-            isEdit: false,
-        })),
-    );
-    console.log(dSBaocao);
+function BaoCaoCongViec() {
+    const [dSBaocao, setDSBaocao] = useState(rows);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const AddRowTable = () => {
-        const id = dSBaocao.length + 1;
-        const newRow = {
-            id: id,
-            thoi_gian: '',
-            ten_cong_viec: '',
-            noi_dung_cong_viec: '',
-            gio_lam_viec: '',
-            tien_do: '',
-            duyet_gio: '',
-            trang_thai: '',
-            tham_dinh: '',
-            isEdit: true,
-        };
-        setDSBaocao([...dSBaocao, newRow]);
-    };
+    const [isBaoCao, setIsBaoCao] = useState(false);
+    const [icon, setIcon] = useState(faCaretRight);
 
-    const handleInputChange = (event, id) => {
-        const { name, value } = event.target;
-        const newData = dSBaocao.map((item) =>
-            item.id === id ? { ...item, [name]: value } : item,
-        );
-        setDSBaocao(newData);
+    const toggleBaocao = () => {
+        setIsBaoCao(!isBaoCao);
+        if (icon === faCaretRight) {
+            setIcon(faCaretDown);
+        } else {
+            setIcon(faCaretRight);
+        }
     };
 
     const PER_PAGE = 5;
@@ -151,13 +131,17 @@ function BaoCao() {
 
     return (
         <div className={cx('wrapper')}>
-            <BaoCaoKeHoach />
-            <BaoCaoCongViec />
-            <h2>Báo cáo công việc hằng ngày</h2>
-            <p>
-                Tổng giờ đã là: <span>16 giờ</span>
-            </p>
-            <div className={cx('inner')}>
+            <div className={cx('title')}>
+                <h2
+                    style={{
+                        fontSize: isBaoCao ? '3rem' : '2rem',
+                    }}
+                >
+                    Báo cáo tiến độ công việc
+                </h2>
+                <FontAwesomeIcon className={cx('right-icon')} icon={icon} onClick={toggleBaocao} />
+            </div>
+            <div className={cx('inner')} style={{ display: isBaoCao ? 'block' : 'none' }}>
                 <div className={cx('features')}>
                     <div className={cx('search')}>
                         <input
@@ -168,14 +152,9 @@ function BaoCao() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <div>
-                        <button className={cx('add-btn')} onClick={AddRowTable}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm hàng
-                        </button>
-                        <button className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faSave} /> Lưu
-                        </button>
-                    </div>
+                    <Link className={cx('add-btn')}>
+                        <FontAwesomeIcon icon={faSave} /> Lưu
+                    </Link>
                 </div>
                 {displayedBaocao.length > 0 ? (
                     <>
@@ -233,103 +212,13 @@ function BaoCao() {
                                 {displayedBaocao.map((bc, index) => (
                                     <tr key={bc.id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    name="thoi_gian"
-                                                    value={bc.thoi_gian}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.thoi_gian}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="ten_cong_viec"
-                                                    value={bc.ten_cong_viec}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.ten_cong_viec}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="noi_dung_cong_viec"
-                                                    value={bc.noi_dung_cong_viec}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.noi_dung_cong_viec}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="gio_lam_viec"
-                                                    value={bc.gio_lam_viec}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.gio_lam_viec}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="tien_do"
-                                                    value={bc.tien_do}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.tien_do}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="duyet_gio"
-                                                    value={bc.duyet_gio}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.duyet_gio}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="trang_thai"
-                                                    value={bc.trang_thai}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.trang_thai}</>
-                                            )}
-                                        </td>
+                                        <td>{bc.thoi_gian}</td>
+                                        <td>{bc.ten_cong_viec}</td>
+                                        <td>{bc.noi_dung_cong_viec}</td>
+                                        <td>{bc.gio_lam_viec}</td>
+                                        <td>{bc.tien_do}</td>
+                                        <td>{bc.duyet_gio}</td>
+                                        <td>{bc.trang_thai}</td>
                                         <td>
                                             <input type="checkbox"></input>
                                         </td>
@@ -359,4 +248,4 @@ function BaoCao() {
     );
 }
 
-export default BaoCao;
+export default BaoCaoCongViec;
