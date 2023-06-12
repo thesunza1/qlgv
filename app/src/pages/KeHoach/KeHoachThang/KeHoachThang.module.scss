@@ -11,8 +11,6 @@
             color: #0d7d3c;
         }
     }
-
-    margin-top: 20px;
 }
 
 .inner {
@@ -25,11 +23,31 @@
 
 .features {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
 
+    .search {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 1px solid #afafaf;
+        border-radius: 4px;
+        cursor: pointer;
 
+
+        input {
+            width: 200px;
+            height: 35px;
+            border: none;
+            outline: none;
+            padding-right: 10px;
+        }
+
+        &:hover {
+            outline: 1.5px solid #0087E1;
+        }
+    }
 
     .add-btn {
         margin-right: 10px;

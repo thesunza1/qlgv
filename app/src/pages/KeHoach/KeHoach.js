@@ -33,7 +33,7 @@ function KeHoach() {
     useEffect(() => {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token')
-            const response = await axiosClient.get(`/getKeHoach?token=${token}`);
+            const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
             setDSKeHoach(response.data.ke_hoachs);
         };
         getListProduct();
@@ -85,7 +85,7 @@ function KeHoach() {
             <div className={cx('wrapper')}>
                 <div className={cx('inner')}>
                     <div className={cx('title')}>
-                        <h2>Kế hoạch</h2>
+                        <h2>Kế Hoạch</h2>
                     </div>
                     <div className={cx('features')}>
                         <div className={cx('search')}>
@@ -139,7 +139,7 @@ function KeHoach() {
                                             <td>{kh.nv_id}</td>
                                             <td>{kh.kh_trangthai}</td>
                                             <td>
-                                                <Link to={`${kh.dv_id}/nhanvien`}>
+                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nv_id}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
                                                     <Tippy content="Xem chi tiết" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
                                                             <FontAwesomeIcon icon={faEye} />

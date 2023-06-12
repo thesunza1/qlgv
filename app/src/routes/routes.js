@@ -10,21 +10,31 @@ import ChinhSuaNhanVien from '~/pages/DonVi/NhanVien/ChinhSuaNhanVien';
 import KeHoach from '~/pages/KeHoach';
 import BaoCao from '~/pages/BaoCao';
 import ThemKeHoach from '~/pages/KeHoach/ThemKeHoach/ThemKeHoach';
+import XinGiaHan from '~/pages/KeHoach/XinGiaHan/XinGiaHan';
+import KeHoachThang from '~/pages/KeHoach/KeHoachThang/KeHoachThang';
+import ThemCongViec from '~/pages/KeHoach/CongViec/ThemCongViec';
+import ChiTietKeHoach from '~/pages/KeHoach/ChiTietKeHoach/ChiTietKeHoach';
 
 // Public routes
 const publicRoutes = [
     { path: 'trangchu', component: TrangChu },
 
-    { path: 'donvi', component: DonVi },
-    { path: 'donvi/them', component: ThemDonVi },
-    { path: 'donvi/:dv_id/:dv_ten/:dv_id_dvtruong/:dv_dvcha/chinhsua', component: ChinhSuaDonVi },
-    { path: 'donvi/:dv_id/nhanvien', component: NhanVien },
-    { path: 'donvi/nhanvien/them', component: ThemNhanVien },
-    { path: 'donvi/nhanvien/chinhsua', component: ChinhSuaNhanVien },
+    // { path: 'donvi', component: DonVi },
+    // { path: 'donvi/them', component: ThemDonVi },
+    // { path: 'donvi/:dv_id/:dv_ten/:dv_id_dvtruong/:dv_dvcha/chinhsua', component: ChinhSuaDonVi },
+    // { path: 'donvi/:dv_id/nhanvien', component: NhanVien },
+    // { path: 'donvi/nhanvien/them', component: ThemNhanVien },
+    // { path: 'donvi/nhanvien/chinhsua', component: ChinhSuaNhanVien },
 
     { path: 'kehoach', component: KeHoach },
-    { path: 'congviec', component: CongViec },
     { path: 'kehoach/them', component: ThemKeHoach },
+    { path: 'kehoach', component: KeHoachThang },
+    { path: 'kehoach/:kh_id/:kh_ten/:nv_id/:kh_tongthgian/:kh_thgianketthuc/chitiet', component: ChiTietKeHoach },
+    { path: 'congviec/:cv_id/:cv_ten/:cv_thgianketthuc/xingiahan', component: XinGiaHan },
+
+    { path: 'congviec', component: CongViec },
+    { path: 'congviec/them', component: ThemCongViec },
+
     { path: 'baocao', component: BaoCao },
 ];
 

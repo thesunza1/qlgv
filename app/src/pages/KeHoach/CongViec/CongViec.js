@@ -10,6 +10,7 @@ import {
     faAnglesLeft,
     faAnglesRight,
     faAdd,
+    faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -136,10 +137,10 @@ function CongViec() {
                                         <td>{cv.nv_id}</td>
                                         <td>{cv.cv_trangthai}</td>
                                         <td>
-                                            <Link to={`${cv.dv_id}/nhanvien`}>
-                                                <Tippy content="Xem chi tiết" placement="bottom">
+                                            <Link to={`${cv.cv_id}/xingiahan`}>
+                                                <Tippy content="Xin gia hạn" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faEye} />
+                                                        <FontAwesomeIcon icon={faEnvelope} />
                                                     </button>
                                                 </Tippy>
                                             </Link>

@@ -20,7 +20,7 @@ import styles from './BangKeHoach.module.scss';
 
 const cx = classNames.bind(styles);
 
-function CongViecDotXuat() {
+function BangKeHoach() {
     const [dSCongViec, setDSCongViec] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
@@ -82,9 +82,6 @@ function CongViecDotXuat() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
-                <div className={cx('title')}>
-                    <h2>Công Việc Đột Xuất</h2>
-                </div>
                 <div className={cx('features')}>
                     {/* <div className={cx('search')}>
                         <input
@@ -189,4 +186,4 @@ function CongViecDotXuat() {
     );
 }
 
-export default CongViecDotXuat;
+export default BangKeHoach;
