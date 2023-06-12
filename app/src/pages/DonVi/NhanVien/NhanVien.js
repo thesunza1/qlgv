@@ -142,7 +142,6 @@ function NhanVien() {
                                             />
                                         )}
                                     </th>
-                                    <th>Chức vụ</th>
                                     <th>Quyền</th>
                                     <th>SĐT</th>
                                     <th>Địa chỉ</th>
@@ -153,10 +152,9 @@ function NhanVien() {
                                 {displayedNhanVien.map((nv, index) => (
                                     <tr key={nv.nv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                        <td>{nv.nv_stt}</td>
+                                        <td>{nv.nv_id}</td>
                                         <td>{nv.nv_ten}</td>
-                                        <td>{nv.nv_chucvu}</td>
-                                        <td>{nv.nv_quyen}</td>
+                                        <td>{nv.nv_quyen === 'ld' ? 'Lãnh đạo' : 'Nhân viên'}</td>
                                         <td>{nv.nv_sdt}</td>
                                         <td>{nv.nv_diachi}</td>
                                         <td>

@@ -14,6 +14,7 @@ class CongViec extends Model
     
     protected $fillable = [
         'cv_ten',
+        'cv_trangthai'
     
     ];
     public function nhanVien()
@@ -34,5 +35,15 @@ class CongViec extends Model
     public function baoCaoHangNgay()
     {
         return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'id');
+    }
+
+    public function xinGiaHans()
+    {
+        return $this->hasMany(XinGiaHan::class, 'cv_id', 'cv_id');
+    }
+    
+    public function nhomCongViecs()
+    {
+        return $this->belongsTo(XinGiaHan::class, 'n_cv_id', 'n_cv_id');
     }
 }

@@ -12,26 +12,27 @@ use App\Models\NhanVien;
 
 class DonViController extends Controller
 {
-    public function GetDonVi(Request $request)
+  
+    public function getDonVi(Request $request)
     {
-        $donVis = DonVi::with('nhanViens')->get();
+        $donVis = DonVi::with(['nhanViens', 'dv_id_dvtruong', 'dv_dvcha'])->get();
         $soLuongDonVi = $donVis->count(); // Đếm số lượng đơn vị
 
         $donVis->each(function ($donVi) {
             $donVi->so_luong_nhan_vien = $donVi->nhanViens->count(); // Tổng số lượng nhân viên của đơn vị
-            $donVi->nhan_viens = $donVi->nhanViens;
-            
-            // $donVi->so_luong_cong_viec = $donVi->congViecs->count(); // Tổng số lượng công việc của đơn vị
-            // $donVi->cong_viecs = $donVi->congViecs;
+
+            $donVi->nhanViens->each(function ($nhanVien) use ($donVi) {
+                if ($nhanVien->id === $donVi->dv_id_dvtruong) {
+                    $donVi->ten_don_vi_truong = $nhanVien->nv_ten;
+                }
+            });
         });
 
         $tongSoNhanVien = $donVis->sum('so_luong_nhan_vien'); // Tính tổng số nhân viên của tất cả đơn vị
-        // $tongSoCongViec = $donVis->sum('so_luong_cong_viec'); // Tính tổng số công việc của tất cả đơn vị
 
         return response()->json([
             'so_luong_don_vi' => $soLuongDonVi,
             'so_luong_nhan_vien' => $tongSoNhanVien,
-            // 'so_luong_cong_viec' => $tongSoCongViec,
             'don_vis' => $donVis,
         ]);
     }
@@ -68,9 +69,20 @@ class DonViController extends Controller
         return response()->json($donvi);
     }
    
-    public function store(Request $request)
+    public function add_DonVi(Request $request)
     {
         $donvi = new DonVi;
+        $donvi->dv_ten = $request->input('dv_ten');
+        $donvi->dv_id_dvtruong = $request->input('dv_id_dvtruong');
+        $donvi->dv_dvcha = $request->input('dv_dvcha');
+        $donvi->save();
+
+        return response()->json($donvi, 201);
+    }
+
+    public function update_DonVi(Request $request, $dv_id)
+    {
+        $donvi = DonVi::findOrFail($dv_id);
         $donvi->dv_ten = $request->input('dv_ten');
         $donvi->dv_id_dvtruong = $request->input('dv_id_dvtruong');
         $donvi->dv_dvcha = $request->input('dv_dvcha');
@@ -79,23 +91,31 @@ class DonViController extends Controller
         return response()->json($donvi, 200);
     }
 
-    public function update(Request $request, $dv_id)
-{
-    $donvi = DonVi::findOrFail($dv_id);
-    $donvi->dv_ten = $request->input('dv_ten');
-    $donvi->dv_id_dvtruong = $request->input('dv_id_dvtruong');
-    $donvi->dv_dvcha = $request->input('dv_dvcha');
-    $donvi->save();
+    public function delete_DonVi(Request $request)
+    {
+        $selectedIds = $request->input('delletedv_ids'); // Lấy danh sách ID đơn vị đã chọn từ request
 
-    return response()->json($donvi, 200);
-}
-public function destroy($dv_id)
-{
-    $donvi = DonVi::findOrFail($dv_id);
-    $donvi->delete();
+        try {
+            foreach ($selectedIds as $dv_id) {
+                $donVi = DonVi::findOrFail($dv_id);
 
-    return response()->json(['message' => 'Đã xóa đơn vị thành công'], 200);
-}
+                // Lấy danh sách nhân viên thuộc đơn vị
+                $nhanViens = $donVi->nhanViens;
 
+                // Đặt dv_id của nhân viên thành null
+                foreach ($nhanViens as $nhanVien) {
+                    $nhanVien->dv_id = null;
+                    $nhanVien->save();
+                }
+
+                // Xóa đơn vị
+                $donVi->delete();
+            }
+
+            return response()->json(['message' => 'Đã xóa đơn vị thành công'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi xóa đơn vị: ' . $e->getMessage()], 500);
+        }
+    }
 
 }

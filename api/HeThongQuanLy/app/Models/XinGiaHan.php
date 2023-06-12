@@ -5,29 +5,36 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BaoCaoHangNgay extends Model
+class XinGiaHan extends Model
 {
     use HasFactory;
-    protected $table = 'baocaohangngay';
-    protected $primaryKey = 'bchn_id';
+    protected $table = 'xingiahan';
+    protected $primaryKey = 'hg_id';
     public $timestamps = false;
+    
     protected $fillable = [
-        'bdhn_tiendo',
-       
+        'hg_lido',
+        'hg_thgiandenghi',
+        'nv_idduyet',
+        'nv_id',
+        'cv_id',
+        'hg_trangthai',
+    
     ];
     public function nhanVien()
     {
         return $this->belongsTo(NhanVien::class, 'nv_id', 'nv_id');
     }
-
+   
     public function congViecs()
     {
         return $this->belongsTo(CongViec::class, 'cv_id', 'cv_id');
     }
-
-    public function loaiCongViecs()
+    
+    public function nhanVienDuyet()
     {
-        return $this->belongsTo(LoaiCongViec::class, 'lcv_id', 'lcv_id');
+        return $this->belongsTo(NhanVien::class, 'nv_idduyet', 'nv_id');
     }
-  
+
+
 }

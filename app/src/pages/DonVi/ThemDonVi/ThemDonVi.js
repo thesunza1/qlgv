@@ -69,12 +69,27 @@ function ThemDonVi() {
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị trưởng</label>
-                        <input
+                        {/* <input
                             type="search"
                             name="dv_id_dvtruong"
                             value={themDonVi.dv_id_dvtruong}
                             onChange={handleChange}
-                        />
+                        /> */}
+                        <select
+                            name="dv_id_dvtruong"
+                            value={themDonVi.dv_id_dvtruong}
+                            onChange={handleChange}
+                        >
+                            <option value="" disabled selected>
+                                Chọn đơn vị trưởng
+                            </option>
+                            <option value="volvo">Volvo</option>
+                            <option value="saab">Saab</option>
+                            <option value="vw">VW</option>
+                            <option value="audi" selected>
+                                Audi
+                            </option>
+                        </select>
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị cha</label>

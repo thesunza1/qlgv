@@ -79,12 +79,20 @@ function ChinhSuaDonVi() {
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị trưởng</label>
-                        <input
+                        {/* <input
                             type="search"
                             name="dv_id_dvtruong"
                             value={chinhSuaDonVi.dv_id_dvtruong}
                             onChange={handleChange}
-                        />
+                        /> */}
+                        <select>
+                            <option value="volvo">Volvo</option>
+                            <option value="saab">Saab</option>
+                            <option value="vw">VW</option>
+                            <option value="audi" selected>
+                                Audi
+                            </option>
+                        </select>
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị cha</label>

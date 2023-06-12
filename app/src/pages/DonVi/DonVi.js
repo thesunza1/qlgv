@@ -99,7 +99,6 @@ function DonVi() {
     };
 
     const displayedDonVi = getDisplayDonVi();
-    console.log(displayedDonVi);
 
     return (
         <div className={cx('wrapper')}>
@@ -167,7 +166,7 @@ function DonVi() {
                                                     : null,
                                             )}
                                         </td>
-                                        <td>{dv.dv_dvcha}</td>
+                                        <td></td>
                                         <td>
                                             <Link to={`${dv.dv_id}/nhanvien`}>
                                                 <Tippy content="Xem chi tiết" placement="bottom">
