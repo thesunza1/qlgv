@@ -31,7 +31,7 @@ function DangNhap() {
 
                 localStorage.setItem('Token', token);
 
-                navigate('/trangchu');
+                navigate('/qlcv/trangchu');
             }
         } catch (e) {
             if (e.response && e.response.status === 422) {
