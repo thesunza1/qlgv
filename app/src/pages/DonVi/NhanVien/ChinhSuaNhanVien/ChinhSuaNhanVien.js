@@ -13,6 +13,8 @@ function ChinhSuaNhanVien() {
     const navigate = useNavigate();
     const { dv_id, nv_id } = useParams();
     // eslint-disable-next-line no-unused-vars
+    const [donViID, setDonViID] = useState(dv_id);
+    // eslint-disable-next-line no-unused-vars
     const [nhanVienID, setNhanVienID] = useState(nv_id);
 
     const [chinhSuaNhanVien, setChinhSuaNhanVien] = useState({
@@ -79,7 +81,7 @@ function ChinhSuaNhanVien() {
         });
 
         if (response.status === 200) {
-            navigate(`/qlcv/donvi/${dv_id}/nhanvien`);
+            navigate(`/qlcv/donvi/${donViID}/nhanvien`);
             cogoToast.success(`Nhân viên ${nv_ten.toUpperCase()} đã được cập nhật`, {
                 position: 'top-right',
             });
@@ -87,16 +89,16 @@ function ChinhSuaNhanVien() {
     };
 
     const handleCancel = () => {
-        navigate(`/qlcv/donvi/${nhanVienID}/nhanvien`);
+        navigate(`/qlcv/donvi/${donViID}/nhanvien`);
     };
 
     return (
         <div className={cx('wrapper')}>
             <h2>
-                <Link to={`/qlcv/donvi/${nhanVienID}/nhanvien`}>
+                <Link to={`/qlcv/donvi/${donViID}/nhanvien`}>
                     <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
                 </Link>
-                Thêm nhân viên
+                Chỉnh sửa nhân viên
             </h2>
             <div className={cx('inner')}>
                 <form className={cx('form-group')}>
@@ -104,6 +106,7 @@ function ChinhSuaNhanVien() {
                         <label>Tên nhân viên</label>
                         <input
                             type="search"
+                            required
                             name="nv_ten"
                             value={chinhSuaNhanVien.nv_ten}
                             onChange={handleChange}
@@ -122,7 +125,6 @@ function ChinhSuaNhanVien() {
                         <label>Mật khẩu</label>
                         <input
                             type="password"
-                            name="nv_matkhau"
                             value={chinhSuaNhanVien.nv_matkhau}
                             onChange={handleChange}
                         />
