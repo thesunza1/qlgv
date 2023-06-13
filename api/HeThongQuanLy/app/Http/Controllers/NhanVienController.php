@@ -42,7 +42,20 @@ class NhanVienController extends Controller
         return response()->json(['message' => 'Login successful', 'token' => $token]);
     }
 
-    public function add_nhanvien(Request $request)
+    public function get_ID_NhanVien($nv_id)
+    {
+        $nhanVien = NhanVien::find($nv_id); // Lấy thông tin nhân viên từ nv_id
+
+        if (!$nhanVien) {
+            return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+        }
+
+        return response()->json([
+            'nhanVien' => $nhanVien
+        ]);
+    }
+
+    public function add_NhanVien(Request $request)
     {
         $nhanViens = new NhanVien;
         $nhanViens->nv_ten = $request->input('nv_ten');
@@ -62,10 +75,10 @@ class NhanVienController extends Controller
         
         $nhanViens->save();
     
-        return response()->json($nhanViens, 201);
+        return response()->json($nhanViens, 200);
     }
 
-    public function update_nhanvien(Request $request, $id)
+    public function update_NhanVien(Request $request, $id)
     {
         $nhanVien = NhanVien::find($id);
 
@@ -88,17 +101,31 @@ class NhanVienController extends Controller
         return response()->json($nhanVien, 200);
     }
 
-    public function delete_nhanvien($id)
+    public function delete_NhanVien(Request $request)
     {
-        $nhanVien = NhanVien::find($id);
+        $selectedIds = $request->input('deletenv_ids'); // Lấy danh sách ID nhân viên đã chọn từ request
 
-        if (!$nhanVien) {
-            return response()->json(['message' => 'Nhân viên không tồn tại'], 404);
+        try {
+            foreach ($selectedIds as $nv_id) {
+                $nhanVien = NhanVien::find($nv_id);
+
+                if (!$nhanVien) {
+                    return response()->json(['message' => 'Nhân viên không tồn tại'], 404);
+                }
+
+                // Cập nhật các bảng liên quan
+                $nhanVien->congViecs()->update(['nv_id' => null]);
+                $nhanVien->keHoachs()->update(['nv_id' => null]);
+                $nhanVien->xinGiaHans()->update(['nv_id' => null]);
+
+                // Xóa nhân viên
+                $nhanVien->delete();
+            }
+
+            return response()->json(['message' => 'Đã xóa nhân viên thành công'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi xóa nhân viên: ' . $e->getMessage()], 500);
         }
-
-        $nhanVien->delete();
-
-        return response()->json(['message' => 'Xóa nhân viên thành công'], 200);
     }
 
     //Đăng xuất 
@@ -119,7 +146,7 @@ class NhanVienController extends Controller
 
 
     ///Lấy danh sách nhân viên 
-    public function getNhanVien()
+    public function get_NhanVien()
     {
         $nhanViens = NhanVien::all(); // Lấy tất cả bản ghi từ bảng NhanVien
         $soLuongNhanVien = $nhanViens->count(); // Đếm số lượng nhân viên

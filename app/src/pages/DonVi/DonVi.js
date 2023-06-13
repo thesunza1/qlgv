@@ -29,11 +29,11 @@ function DonVi() {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const PER_PAGE = 5;
+    const PER_PAGE = 7;
 
     useEffect(() => {
         const getListProduct = async () => {
-            const response = await axiosClient.get('/getDonVi');
+            const response = await axiosClient.get('/get_DonVi');
             setDSDonVi(response.data.don_vis);
         };
         getListProduct();
@@ -48,7 +48,10 @@ function DonVi() {
             dangerMode: true,
         }).then(async (willDelete) => {
             if (willDelete) {
-                await axiosClient.delete(`/delete_donvi/${dv.dv_id}`);
+                const deletedv_ids = [dv.dv_id];
+                await axiosClient.delete('/delete_DonVi', {
+                    data: { deletedv_ids },
+                });
                 swal(`${dv.dv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
@@ -150,7 +153,19 @@ function DonVi() {
                                             />
                                         )}
                                     </th>
-                                    <th>Đơn vị cha</th>
+                                    <th onClick={() => handleSortColumn('dv_dvcha')}>
+                                        <span>Đơn vị cha</span>
+                                        {sortColumn === 'dv_dvcha' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
                                     <th>Xử lý</th>
                                 </tr>
                             </thead>
@@ -159,14 +174,8 @@ function DonVi() {
                                     <tr key={dv.dv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td>{dv.dv_ten}</td>
-                                        <td>
-                                            {dv.nhan_viens.map((nv) =>
-                                                parseInt(dv.dv_id_dvtruong) === nv.nv_id
-                                                    ? nv.nv_ten
-                                                    : null,
-                                            )}
-                                        </td>
-                                        <td></td>
+                                        <td>{dv.dv_id_dvtruong?.nv_ten}</td>
+                                        <td>{dv.dv_dvcha?.dv_ten}</td>
                                         <td>
                                             <Link to={`${dv.dv_id}/nhanvien`}>
                                                 <Tippy content="Xem chi tiết" placement="bottom">
@@ -175,9 +184,7 @@ function DonVi() {
                                                     </button>
                                                 </Tippy>
                                             </Link>
-                                            <Link
-                                                to={`${dv.dv_id}/${dv.dv_ten}/${dv.dv_id_dvtruong}/${dv.dv_dvcha}/chinhsua`}
-                                            >
+                                            <Link to={`${dv.dv_id}/chinhsua`}>
                                                 <Tippy content="Chỉnh sửa" placement="bottom">
                                                     <button className={cx('handle', 'edit-btn')}>
                                                         <FontAwesomeIcon icon={faPenToSquare} />

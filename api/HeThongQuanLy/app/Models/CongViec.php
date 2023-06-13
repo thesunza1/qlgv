@@ -11,11 +11,22 @@ class CongViec extends Model
     protected $table = 'congviec';
     protected $primaryKey = 'cv_id';
     public $timestamps = false;
-    
     protected $fillable = [
         'cv_ten',
-        'cv_trangthai'
-    
+        'cv_trangthai',
+        'cv_thgianbatdau',
+        'cv_thgianhoanthanh',
+        'cv_tiendo',
+        'cv_noidung',
+        'cv_cv_cha',
+        'cv_trongso',
+        'dv_id',
+        'kh_id',
+        'da_id',
+        'n_cv_id',
+        'nv_id',
+        'cv_hanhoanthanh',
+        'cv_tgthuchien',
     ];
     public function nhanVien()
     {

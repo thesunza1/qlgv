@@ -10,6 +10,7 @@ class DonVi extends Model
     use HasFactory;
     protected $table = 'donvi';
     protected $primaryKey = 'dv_id';
+    public $timestamps = false;
     protected $fillable = [
         'dv_ten',
         'dv_id_dvtruong',
