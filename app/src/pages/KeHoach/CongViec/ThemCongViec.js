@@ -9,12 +9,15 @@ import {
     faAnglesRight,
     faSave,
     faPlus,
+    faCircleArrowLeft
 } from '@fortawesome/free-solid-svg-icons';
 import 'tippy.js/dist/tippy.css';
 import ReactPaginate from 'react-paginate';
 import classNames from 'classnames/bind';
 import styles from './ThemCongViec.module.scss';
 import axiosClient from '~/api/axiosClient';
+import { Link } from 'react-router-dom';
+
 
 
 const cx = classNames.bind(styles);
@@ -71,7 +74,7 @@ function ThemCongViec() {
             isEdit: false,
         })),
     );
-    console.log(dSCongViec);
+    // console.log(dSCongViec);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
@@ -80,7 +83,7 @@ function ThemCongViec() {
     const AddRowTable = () => {
         const id = dSCongViec.length + 1;
         const newRow = {
-            id: id,
+            cv_id: id,
             cv_ten: '',
             cv_thgianbatdau: '',
             cv_thgianketthuc: '',
@@ -95,9 +98,10 @@ function ThemCongViec() {
     const handleInputChange = (event, id) => {
         const { name, value } = event.target;
         const newData = dSCongViec.map((item) =>
-            item.id === id ? { ...item, [name]: value } : item,
+            item.cv_id === id ? { ...item, [name]: value } : item,
         );
         setDSCongViec(newData);
+        console.log(dSCongViec);
     };
     useEffect(() => {
         const getListProduct = async () => {
@@ -150,10 +154,19 @@ function ThemCongViec() {
     };
 
     const displayedCongViec = getDisplayCongViec();
-
+    const now = new Date();
+    console.log(now);
     return (
         <div className={cx('wrapper')}>
-            <h2>Thêm Công Việc</h2>
+            <div className={cx('title')}>
+                <h2>
+                    {' '}
+                    <Link to="/qlcv/kehoach">
+                        <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
+                    </Link>
+                    Công Việc
+                </h2>
+            </div>
             <div className={cx('inner')}>
                 <div className={cx('features')}>
                     <div className={cx('search')}>
@@ -183,6 +196,19 @@ function ThemCongViec() {
                                     <th onClick={() => handleSortColumn('cv_ten')}>
                                         <span>Tên công việc</span>
                                         {sortColumn === 'cv_ten' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
+                                    <th onClick={() => handleSortColumn('kh_id')}>
+                                        <span>Tên kế hoạch</span>
+                                        {sortColumn === 'kh_id' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -227,7 +253,7 @@ function ThemCongViec() {
                             </thead>
                             <tbody>
                                 {displayedCongViec.map((cv, index) => (
-                                    <tr key={cv.id}>
+                                    <tr key={cv.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td>
                                             {cv.isEdit ? (
@@ -235,7 +261,7 @@ function ThemCongViec() {
                                                     name="cv_ten"
                                                     value={cv.cv_ten}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
+                                                        handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
@@ -245,11 +271,24 @@ function ThemCongViec() {
                                         <td>
                                             {cv.isEdit ? (
                                                 <textarea
-                                                    type="search"
+                                                    name="kh_id"
+                                                    value={cv.kh_id}
+                                                    onChange={(event) =>
+                                                        handleInputChange(event, cv.cv_id)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>{cv.kh_id}</>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {cv.isEdit ? (
+                                                <input
+                                                    type="date"
                                                     name="cv_thgianbatdau"
                                                     value={cv.cv_thgianbatdau}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
+                                                        handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
@@ -258,12 +297,12 @@ function ThemCongViec() {
                                         </td>
                                         <td>
                                             {cv.isEdit ? (
-                                                <textarea
-                                                    type="search"
+                                                <input
+                                                    type="date"
                                                     name="cv_thgianketthuc"
                                                     value={cv.cv_thgianketthuc}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
+                                                        handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
@@ -277,7 +316,7 @@ function ThemCongViec() {
                                                     name="dv_id"
                                                     value={cv.dv_id}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
+                                                        handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
@@ -291,24 +330,29 @@ function ThemCongViec() {
                                                     name="nv_id"
                                                     value={cv.nv_id}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
+                                                        handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.nv_id}</>
+                                                <>{cv.nv}</>
                                             )}
                                         </td>
 
                                         <td>
                                             {cv.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="cv_trangthai"
-                                                    value={cv.cv_trangthai}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, cv.id)
-                                                    }
-                                                />
+                                                // <textarea
+                                                //     type="search"
+                                                //     name="cv_trangthai"
+                                                //     value={cv.cv_trangthai}
+                                                //     onChange={(event) =>
+                                                //         handleInputChange(event, cv.id)
+                                                //     }
+                                                // />
+                                                <select name='cv_trangthai' onChange={(event) => handleInputChange(event, cv.id)}>
+                                                    <option value='1'>Chưa duyệt</option>
+                                                    <option value='2'>Đã duyệt</option>
+                                                    <option value='3'>Đang soạn</option>
+                                                </select>
                                             ) : (
                                                 <>{cv.cv_trangthai}</>
                                             )}

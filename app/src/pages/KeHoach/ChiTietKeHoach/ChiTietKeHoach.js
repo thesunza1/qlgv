@@ -123,7 +123,7 @@ function ChiTietKeHoach() {
                         </div>
                     </div>
                     <div className={cx('form-item')}>
-                        <label>Thời gian dự kiến: </label>
+                        <label>Thời gian hoàn thành dự kiến: </label>
                         {/* <input
                             type="search"
                             name="kh_khcha"
@@ -131,7 +131,7 @@ function ChiTietKeHoach() {
                             onChange={handleChange}
                         /> */}
                         <div>
-                            {ChiTietKeHoach.kh_thgianketthuc}
+                            {ChiTietKeHoach.kh_thgianketthuc.split(" ")[0]}
                         </div>
                     </div>
                 </form>

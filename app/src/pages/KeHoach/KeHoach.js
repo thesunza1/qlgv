@@ -9,7 +9,6 @@ import {
     faTrash,
     faAnglesLeft,
     faAnglesRight,
-    faAdd,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -18,7 +17,7 @@ import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './KeHoach.module.scss';
 import CongViecDotXuat from './CongViecDotXuat/CongViecDotXuat';
-
+import swal from 'sweetalert';
 const cx = classNames.bind(styles);
 
 function KeHoach() {
@@ -77,6 +76,26 @@ function KeHoach() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
+    const handleXoaKH = (kh) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa kế hoạch ${kh.kh_ten.toUpperCase()} này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                const token = localStorage.getItem('Token')
+                await axiosClient.delete(`/delete_KeHoach?token=${token}`);
+                swal(`kế hoạch đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
+            }
+        });
+    };
 
     const displayedKeHoach = getDisplayKeHoach();
 
@@ -88,10 +107,13 @@ function KeHoach() {
                         <h2>Kế Hoạch</h2>
                     </div>
                     <div className={cx('features')}>
+                        <Link to="/qlcv/congviec" className={cx('add-btn')}>
+                            <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
+                        </Link>
                         <div className={cx('search')}>
                             <input
                                 type="search"
-                                placeholder="Tìm kiếm đơn vị"
+                                placeholder="Tìm kiếm kế hoạch"
                                 value={searchText}
                                 onChange={handleSearchInputChange}
                             />
@@ -100,9 +122,7 @@ function KeHoach() {
                         <Link to="them" className={cx('add-btn')}>
                             <FontAwesomeIcon icon={faPlus} /> Thêm
                         </Link>
-                        <Link to="/qlcv/congviec" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
-                        </Link>
+
                     </div>
                     {displayedKeHoach.length > 0 ? (
                         <>
@@ -110,10 +130,13 @@ function KeHoach() {
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th onClick={() => handleSortColumn('dv_ten')}>
+                                        <th onClick={() => handleSortColumn('kh_ten')}>
                                             <span>Tên kế hoạch</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('dv_id_dvtruong')}>
+                                        <th onClick={() => handleSortColumn('kh_thgianbatdau')}>
+                                            <span>Thời gian bắt đầu</span>
+                                        </th>
+                                        <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
                                             <span>Thời gian hết hạn</span>
                                         </th>
                                         <th>Đơn vị</th>
@@ -134,7 +157,8 @@ function KeHoach() {
                                                     : null,
                                             )}
                                         </td> */}
-                                            <td>{kh.kh_thgianketthuc}</td>
+                                            <td>{kh.kh_thgianbatdau.split(' ')[0]}</td>
+                                            <td>{kh.kh_thgianketthuc.split(' ')[0]}</td>
                                             <td>{kh.dv_id}</td>
                                             <td>{kh.nv_id}</td>
                                             <td>{kh.kh_trangthai}</td>
@@ -146,14 +170,7 @@ function KeHoach() {
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.dv_id}/nhanvien`}>
-                                                    <Tippy content="Xem chi tiết" placement="bottom">
-                                                        <button className={cx('handle', 'view-btn')}>
-                                                            <FontAwesomeIcon icon={faAdd} />
-                                                        </button>
-                                                    </Tippy>
-                                                </Link>
-                                                <Link to={`chinhsua`}>
+                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.dv_id}/${kh.nv_id}/chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
                                                         <button className={cx('handle', 'edit-btn')}>
                                                             <FontAwesomeIcon icon={faPenToSquare} />
@@ -161,7 +178,7 @@ function KeHoach() {
                                                     </Tippy>
                                                 </Link>
                                                 <Tippy content="Xóa" placement="bottom">
-                                                    <button className={cx('handle', 'delete-btn')}>
+                                                    <button className={cx('handle', 'delete-btn')} onClick={() => handleXoaKH(kh)}>
                                                         <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                 </Tippy>

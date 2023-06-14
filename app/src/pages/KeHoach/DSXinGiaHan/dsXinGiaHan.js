@@ -11,30 +11,33 @@ import {
     faAnglesRight,
     faAdd,
     faEnvelope,
+    faCircleArrowLeft,
+    faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
-import styles from './CongViecDX.module.scss';
+import styles from './dsXinGiaHan.module.scss';
+import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
-function CongViecDotXuat() {
+function DSXinGiaHan() {
     const [dSCongViec, setDSCongViec] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const PER_PAGE = 5;
+    const PER_PAGE = 10;
 
     useEffect(() => {
         const getListProduct = async () => {
-            const token = localStorage.getItem('Token')
-            const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`);
-            setDSCongViec(response.data);
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/dsCongViecXinGiaHan?token=${token}`);
+            setDSCongViec(response.data.danh_sach_cong_viec_xingiahan);
         };
         getListProduct();
     }, []);
@@ -66,7 +69,7 @@ function CongViecDotXuat() {
 
     const getDisplayCongViec = useCallback(() => {
         const filteredCongViec = sortedCongViec.filter((cv) =>
-            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
+            cv.cv_id.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -77,6 +80,25 @@ function CongViecDotXuat() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
+    const handleXoaCongViec = (cv) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa công việc này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                await axiosClient.delete(`/xoaCongViec1ấdsad`);
+                swal(` đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
+            }
+        });
+    };
 
     const displayedCongViec = getDisplayCongViec();
 
@@ -84,10 +106,16 @@ function CongViecDotXuat() {
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
                 <div className={cx('title')}>
-                    <h2>Công Việc Đột Xuất</h2>
+                    <h2>
+                        {' '}
+                        <Link to="/qlcv/congviec">
+                            <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
+                        </Link>
+                        Danh sách công việc xin gia hạn
+                    </h2>
                 </div>
                 <div className={cx('features')}>
-                    {/* <div className={cx('search')}>
+                    <div className={cx('search')}>
                         <input
                             type="search"
                             placeholder="Tìm kiếm công việc"
@@ -95,7 +123,7 @@ function CongViecDotXuat() {
                             onChange={handleSearchInputChange}
                         />
                         <FontAwesomeIcon icon={faSearch} />
-                    </div> */}
+                    </div>
                     <Link to="them" className={cx('add-btn')}>
                         <FontAwesomeIcon icon={faPlus} /> Thêm
                     </Link>
@@ -106,16 +134,18 @@ function CongViecDotXuat() {
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th onClick={() => handleSortColumn('cv_ten')}>
+                                    <th onClick={() => handleSortColumn('cv_id')}>
                                         <span>Tên công việc</span>
                                     </th>
-                                    <th>Thời gian bắt đầu</th>
+                                    {/* <th onClick={() => handleSortColumn('cv_thgianbatdau')}>Thời gian bắt đầu</th>
                                     <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
                                         <span>Thời gian hết hạn</span>
-                                    </th>
-                                    <th>Đơn vị</th>
-                                    <th>Nhân viên</th>
-                                    <th>Trạng thái</th>
+                                    </th> */}
+                                    <th onClick={() => handleSortColumn('thgiandenghi')}>Thời gian đề nghị</th>
+                                    <th onClick={() => handleSortColumn('nv_id')}>Nhân viên</th>
+
+                                    <th>Lý do</th>
+                                    <th onClick={() => handleSortColumn('nv_idduyet')}>Người duyệt</th>
                                     <th>Xử lý</th>
                                 </tr>
                             </thead>
@@ -123,7 +153,7 @@ function CongViecDotXuat() {
                                 {displayedCongViec.map((cv, index) => (
                                     <tr key={cv.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                        <td>{cv.cv_ten}</td>
+                                        <td>{cv.cv_id}</td>
                                         {/* <td>
                                             {kh.nhan_viens.map((nv) =>
                                                 parseInt(kh.dv_id_dvtruong) === nv.nv_id
@@ -131,16 +161,17 @@ function CongViecDotXuat() {
                                                     : null,
                                             )}
                                         </td> */}
-                                        <td>{cv.cv_thgianbatdau.split(' ')[0]}</td>
-                                        <td>{cv.cv_thgianketthuc}</td>
-                                        <td>{cv.dv_id}</td>
+                                        {/* <td>{cv.cv_thgianbatdau}</td>
+                                        <td>{cv.cv_thgianketthuc}</td> */}
+                                        <td>{cv.thgiandenghi}</td>
                                         <td>{cv.nv_id}</td>
-                                        <td>{cv.cv_trangthai}</td>
+                                        <td>{cv.lido}</td>
+                                        <td>{cv.nv_idduyet}</td>
                                         <td>
                                             <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
-                                                <Tippy content="Xin gia hạn" placement="bottom">
+                                                <Tippy content="duyệt" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faEnvelope} />
+                                                        <FontAwesomeIcon icon={faCalendarCheck} />
                                                     </button>
                                                 </Tippy>
                                             </Link>
@@ -151,18 +182,18 @@ function CongViecDotXuat() {
                                                     </button>
                                                 </Tippy>
                                             </Link> */}
-                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_thgianketthuc}/${cv.dv_id}/${cv.nv_id}/chinhsua`}>
+                                            <Link to={`chinhsua`}>
                                                 <Tippy content="Chỉnh sửa" placement="bottom">
                                                     <button className={cx('handle', 'edit-btn')}>
                                                         <FontAwesomeIcon icon={faPenToSquare} />
                                                     </button>
                                                 </Tippy>
                                             </Link>
-                                            <Tippy content="Xóa" placement="bottom">
-                                                <button className={cx('handle', 'delete-btn')}>
+                                            {/* <Tippy content="Xóa" placement="bottom">
+                                                <button className={cx('handle', 'delete-btn')} onClick={handleXoaCongViec}>
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
-                                            </Tippy>
+                                            </Tippy> */}
                                         </td>
                                     </tr>
                                 ))}
@@ -190,4 +221,4 @@ function CongViecDotXuat() {
     );
 }
 
-export default CongViecDotXuat;
+export default DSXinGiaHan;

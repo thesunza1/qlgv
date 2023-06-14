@@ -4,13 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
     faPlus,
-    faEye,
     faPenToSquare,
     faTrash,
     faAnglesLeft,
     faAnglesRight,
-    faAdd,
     faEnvelope,
+    faCircleArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -18,6 +17,7 @@ import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './CongViec.module.scss';
+import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
@@ -28,13 +28,13 @@ function CongViec() {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const PER_PAGE = 5;
+    const PER_PAGE = 10;
 
     useEffect(() => {
         const getListProduct = async () => {
-            const token = localStorage.getItem('Token')
-            const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
-            setDSCongViec(response.data.cong_viecs);
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CongViec?token=${token}`);
+            setDSCongViec(response.data);
         };
         getListProduct();
     }, []);
@@ -77,6 +77,25 @@ function CongViec() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
+    const handleXoaCongViec = (cv) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa công việc này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                await axiosClient.delete(`/xoaCongViec1ấdsad`);
+                swal(` đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
+            }
+        });
+    };
 
     const displayedCongViec = getDisplayCongViec();
 
@@ -84,9 +103,18 @@ function CongViec() {
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
                 <div className={cx('title')}>
-                    <h2>Công Việc</h2>
+                    <h2>
+                        {' '}
+                        <Link to="/qlcv/kehoach">
+                            <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
+                        </Link>
+                        Công Việc
+                    </h2>
                 </div>
                 <div className={cx('features')}>
+                    <Link to="dsxingiahan" className={cx('add-btn')}>
+                        <FontAwesomeIcon icon={faPlus} /> Danh sách xin gia hạn
+                    </Link>
                     <div className={cx('search')}>
                         <input
                             type="search"
@@ -106,16 +134,19 @@ function CongViec() {
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th onClick={() => handleSortColumn('dv_ten')}>
+                                    <th onClick={() => handleSortColumn('cv_ten')}>
                                         <span>Tên công việc</span>
                                     </th>
-                                    <th>Thời gian bắt đầu</th>
-                                    <th onClick={() => handleSortColumn('dv_id_dvtruong')}>
+                                    <th onClick={() => handleSortColumn('kh_ten')}>
+                                        <span>Tên kế hoạch</span>
+                                    </th>
+                                    <th onClick={() => handleSortColumn('cv_thgianbatdau')}>Thời gian bắt đầu</th>
+                                    <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
                                         <span>Thời gian hết hạn</span>
                                     </th>
-                                    <th>Đơn vị</th>
-                                    <th>Nhân viên</th>
-                                    <th>Trạng thái</th>
+                                    <th onClick={() => handleSortColumn('dv_id')}>Đơn vị</th>
+                                    <th onClick={() => handleSortColumn('nv_id')}>Nhân viên</th>
+                                    <th onClick={() => handleSortColumn('cv_trangthai')}>Trạng thái</th>
                                     <th>Xử lý</th>
                                 </tr>
                             </thead>
@@ -131,27 +162,28 @@ function CongViec() {
                                                     : null,
                                             )}
                                         </td> */}
+                                        <td>{cv.ke_hoach.ten_ke_hoach}</td>
                                         <td>{cv.cv_thgianbatdau}</td>
                                         <td>{cv.cv_thgianketthuc}</td>
-                                        <td>{cv.dv_id}</td>
-                                        <td>{cv.nv_id}</td>
+                                        <td>{cv.don_vi.ten_don_vi}</td>
+                                        <td>{cv.nhan_vien.ten_nhan_vien}</td>
                                         <td>{cv.cv_trangthai}</td>
                                         <td>
-                                            <Link to={`${cv.cv_id}/xingiahan`}>
+                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
                                                 <Tippy content="Xin gia hạn" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
                                                         <FontAwesomeIcon icon={faEnvelope} />
                                                     </button>
                                                 </Tippy>
                                             </Link>
-                                            <Link to={`${cv.dv_id}/nhanvien`}>
+                                            {/* <Link to={`${cv.dv_id}/nhanvien`}>
                                                 <Tippy content="Xem chi tiết" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
                                                         <FontAwesomeIcon icon={faAdd} />
                                                     </button>
                                                 </Tippy>
-                                            </Link>
-                                            <Link to={`chinhsua`}>
+                                            </Link> */}
+                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_thgianketthuc}/${cv.dv_id}/${cv.nv_id}/chinhsua`}>
                                                 <Tippy content="Chỉnh sửa" placement="bottom">
                                                     <button className={cx('handle', 'edit-btn')}>
                                                         <FontAwesomeIcon icon={faPenToSquare} />
@@ -159,7 +191,7 @@ function CongViec() {
                                                 </Tippy>
                                             </Link>
                                             <Tippy content="Xóa" placement="bottom">
-                                                <button className={cx('handle', 'delete-btn')}>
+                                                <button className={cx('handle', 'delete-btn')} onClick={handleXoaCongViec}>
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
                                             </Tippy>

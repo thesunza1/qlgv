@@ -7,6 +7,7 @@ import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './ThemKeHoach.module.scss';
 import BangKeHoach from './BangKeHoach';
+import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
@@ -15,9 +16,10 @@ function ThemKeHoach() {
 
     const [themKeHoach, setThemKeHoach] = useState({
         kh_ten: '',
+        kh_loaikehoach: '',
         kh_thgianbatdau: '',
         kh_thgianketthuc: '',
-        kh_loaikehoach: ''
+
     });
 
     function handleChange(event) {
@@ -34,17 +36,18 @@ function ThemKeHoach() {
         const token = localStorage.getItem('Token')
         const response = await axiosClient.post(`/create_KeHoach?token=${token}`, {
             kh_ten,
+            kh_loaikehoach,
             kh_thgianbatdau,
             kh_thgianketthuc,
-            kh_loaikehoach,
+
         });
 
         if (response.status === 200) {
             navigate('/qlcv/kehoach');
-            alert(`Thêm kế hoạch ${kh_ten.toUpperCase()} mới thành công`, {
+            swal(`Thêm kế hoạch ${kh_ten.toUpperCase()} mới thành công`, {
                 position: 'top-right',
             });
-        }
+        } else { alert('error') }
     };
 
     const handleCancel = () => {
@@ -91,12 +94,17 @@ function ThemKeHoach() {
                         </div>
                         <div className={cx('form-item')}>
                             <label>Loại kế hoạch</label>
-                            <input
+                            {/* <input
                                 type="search"
                                 name="kh_loaikehoach"
                                 value={themKeHoach.kh_loaikehoach}
                                 onChange={handleChange}
-                            />
+                            /> */}
+                            <select name='kh_loaikehoach' onChange={handleChange}>
+                                <option value='Kế Hoạch Theo Tháng'>Tháng</option>
+                                <option value='Kế Hoạch Theo Quý'>Quý</option>
+                                <option value='Kế Hoạch Theo Năm'>Năm</option>
+                            </select>
                         </div>
                     </form>
                     <div className={cx('handle')}>

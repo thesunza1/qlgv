@@ -10,6 +10,7 @@ import {
     faAnglesLeft,
     faAnglesRight,
     faAdd,
+    faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -32,9 +33,11 @@ function KeHoachThang() {
 
     useEffect(() => {
         const getListProduct = async () => {
+            var now = new Date();
+            let month = now.getMonth();
             const token = localStorage.getItem('Token')
-            const response = await axiosClient.get(`/get_CV_Thang/3/?token=${token}`);
-            setDSKeHoach(response.data.ke_hoachs);
+            const response = await axiosClient.get(`/get_CV_Thang/${month + 1}/?token=${token}`);
+            setDSKeHoach(response.data.cong_viecs);
         };
         getListProduct();
     }, []);
@@ -65,8 +68,8 @@ function KeHoachThang() {
     }, [dSKeHoach, sortColumn, sortDirection]);
 
     const getDisplayKeHoach = useCallback(() => {
-        const filteredKeHoach = sortedKeHoach.filter((kh) =>
-            kh.kh_ten.toLowerCase().includes(searchText.toLowerCase()),
+        const filteredKeHoach = sortedKeHoach.filter((cv) =>
+            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredKeHoach.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -79,27 +82,30 @@ function KeHoachThang() {
     };
 
     const displayedKeHoach = getDisplayKeHoach();
-
+    var now = new Date();
+    let month = now.getMonth();
     return (
+
         <>
             <div className={cx('wrapper')}>
                 <div className={cx('inner')}>
                     <div className={cx('title')}>
-                        <h2>Kế Hoạch</h2>
+                        <h2>Công việc trong tháng {month + 1}</h2>
                     </div>
                     <div className={cx('features')}>
+                        <Link to="them" className={cx('add-btn')}>
+                            <FontAwesomeIcon icon={faPlus} /> Thêm
+                        </Link>
                         <div className={cx('search')}>
                             <input
                                 type="search"
-                                placeholder="Tìm kiếm đơn vị"
+                                placeholder="Tìm kiếm công việc"
                                 value={searchText}
                                 onChange={handleSearchInputChange}
                             />
                             <FontAwesomeIcon icon={faSearch} />
                         </div>
-                        <Link to="them" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm
-                        </Link>
+
                         <Link to="/qlcv/congviec" className={cx('add-btn')}>
                             <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
                         </Link>
@@ -110,23 +116,25 @@ function KeHoachThang() {
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th onClick={() => handleSortColumn('dv_ten')}>
-                                            <span>Tên kế hoạch</span>
+                                        <th onClick={() => handleSortColumn('cv_ten')}>
+                                            <span>Tên công việc</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('dv_id_dvtruong')}>
-                                            <span>Thời gian hết hạn</span>
+                                        <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
+                                            <span>Ngày bắt đầu</span>
                                         </th>
-                                        <th>Đơn vị</th>
-                                        <th>Người lập</th>
+                                        <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
+                                            <span>Ngày hết hạn</span>
+                                        </th>
+                                        <th>Nội dung</th>
                                         <th>Trạng thái</th>
                                         <th>Xử lý</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {displayedKeHoach.map((kh, index) => (
-                                        <tr key={kh.kh_id}>
+                                    {displayedKeHoach.map((cv, index) => (
+                                        <tr key={cv.cv_id}>
                                             <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                            <td>{kh.kh_ten}</td>
+                                            <td>{cv.cv_ten}</td>
                                             {/* <td>
                                             {kh.nhan_viens.map((nv) =>
                                                 parseInt(kh.dv_id_dvtruong) === nv.nv_id
@@ -134,25 +142,25 @@ function KeHoachThang() {
                                                     : null,
                                             )}
                                         </td> */}
-                                            <td>{kh.kh_thgianketthuc}</td>
-                                            <td>{kh.dv_id}</td>
-                                            <td>{kh.nv_id}</td>
-                                            <td>{kh.kh_trangthai}</td>
+                                            <td>{cv.cv_thgianbatdau}</td>
+                                            <td>{cv.cv_thgianketthuc}</td>
+                                            <td>{cv.cv_noidung}</td>
+                                            <td>{cv.cv_trangthai}</td>
                                             <td>
-                                                <Link to={`${kh.kh_id}/chitiet`}>
-                                                    <Tippy content="Xem chi tiết" placement="bottom">
+                                                <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
+                                                    <Tippy content="Xin gia hạn" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
-                                                            <FontAwesomeIcon icon={faEye} />
+                                                            <FontAwesomeIcon icon={faEnvelope} />
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.dv_id}/nhanvien`}>
+                                                {/* <Link to={`${cv.cv_id}/nhanvien`}>
                                                     <Tippy content="Xem chi tiết" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
                                                             <FontAwesomeIcon icon={faAdd} />
                                                         </button>
                                                     </Tippy>
-                                                </Link>
+                                                </Link> */}
                                                 <Link to={`chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
                                                         <button className={cx('handle', 'edit-btn')}>

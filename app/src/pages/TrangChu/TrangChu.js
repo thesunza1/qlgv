@@ -19,7 +19,7 @@ function TrangChu() {
         const fetchData = async () => {
             const token = localStorage.getItem('Token');
             const resSoKeHoach = await callApi.get(`/get_CV_KeHoach?token=${token}`);
-            const resSoNhanVien = await callApi.get(`/getNhanVien`);
+            const resSoNhanVien = await callApi.get(`/get_NhanVien`);
             setSoKeHoach(resSoKeHoach.data.so_luong_ke_hoach);
             setSoCongViec(resSoKeHoach.data.so_luong_cong_viec);
             setSoNhanVien(resSoNhanVien.data.so_luong_nhan_vien);
