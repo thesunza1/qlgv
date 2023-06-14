@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames/bind';
 import styles from './Header.module.scss';
-import Logo from '~/assets/images/logo.png';
+import Logo from '~/assets/images/logo_vnpt.png';
 
 const cx = classNames.bind(styles);
 
