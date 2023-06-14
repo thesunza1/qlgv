@@ -42,19 +42,6 @@ class NhanVienController extends Controller
         return response()->json(['message' => 'Login successful', 'token' => $token]);
     }
 
-    public function get_ID_NhanVien($nv_id)
-    {
-        $nhanVien = NhanVien::find($nv_id); // Lấy thông tin nhân viên từ nv_id
-
-        if (!$nhanVien) {
-            return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
-        }
-
-        return response()->json([
-            'nhanVien' => $nhanVien
-        ]);
-    }
-
     public function add_NhanVien(Request $request)
     {
         $nhanViens = new NhanVien;
@@ -154,6 +141,19 @@ class NhanVienController extends Controller
         return response()->json([
             'so_luong_nhan_vien' => $soLuongNhanVien,
             'nhanViens' => $nhanViens
+        ]);
+    }
+
+    public function get_ID_NhanVien($nv_id)
+    {
+        $nhanVien = NhanVien::find($nv_id); // Lấy thông tin nhân viên từ nv_id
+
+        if (!$nhanVien) {
+            return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+        }
+
+        return response()->json([
+            'nhanVien' => $nhanVien
         ]);
     }
 }

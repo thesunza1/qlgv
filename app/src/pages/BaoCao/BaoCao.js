@@ -1,5 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
@@ -10,7 +9,7 @@ import {
     faSave,
     faPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import 'tippy.js/dist/tippy.css';
+import axiosClient from '~/api/axiosClient';
 import ReactPaginate from 'react-paginate';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
@@ -19,80 +18,46 @@ import BaoCaoCongViec from './BaoCaoCongViec';
 
 const cx = classNames.bind(styles);
 
-function createData(
-    id,
-    thoi_gian,
-    ten_cong_viec,
-    noi_dung_cong_viec,
-    gio_lam_viec,
-    tien_do,
-    duyet_gio,
-    trang_thai,
-    tham_dinh,
-) {
-    return {
-        id,
-        thoi_gian,
-        ten_cong_viec,
-        noi_dung_cong_viec,
-        gio_lam_viec,
-        tien_do,
-        duyet_gio,
-        trang_thai,
-        tham_dinh,
-    };
-}
-
-const rows = [
-    createData(1, '31/5/2023', 'Lập trình', 'Bằng Reactjs 1', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(
-        2,
-        '31/5/2023',
-        'Lập trình',
-        'Bằng Reactjs 2',
-        '2',
-        '50%',
-        '2',
-        'Chưa thẩm định',
-        '1',
-    ),
-    createData(3, '29/5/2023', 'Lập trình 1', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(4, '30/5/2023', 'Thiết kế', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(5, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(6, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(7, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(8, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(9, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(10, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(11, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(12, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-];
-
 function BaoCao() {
-    const [dSBaocao, setDSBaocao] = useState(
-        rows.map((row) => ({
-            ...row,
-            isEdit: false,
-        })),
-    );
-    console.log(dSBaocao);
+    const [dSBaoCaoHangNgay, setDSBaoCaoHangNgay] = useState([]);
+    const [dSBaocao, setDSBaocao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
+    console.log(dSBaocao);
+
+    const PER_PAGE = 5;
+
+    useEffect(() => {
+        const getDSBaoCaoHangNgay = async () => {
+            const response = await axiosClient.get('/get_CV_BC_HangNgay');
+            setDSBaoCaoHangNgay(response.data);
+        };
+        getDSBaoCaoHangNgay();
+    }, []);
+
+    useEffect(() => {
+        setDSBaocao(
+            dSBaoCaoHangNgay.map((bc) => ({
+                ...bc,
+                isEdit: false,
+            })),
+        );
+    }, [dSBaoCaoHangNgay]);
 
     const AddRowTable = () => {
-        const id = dSBaocao.length + 1;
         const newRow = {
-            id: id,
-            thoi_gian: '',
-            ten_cong_viec: '',
-            noi_dung_cong_viec: '',
-            gio_lam_viec: '',
-            tien_do: '',
-            duyet_gio: '',
-            trang_thai: '',
-            tham_dinh: '',
+            bchn_id: dSBaocao.length + 1,
+            bchn_ngay: new Date().toISOString().substr(0, 10),
+            nhan_vien: '',
+            cong_viec: '',
+            loai_cong_viec: '',
+            bchn_noidung: '',
+            so_gio_lam: '',
+            bchn_tiendo: '',
+            bchn_giothamdinh: '',
+            bchn_trangthai: '0',
             isEdit: true,
         };
         setDSBaocao([...dSBaocao, newRow]);
@@ -101,12 +66,10 @@ function BaoCao() {
     const handleInputChange = (event, id) => {
         const { name, value } = event.target;
         const newData = dSBaocao.map((item) =>
-            item.id === id ? { ...item, [name]: value } : item,
+            item.bchn_id === id ? { ...item, [name]: value } : item,
         );
-        setDSBaocao(newData);
+        setDSBaocao([...newData]);
     };
-
-    const PER_PAGE = 5;
 
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -117,7 +80,7 @@ function BaoCao() {
         }
     };
 
-    const handleSearchInputChange = (event) => {
+    const handleChangeSearchInput = (event) => {
         setSearchText(event.target.value);
         setCurrentPage(0);
     };
@@ -135,7 +98,7 @@ function BaoCao() {
 
     const getDisplayBaocao = useCallback(() => {
         const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
+            bc.bchn_ngay.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -155,7 +118,7 @@ function BaoCao() {
             <BaoCaoCongViec />
             <h2>Báo cáo công việc hằng ngày</h2>
             <p>
-                Tổng giờ đã là: <span>16 giờ</span>
+                Tổng giờ đã làm: <span>16 giờ</span>
             </p>
             <div className={cx('inner')}>
                 <div className={cx('features')}>
@@ -164,7 +127,7 @@ function BaoCao() {
                             type="search"
                             placeholder="Tìm kiếm báo cáo"
                             value={searchText}
-                            onChange={handleSearchInputChange}
+                            onChange={handleChangeSearchInput}
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
@@ -196,6 +159,19 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
+                                    <th onClick={() => handleSortColumn('nhan_vien')}>
+                                        <span>Nhân viên</span>
+                                        {sortColumn === 'nhan_vien' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
                                     <th onClick={() => handleSortColumn('ten_cong_viec')}>
                                         <span>Tên công việc</span>
                                         {sortColumn === 'ten_cong_viec' && (
@@ -209,10 +185,11 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
+                                    <th>Loại công việc</th>
                                     <th>Nội dung công việc</th>
-                                    <th>Giờ làm việc</th>
-                                    <th>Tiến độ</th>
-                                    <th>Duyệt giờ</th>
+                                    <th>Giờ làm việc (h)</th>
+                                    <th>Tiến độ (%)</th>
+                                    <th>Duyệt giờ (h)</th>
                                     <th onClick={() => handleSortColumn('trang_thai')}>
                                         <span>Trạng thái</span>
                                         {sortColumn === 'trang_thai' && (
@@ -231,103 +208,132 @@ function BaoCao() {
                             </thead>
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
-                                    <tr key={bc.id}>
+                                    <tr key={bc.bchn_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td>
                                             {bc.isEdit ? (
-                                                <textarea
-                                                    name="thoi_gian"
-                                                    value={bc.thoi_gian}
+                                                <input
+                                                    type="date"
+                                                    name="bchn_ngay"
+                                                    value={
+                                                        bc.bchn_ngay ||
+                                                        new Date().toISOString().substr(0, 10)
+                                                    }
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.thoi_gian}</>
+                                                <>{bc.bchn_ngay}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="ten_cong_viec"
-                                                    value={bc.ten_cong_viec}
+                                                    name="ten_nhan_vien"
+                                                    value={bc.nhan_vien?.ten_nhan_vien}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.ten_cong_viec}</>
+                                                <>{bc.nhan_vien?.ten_nhan_vien}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="noi_dung_cong_viec"
-                                                    value={bc.noi_dung_cong_viec}
+                                                    name="cong_viec"
+                                                    value={bc.cong_viec?.ten_cong_viec}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.noi_dung_cong_viec}</>
+                                                <>{bc.cong_viec?.ten_cong_viec}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="gio_lam_viec"
-                                                    value={bc.gio_lam_viec}
+                                                    name="loai_cong_viec"
+                                                    value={bc.loai_cong_viec?.ten_loai_cong_viec}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.gio_lam_viec}</>
+                                                <>{bc.loai_cong_viec?.ten_loai_cong_viec}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="tien_do"
-                                                    value={bc.tien_do}
+                                                    name="bchn_noidung"
+                                                    value={bc.bchn_noidung}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.tien_do}</>
+                                                <>{bc.bchn_noidung}</>
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            {bc.isEdit ? (
+                                                <textarea
+                                                    name="so_gio_lam"
+                                                    value={bc.so_gio_lam}
+                                                    onChange={(event) =>
+                                                        handleInputChange(event, bc.bchn_id)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>{bc.so_gio_lam}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="duyet_gio"
-                                                    value={bc.duyet_gio}
+                                                    name="bchn_tiendo"
+                                                    value={bc.bchn_tiendo}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.duyet_gio}</>
+                                                <>{bc.bchn_tiendo}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="trang_thai"
-                                                    value={bc.trang_thai}
+                                                    name="bchn_giothamdinh"
+                                                    value={bc.bchn_giothamdinh}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleInputChange(event, bc.bchn_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.trang_thai}</>
+                                                <>{bc.bchn_giothamdinh}</>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {bc.isEdit ? (
+                                                <textarea
+                                                    name="bchn_trangthai"
+                                                    value={bc.bchn_trangthai}
+                                                    onChange={(event) =>
+                                                        handleInputChange(event, bc.bchn_id)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>
+                                                    {bc.bchn_trangthai === '0'
+                                                        ? 'Chưa thẩm định'
+                                                        : 'Đã thẩm định'}
+                                                </>
                                             )}
                                         </td>
                                         <td>

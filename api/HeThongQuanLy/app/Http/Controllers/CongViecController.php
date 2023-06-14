@@ -6,27 +6,82 @@ use App\Models\KeHoach;
 use App\Models\DonVi;
 use App\Models\CongViec;
 use App\Models\XinGiaHan;
+use App\Models\NhomCongViec;
 use Illuminate\Http\Request;
 
 class CongViecController extends Controller
 {
     public function get_CongViec(Request $request)
-    {   
+    {
         $user = auth()->user();
-        // Lấy giá trị các tham số từ request
-     
+
         if (!$user) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
         }
-    
-        try {  
-             $userId = $user->nv_id;
+
+        try {
+            $userId = $user->nv_id;
+
             // Lấy danh sách công việc dựa trên các tham số CV_ID và CV_CVCha của người dùng đang đăng nhập
             $danhSachCongViec = CongViec::where('nv_id', $userId)
-                                        ->get();
-    
+                ->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha')
+                ->get();
+
+            // Tạo một mảng chứa thông tin các công việc
+            $congViecData = [];
+
+            foreach ($danhSachCongViec as $congViec) {
+                // Lấy thông tin nhân viên
+                $nhanVien = $congViec->nhanVien;
+                $keHoachs = $congViec->keHoachs;
+                $duAns = $congViec->duAns;
+                $cv_cv_cha = $congViec->cv_cv_cha;
+                $nhomCongViecs = $congViec->nhomCongViecs;
+                $donVi = $congViec->donVi;
+                $congViecCha = null;
+
+                if ($cv_cv_cha) {
+                    // Nếu tồn tại giá trị cv_cv_cha, truy xuất công việc cha dựa trên cv_id
+                    $congViecCha = CongViec::find($cv_cv_cha);
+                }
+
+                // Tạo một mảng chứa thông tin của công việc
+                $congViecItem = [
+                    'cv_id' => $congViec->cv_id,
+                    'cv_ten' => $congViec->cv_ten,
+                    // Thêm các thông tin khác của công việc cần lấy
+                    'nhan_vien' => $nhanVien ? [
+                        'ten_nhan_vien' => $nhanVien->nv_ten,
+                        // Thêm các thông tin khác của nhân viên cần lấy
+                    ] : null,
+                    'ke_hoach' => $keHoachs ? [
+                        'ten_ke_hoach' => $keHoachs->kh_ten,
+                        // Thêm các thông tin khác của keHoachs cần lấy
+                    ] : null,
+                    'du_an' => $duAns ? [
+                        'ten_du_an' => $duAns->da_ten,
+                        // Thêm các thông tin khác của duAns cần lấy
+                    ] : null,
+                    'nhom_cong_viec' => $nhomCongViecs ? [
+                        'ten_nhom_cong_viec' => $nhomCongViecs->n_cv_ten,
+                        // Thêm các thông tin khác của nhomCongViecs cần lấy
+                    ] : null,
+                    'cong_viec_cha' => $congViecCha ? [
+                        'ten_cong_viec_cha' => $congViecCha->cv_ten,
+                        // Thêm các thông tin khác của công việc cha cần lấy
+                    ] : null,
+                    'don_vi' => $donVi ? [
+                        'ten_don_vi' => $donVi->dv_ten,
+                        // Thêm các thông tin khác của donVi cần lấy
+                    ] : null,
+                ];
+
+                // Thêm công việc vào mảng chứa thông tin
+                $congViecData[] = $congViecItem;
+            }
+
             // Trả về dữ liệu JSON
-            return response()->json($danhSachCongViec);
+            return response()->json($congViecData);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh sách công việc: ' . $e->getMessage()], 500);
         }
@@ -176,7 +231,7 @@ class CongViecController extends Controller
         // Lưu công việc vào cơ sở dữ liệu
         $congViec->save();
 
-        return response()->json(['message' => 'Thêm công việc thành công'], 200);
+        return response()->json(['message' => 'Thêm công việc đột xuất thành công'], 200);
     }
 
     public function duyet_CongViec(Request $request, $cv_ids)

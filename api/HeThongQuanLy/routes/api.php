@@ -21,7 +21,7 @@ use App\Http\Controllers\LoaiCongViecController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::prefix('qlcv')->group(function () {
 // Các route không yêu cầu xác thực
 Route::post('auth/SignIn', [NhanVienController::class, 'SignIn']);
 
@@ -61,12 +61,13 @@ Route::post('/add_CV_DotXuat', [CongViecController::class, 'add_CV_DotXuat']);
 Route::get('/get_CV_DotXuat', [CongViecController::class, 'get_CV_DotXuat']);
 
 //Router lấy danh sách Nhân Viên
-Route::get('/get_NhanVien', [NhanVienController::class, 'get_NhanVien']);
 Route::get('/get_ID_NhanVien/{nv_id}', [NhanVienController::class, 'get_ID_NhanVien']);
+Route::get('/get_NhanVien', [NhanVienController::class, 'get_NhanVien']);
 Route::post('/add_NhanVien', [NhanVienController::class, 'add_NhanVien']);
 Route::put('/update_NhanVien/{nv_id}', [NhanVienController::class, 'update_NhanVien']);
 Route::delete('/delete_NhanVien', [NhanVienController::class, 'delete_NhanVien']);
-//Router Báo cáo hằng ngay
+//Rputer Báo cáo hằng ngay
 Route::put('/update_TienDoBaoCaoHangNgay/{bchn_id}/', [BaoCaoHangNgayController::class, 'update_TienDoBaoCaoHangNgay']);
 Route::post('/add_CV_BC_HangNgay', [BaoCaoHangNgayController::class, 'add_CV_BC_HangNgay']);
 Route::get('/get_CV_BC_HangNgay', [BaoCaoHangNgayController::class, 'get_CV_BC_HangNgay']);
+});

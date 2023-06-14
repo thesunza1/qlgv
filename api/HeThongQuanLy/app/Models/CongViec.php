@@ -40,7 +40,7 @@ class CongViec extends Model
 
     public function donVi()
     {
-        return $this->belongsTo(KeHoach::class, 'dv_id', 'dv_id');
+        return $this->belongsTo(DonVi::class, 'dv_id', 'dv_id');
     }
 
     public function baoCaoHangNgay()
@@ -55,6 +55,16 @@ class CongViec extends Model
     
     public function nhomCongViecs()
     {
-        return $this->belongsTo(XinGiaHan::class, 'n_cv_id', 'n_cv_id');
+        return $this->belongsTo(NhomCongViec::class, 'n_cv_id', 'n_cv_id');
+    }
+
+    public function duAns()
+    {
+        return $this->belongsTo(DuAn::class, 'da_id', 'da_id');
+    }
+
+    public function cv_cv_cha()
+    {
+        return $this->belongsTo(CongViec::class, 'cv_cv_cha', 'cv_id');
     }
 }
