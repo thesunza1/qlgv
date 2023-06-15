@@ -1,16 +1,13 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
     faArrowUp,
     faArrowDown,
-    faAnglesLeft,
-    faAnglesRight,
     faSave,
     faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
-import ReactPaginate from 'react-paginate';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
 import BaoCaoKeHoach from './BaoCaoKeHoach';
@@ -20,16 +17,11 @@ const cx = classNames.bind(styles);
 
 function BaoCao() {
     const [infoUser, setInfoUser] = useState([]);
-    console.log(infoUser);
     const [dSBaoCaoHangNgay, setDSBaoCaoHangNgay] = useState([]);
     const [dSBaocao, setDSBaocao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
-    const [currentPage, setCurrentPage] = useState(0);
-    console.log(dSBaocao);
-
-    const PER_PAGE = 5;
 
     useEffect(() => {
         const getInfoUser = async () => {
@@ -93,35 +85,43 @@ function BaoCao() {
 
     const handleChangeSearchInput = (event) => {
         setSearchText(event.target.value);
-        setCurrentPage(0);
     };
 
-    const sortedBaocao = useMemo(() => {
-        let sortedItems = [...dSBaocao];
-        sortedItems = sortedItems.sort((a, b) =>
-            a[sortColumn] > b[sortColumn] ? 1 : b[sortColumn] > a[sortColumn] ? -1 : 0,
-        );
-        if (sortDirection === 'asc') {
-            sortedItems.reverse();
-        }
-        return sortedItems;
-    }, [dSBaocao, sortColumn, sortDirection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const filterBaocao = (baocao) => {
+        const filteredBaocao =
+            infoUser.nv_quyenthamdinh === '1'
+                ? baocao
+                : baocao.filter((item) => item.nhan_vien.ten_nhan_vien === infoUser.nv_ten);
 
-    const getDisplayBaocao = useCallback(() => {
-        const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.bchn_ngay.toLowerCase().includes(searchText.toLowerCase()),
-        );
-        const startIndex = currentPage * PER_PAGE;
-        return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedBaocao, searchText, currentPage]);
+        const searchedBaocao = filteredBaocao
+            .filter((bc) =>
+                bc.cong_viec.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
+            )
+            .filter((bc) => bc.bchn_trangthai === '0')
+            .sort((a, b) => {
+                if (sortDirection === 'asc') {
+                    return a[sortColumn] < b[sortColumn]
+                        ? -1
+                        : a[sortColumn] > b[sortColumn]
+                        ? 1
+                        : 0;
+                } else {
+                    return a[sortColumn] < b[sortColumn]
+                        ? 1
+                        : a[sortColumn] > b[sortColumn]
+                        ? -1
+                        : 0;
+                }
+            });
 
-    const totalPage = Math.ceil(sortedBaocao.length / PER_PAGE);
-
-    const handlePageClick = ({ selected: selectedPage }) => {
-        setCurrentPage(selectedPage);
+        return searchedBaocao;
     };
 
-    const displayedBaocao = getDisplayBaocao();
+    const displayedBaocao = useMemo(() => {
+        const filteredBaocao = filterBaocao(dSBaocao);
+        return filteredBaocao || [];
+    }, [filterBaocao, dSBaocao]);
 
     return (
         <div className={cx('wrapper')}>
@@ -157,9 +157,9 @@ function BaoCao() {
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th onClick={() => handleSortColumn('thoi_gian')}>
+                                    <th onClick={() => handleSortColumn('bchn_ngay')}>
                                         <span>Thời gian</span>
-                                        {sortColumn === 'thoi_gian' && (
+                                        {sortColumn === 'bchn_ngay' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -170,42 +170,18 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
-                                    {infoUser.nv_quyenthamdinh === '1' && (
-                                        <th onClick={() => handleSortColumn('nhan_vien')}>
-                                            <span>Nhân viên</span>
-                                            {sortColumn === 'nhan_vien' && (
-                                                <FontAwesomeIcon
-                                                    icon={
-                                                        sortDirection === 'asc'
-                                                            ? faArrowUp
-                                                            : faArrowDown
-                                                    }
-                                                    className={cx('icon')}
-                                                />
-                                            )}
-                                        </th>
-                                    )}
-                                    <th onClick={() => handleSortColumn('ten_cong_viec')}>
-                                        <span>Tên công việc</span>
-                                        {sortColumn === 'ten_cong_viec' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
+                                    {/* {infoUser.nv_quyenthamdinh === '1' && ( */}
+                                    <th>Nhân viên</th>
+                                    {/* )} */}
+                                    <th>Tên công việc</th>
                                     <th>Loại công việc</th>
                                     <th>Nội dung công việc</th>
                                     <th>Giờ làm việc (h)</th>
                                     <th>Tiến độ (%)</th>
                                     {infoUser.nv_quyenthamdinh === '1' && <th>Duyệt giờ (h)</th>}
-                                    <th onClick={() => handleSortColumn('trang_thai')}>
+                                    <th onClick={() => handleSortColumn('bchn_trangthai')}>
                                         <span>Trạng thái</span>
-                                        {sortColumn === 'trang_thai' && (
+                                        {sortColumn === 'bchn_trangthai' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -222,7 +198,7 @@ function BaoCao() {
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
                                     <tr key={bc.bchn_id}>
-                                        <td>{index + 1 + currentPage * PER_PAGE}</td>
+                                        <td>{index + 1}</td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <input
@@ -240,21 +216,21 @@ function BaoCao() {
                                                 <>{bc.bchn_ngay}</>
                                             )}
                                         </td>
-                                        {infoUser.nv_quyenthamdinh === '1' && (
-                                            <td>
-                                                {bc.isEdit ? (
-                                                    <textarea
-                                                        name="ten_nhan_vien"
-                                                        value={bc.nhan_vien?.ten_nhan_vien}
-                                                        onChange={(event) =>
-                                                            handleInputChange(event, bc.bchn_id)
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <>{bc.nhan_vien?.ten_nhan_vien}</>
-                                                )}
-                                            </td>
-                                        )}
+                                        {/* {infoUser.nv_quyenthamdinh === '1' && ( */}
+                                        <td>
+                                            {bc.isEdit ? (
+                                                <textarea
+                                                    name="ten_nhan_vien"
+                                                    value={bc.nhan_vien?.ten_nhan_vien}
+                                                    onChange={(event) =>
+                                                        handleInputChange(event, bc.bchn_id)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>{bc.nhan_vien?.ten_nhan_vien}</>
+                                            )}
+                                        </td>
+                                        {/* )} */}
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
@@ -294,7 +270,7 @@ function BaoCao() {
                                                 <>{bc.bchn_noidung}</>
                                             )}
                                         </td>
-                                        <td>
+                                        <td style={{ textAlign: 'center' }}>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="so_gio_lam"
@@ -361,7 +337,7 @@ function BaoCao() {
                                 ))}
                             </tbody>
                         </table>
-                        {sortedBaocao.length > PER_PAGE && (
+                        {/* {sortedBaocao.length > PER_PAGE && (
                             <ReactPaginate
                                 previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
                                 nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
@@ -373,7 +349,7 @@ function BaoCao() {
                                 containerClassName={cx('pagination')}
                                 activeClassName={cx('active')}
                             />
-                        )}
+                        )} */}
                     </>
                 ) : (
                     <p className={cx('no-result')}>Không có kết quả tìm kiếm</p>

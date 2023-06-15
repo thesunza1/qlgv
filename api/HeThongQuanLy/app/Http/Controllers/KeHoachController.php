@@ -39,8 +39,8 @@ class KeHoachController extends Controller
             $tenNhanVien = $nhanVien->nv_ten;
 
             // Khởi tạo query để lấy danh sách kế hoạch và công việc
-            $queryKeHoach = KeHoach::query();
-            $queryCongViec = CongViec::query();
+            $queryKeHoach = KeHoach::query()->with('nhanVien', 'donVi');
+            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha');
 
             if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
                 // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
@@ -82,6 +82,7 @@ class KeHoachController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy thông tin chức vụ nhân viên: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function create_KeHoach(Request $request)
     {

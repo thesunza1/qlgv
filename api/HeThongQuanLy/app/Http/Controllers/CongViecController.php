@@ -201,7 +201,7 @@ class CongViecController extends Controller
 
     public function add_CV_DotXuat(Request $request)
     {
-        $kh_id = $request->input('kh_id', 5); // Giá trị mặc định là 5 nếu không có giá trị kh_id trong request
+        $kh_id = $request->input('kh_id', 1); // Giá trị mặc định là 5 nếu không có giá trị kh_id trong request
 
         // Lấy thông tin kế hoạch từ ID
         $keHoach = KeHoach::find($kh_id);
