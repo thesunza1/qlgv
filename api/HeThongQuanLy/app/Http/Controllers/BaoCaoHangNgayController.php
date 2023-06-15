@@ -97,7 +97,6 @@ public function add_CV_BC_HangNgay(Request $request)
     return response()->json(['message' => 'Thêm công việc báo cáo hàng ngày thành công'], 200);
 }
 
-
 public function get_CV_BC_HangNgay()
 {
     // Lấy danh sách các báo cáo hàng ngày kèm thông tin công việc, nhân viên, nhân viên người duyệt và loại công việc
@@ -126,7 +125,7 @@ public function get_CV_BC_HangNgay()
             'bchn_id' => $baoCao->bchn_id,
             'bchn_tiendo' => $baoCao->bchn_tiendo,
             'bchn_trangthai' => $baoCao->bchn_trangthai,
-            'bchn_ngay' => $baoCao->bchn_ngay,
+            'bchn_ngay' => date('d-m-Y', strtotime($baoCao->bchn_ngay)),
             'bchn_noidung' => $baoCao->bchn_noidung,
             'so_gio_lam' => $baoCao->so_gio_lam,
             'bchn_giothamdinh' => $baoCao->bchn_giothamdinh,
@@ -139,7 +138,7 @@ public function get_CV_BC_HangNgay()
                 // Thêm các thông tin khác của loại công việc cần lấy
             ],
             'nhan_vien' => $nhanVien ? [
-                'ten_nhan_vien' => $nhanVien->nv_taikhoan,
+                'ten_nhan_vien' => $nhanVien->nv_ten,
                 // Thêm các thông tin khác của nhân viên cần lấy
             ] : null,
             'ng_duyet' => $nhanVienDuyet ? [

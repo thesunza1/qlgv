@@ -89,6 +89,16 @@
             outline: 1.5px solid #0087E1;
         }
     }
+
+    .save-btn {
+        padding: 7px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background: none;
+        border: 1px solid #333;
+        cursor: pointer;
+    }
 }
 
 .table {

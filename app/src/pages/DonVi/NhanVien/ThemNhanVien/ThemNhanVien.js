@@ -27,8 +27,6 @@ function ThemNhanVien() {
         nv_diachi: '',
     });
 
-    console.log(themNhanVien);
-
     const [dSDonVi, setDSDonVi] = useState([]);
 
     useEffect(() => {
