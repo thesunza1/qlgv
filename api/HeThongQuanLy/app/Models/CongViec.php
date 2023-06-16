@@ -11,11 +11,22 @@ class CongViec extends Model
     protected $table = 'congviec';
     protected $primaryKey = 'cv_id';
     public $timestamps = false;
-    
     protected $fillable = [
         'cv_ten',
-        'cv_trangthai'
-    
+        'cv_trangthai',
+        'cv_thgianbatdau',
+        'cv_thgianhoanthanh',
+        'cv_tiendo',
+        'cv_noidung',
+        'cv_cv_cha',
+        'cv_trongso',
+        'dv_id',
+        'kh_id',
+        'da_id',
+        'n_cv_id',
+        'nv_id',
+        'cv_hanhoanthanh',
+        'cv_tgthuchien',
     ];
     public function nhanVien()
     {
@@ -29,7 +40,7 @@ class CongViec extends Model
 
     public function donVi()
     {
-        return $this->belongsTo(KeHoach::class, 'dv_id', 'dv_id');
+        return $this->belongsTo(DonVi::class, 'dv_id', 'dv_id');
     }
 
     public function baoCaoHangNgay()
@@ -44,6 +55,16 @@ class CongViec extends Model
     
     public function nhomCongViecs()
     {
-        return $this->belongsTo(XinGiaHan::class, 'n_cv_id', 'n_cv_id');
+        return $this->belongsTo(NhomCongViec::class, 'n_cv_id', 'n_cv_id');
+    }
+
+    public function duAns()
+    {
+        return $this->belongsTo(DuAn::class, 'da_id', 'da_id');
+    }
+
+    public function cv_cv_cha()
+    {
+        return $this->belongsTo(CongViec::class, 'cv_cv_cha', 'cv_id');
     }
 }

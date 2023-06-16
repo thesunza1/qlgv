@@ -1,17 +1,13 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
     faArrowUp,
     faArrowDown,
-    faAnglesLeft,
-    faAnglesRight,
     faSave,
     faPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import 'tippy.js/dist/tippy.css';
-import ReactPaginate from 'react-paginate';
+import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
 import BaoCaoKeHoach from './BaoCaoKeHoach';
@@ -19,94 +15,77 @@ import BaoCaoCongViec from './BaoCaoCongViec';
 
 const cx = classNames.bind(styles);
 
-function createData(
-    id,
-    thoi_gian,
-    ten_cong_viec,
-    noi_dung_cong_viec,
-    gio_lam_viec,
-    tien_do,
-    duyet_gio,
-    trang_thai,
-    tham_dinh,
-) {
-    return {
-        id,
-        thoi_gian,
-        ten_cong_viec,
-        noi_dung_cong_viec,
-        gio_lam_viec,
-        tien_do,
-        duyet_gio,
-        trang_thai,
-        tham_dinh,
-    };
-}
-
-const rows = [
-    createData(1, '31/5/2023', 'Lập trình', 'Bằng Reactjs 1', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(
-        2,
-        '31/5/2023',
-        'Lập trình',
-        'Bằng Reactjs 2',
-        '2',
-        '50%',
-        '2',
-        'Chưa thẩm định',
-        '1',
-    ),
-    createData(3, '29/5/2023', 'Lập trình 1', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(4, '30/5/2023', 'Thiết kế', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(5, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(6, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(7, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(8, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(9, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(10, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(11, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(12, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-];
-
 function BaoCao() {
-    const [dSBaocao, setDSBaocao] = useState(
-        rows.map((row) => ({
-            ...row,
-            isEdit: false,
-        })),
-    );
-    console.log(dSBaocao);
+    const [infoUser, setInfoUser] = useState([]);
+    const [dSBaoCaoHangNgay, setDSBaoCaoHangNgay] = useState([]);
+    const [dSBaocao, setDSBaocao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
-    const [currentPage, setCurrentPage] = useState(0);
 
-    const AddRowTable = () => {
-        const id = dSBaocao.length + 1;
+    const [displayedBaocao, setDisplayedBaocao] = useState([]);
+    const [nextId, setNextId] = useState(displayedBaocao.length);
+
+    const [themBaoCao, setThemBaoCao] = useState({
+        nhan_vien: { ten_nhan_vien: '' },
+        cong_viec: { ten_cong_viec: '' },
+        loai_cong_viec: { ten_loai_cong_viec: '' },
+        bchn_noidung: '',
+        so_gio_lam: '',
+    });
+
+    console.log(themBaoCao);
+
+    useEffect(() => {
+        const getInfoUser = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/user-info?token=${token}`);
+            setInfoUser(response.data.result);
+        };
+        getInfoUser();
+    }, []);
+
+    useEffect(() => {
+        const getDSBaoCaoHangNgay = async () => {
+            const response = await axiosClient.get('/get_CV_BC_HangNgay');
+            setDSBaoCaoHangNgay(response.data);
+        };
+        getDSBaoCaoHangNgay();
+    }, []);
+
+    useEffect(() => {
+        setDSBaocao(
+            dSBaoCaoHangNgay.map((bc) => ({
+                ...bc,
+                isEdit: false,
+            })),
+        );
+    }, [dSBaoCaoHangNgay]);
+
+    const handleAddRowTable = () => {
         const newRow = {
-            id: id,
-            thoi_gian: '',
-            ten_cong_viec: '',
-            noi_dung_cong_viec: '',
-            gio_lam_viec: '',
-            tien_do: '',
-            duyet_gio: '',
-            trang_thai: '',
-            tham_dinh: '',
+            bchn_id: nextId,
+            bchn_ngay: new Date().toISOString().substr(0, 10),
+            nhan_vien: { ten_nhan_vien: '' },
+            cong_viec: { ten_cong_viec: '' },
+            loai_cong_viec: { ten_loai_cong_viec: '' },
+            bchn_noidung: '',
+            so_gio_lam: '',
+            bchn_tiendo: '',
+            bchn_giothamdinh: '',
+            bchn_trangthai: '0',
             isEdit: true,
         };
-        setDSBaocao([...dSBaocao, newRow]);
+        setDisplayedBaocao([newRow, ...displayedBaocao]);
+        setNextId(nextId + 1);
     };
 
-    const handleInputChange = (event, id) => {
+    const handleChangeInput = (event, rowIndex) => {
         const { name, value } = event.target;
-        const newData = dSBaocao.map((item) =>
-            item.id === id ? { ...item, [name]: value } : item,
-        );
-        setDSBaocao(newData);
+        const updatedBaoCao = [...displayedBaocao];
+        updatedBaoCao[rowIndex] = { ...updatedBaoCao[rowIndex], [name]: value };
+        setDisplayedBaocao(updatedBaoCao);
     };
-
-    const PER_PAGE = 5;
 
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -117,45 +96,54 @@ function BaoCao() {
         }
     };
 
-    const handleSearchInputChange = (event) => {
+    const handleChangeSearchInput = (event) => {
         setSearchText(event.target.value);
-        setCurrentPage(0);
     };
 
-    const sortedBaocao = useMemo(() => {
-        let sortedItems = [...dSBaocao];
-        sortedItems = sortedItems.sort((a, b) =>
-            a[sortColumn] > b[sortColumn] ? 1 : b[sortColumn] > a[sortColumn] ? -1 : 0,
-        );
-        if (sortDirection === 'asc') {
-            sortedItems.reverse();
-        }
-        return sortedItems;
-    }, [dSBaocao, sortColumn, sortDirection]);
+    const filterBaocao = (baocao, infoUser) => {
+        const filteredBaocao =
+            infoUser.nv_quyenthamdinh === '1'
+                ? baocao
+                : baocao.filter((item) => item.nhan_vien.ten_nhan_vien === infoUser.nv_ten);
 
-    const getDisplayBaocao = useCallback(() => {
-        const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
-        );
-        const startIndex = currentPage * PER_PAGE;
-        return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedBaocao, searchText, currentPage]);
+        const searchedBaocao = filteredBaocao
+            .filter(
+                (bc) =>
+                    bc.cong_viec.ten_cong_viec &&
+                    bc.cong_viec.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
+            )
+            .filter((bc) => bc.bchn_trangthai === '0')
+            .sort((a, b) => {
+                if (sortDirection === 'asc') {
+                    return a[sortColumn] < b[sortColumn]
+                        ? -1
+                        : a[sortColumn] > b[sortColumn]
+                        ? 1
+                        : 0;
+                } else {
+                    return a[sortColumn] < b[sortColumn]
+                        ? 1
+                        : a[sortColumn] > b[sortColumn]
+                        ? -1
+                        : 0;
+                }
+            });
 
-    const totalPage = Math.ceil(sortedBaocao.length / PER_PAGE);
-
-    const handlePageClick = ({ selected: selectedPage }) => {
-        setCurrentPage(selectedPage);
+        return searchedBaocao || [];
     };
 
-    const displayedBaocao = getDisplayBaocao();
+    useEffect(() => {
+        setDisplayedBaocao(filterBaocao(dSBaocao, infoUser));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchText, sortDirection, sortColumn, infoUser, dSBaocao]);
 
     return (
         <div className={cx('wrapper')}>
             <BaoCaoKeHoach />
             <BaoCaoCongViec />
-            <h2>Báo cáo công việc hằng ngày</h2>
+            <h2>Báo cáo công việc hàng ngày</h2>
             <p>
-                Tổng giờ đã là: <span>16 giờ</span>
+                Tổng giờ đã làm: <span>16 giờ</span>
             </p>
             <div className={cx('inner')}>
                 <div className={cx('features')}>
@@ -164,15 +152,15 @@ function BaoCao() {
                             type="search"
                             placeholder="Tìm kiếm báo cáo"
                             value={searchText}
-                            onChange={handleSearchInputChange}
+                            onChange={handleChangeSearchInput}
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
                     <div>
-                        <button className={cx('add-btn')} onClick={AddRowTable}>
+                        <button className={cx('add-btn')} onClick={handleAddRowTable}>
                             <FontAwesomeIcon icon={faPlus} /> Thêm hàng
                         </button>
-                        <button className={cx('add-btn')}>
+                        <button className={cx('save-btn')}>
                             <FontAwesomeIcon icon={faSave} /> Lưu
                         </button>
                     </div>
@@ -183,9 +171,9 @@ function BaoCao() {
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th onClick={() => handleSortColumn('thoi_gian')}>
+                                    <th onClick={() => handleSortColumn('bchn_ngay')}>
                                         <span>Thời gian</span>
-                                        {sortColumn === 'thoi_gian' && (
+                                        {sortColumn === 'bchn_ngay' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -196,26 +184,34 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
-                                    <th onClick={() => handleSortColumn('ten_cong_viec')}>
-                                        <span>Tên công việc</span>
-                                        {sortColumn === 'ten_cong_viec' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
+                                    {infoUser.nv_quyenthamdinh === '1' && (
+                                        <th
+                                            onClick={() =>
+                                                handleSortColumn('nhan_vien?.ten_nhan_vien')
+                                            }
+                                        >
+                                            <span>Nhân viên</span>
+                                            {sortColumn === 'nhan_vien?.ten_nhan_vien' && (
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        sortDirection === 'asc'
+                                                            ? faArrowUp
+                                                            : faArrowDown
+                                                    }
+                                                    className={cx('icon')}
+                                                />
+                                            )}
+                                        </th>
+                                    )}
+                                    <th>Tên công việc</th>
+                                    <th>Loại công việc</th>
                                     <th>Nội dung công việc</th>
-                                    <th>Giờ làm việc</th>
-                                    <th>Tiến độ</th>
-                                    <th>Duyệt giờ</th>
-                                    <th onClick={() => handleSortColumn('trang_thai')}>
+                                    <th>Giờ làm việc (h)</th>
+                                    <th>Tiến độ (%)</th>
+                                    {infoUser.nv_quyenthamdinh === '1' && <th>Duyệt giờ (h)</th>}
+                                    <th onClick={() => handleSortColumn('bchn_trangthai')}>
                                         <span>Trạng thái</span>
-                                        {sortColumn === 'trang_thai' && (
+                                        {sortColumn === 'bchn_trangthai' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -226,130 +222,151 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
-                                    <th>Thẩm định</th>
+                                    {infoUser.nv_quyenthamdinh === '1' && <th>Thẩm định</th>}
                                 </tr>
                             </thead>
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
-                                    <tr key={bc.id}>
-                                        <td>{index + 1 + currentPage * PER_PAGE}</td>
+                                    <tr key={bc.bchn_id}>
+                                        <td>{index + 1}</td>
                                         <td>
                                             {bc.isEdit ? (
-                                                <textarea
-                                                    name="thoi_gian"
-                                                    value={bc.thoi_gian}
+                                                <input
+                                                    type="date"
+                                                    name="bchn_ngay"
+                                                    value={
+                                                        bc.bchn_ngay ||
+                                                        new Date().toISOString().substr(0, 10)
+                                                    }
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleChangeInput(event, index)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.thoi_gian}</>
+                                                <>{bc.bchn_ngay}</>
+                                            )}
+                                        </td>
+                                        {infoUser.nv_quyenthamdinh === '1' && (
+                                            <td>
+                                                {bc.isEdit ? (
+                                                    <textarea
+                                                        name="ten_nhan_vien"
+                                                        value={bc.nhan_vien?.ten_nhan_vien}
+                                                        onChange={(event) =>
+                                                            handleChangeInput(event, index)
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <>{bc.nhan_vien?.ten_nhan_vien}</>
+                                                )}
+                                            </td>
+                                        )}
+                                        <td>
+                                            {bc.isEdit ? (
+                                                <textarea
+                                                    name="cong_viec"
+                                                    value={bc.cong_viec?.ten_cong_viec}
+                                                    onChange={(event) =>
+                                                        handleChangeInput(event, index)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>{bc.cong_viec?.ten_cong_viec}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="ten_cong_viec"
-                                                    value={bc.ten_cong_viec}
+                                                    name="loai_cong_viec"
+                                                    value={bc.loai_cong_viec?.ten_loai_cong_viec}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleChangeInput(event, index)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.ten_cong_viec}</>
+                                                <>{bc.loai_cong_viec?.ten_loai_cong_viec}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="noi_dung_cong_viec"
-                                                    value={bc.noi_dung_cong_viec}
+                                                    name="bchn_noidung"
+                                                    value={bc.bchn_noidung}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleChangeInput(event, index)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.noi_dung_cong_viec}</>
+                                                <>{bc.bchn_noidung}</>
+                                            )}
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {bc.isEdit ? (
+                                                <textarea
+                                                    name="so_gio_lam"
+                                                    value={bc.so_gio_lam}
+                                                    onChange={(event) =>
+                                                        handleChangeInput(event, index)
+                                                    }
+                                                />
+                                            ) : (
+                                                <>{bc.so_gio_lam}</>
                                             )}
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="gio_lam_viec"
-                                                    value={bc.gio_lam_viec}
+                                                    name="bchn_tiendo"
+                                                    value={bc.bchn_tiendo}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleChangeInput(event, index)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.gio_lam_viec}</>
+                                                <>{bc.bchn_tiendo}</>
                                             )}
                                         </td>
+                                        {infoUser.nv_quyenthamdinh === '1' && (
+                                            <td>
+                                                {bc.isEdit ? (
+                                                    <textarea
+                                                        name="bchn_giothamdinh"
+                                                        value={bc.bchn_giothamdinh}
+                                                        onChange={(event) =>
+                                                            handleChangeInput(event, index)
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <>{bc.bchn_giothamdinh}</>
+                                                )}
+                                            </td>
+                                        )}
                                         <td>
                                             {bc.isEdit ? (
                                                 <textarea
-                                                    type="search"
-                                                    name="tien_do"
-                                                    value={bc.tien_do}
+                                                    name="bchn_trangthai"
+                                                    value={bc.bchn_trangthai}
                                                     onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
+                                                        handleChangeInput(event, index)
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.tien_do}</>
+                                                <>
+                                                    {bc.bchn_trangthai === '0'
+                                                        ? 'Chưa thẩm định'
+                                                        : 'Đã thẩm định'}
+                                                </>
                                             )}
                                         </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="duyet_gio"
-                                                    value={bc.duyet_gio}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.duyet_gio}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    type="search"
-                                                    name="trang_thai"
-                                                    value={bc.trang_thai}
-                                                    onChange={(event) =>
-                                                        handleInputChange(event, bc.id)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.trang_thai}</>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <input type="checkbox"></input>
-                                        </td>
+                                        {infoUser.nv_quyenthamdinh === '1' && (
+                                            <td>
+                                                <input type="checkbox"></input>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        {sortedBaocao.length > PER_PAGE && (
-                            <ReactPaginate
-                                previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
-                                nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
-                                breakLabel={'...'}
-                                pageCount={totalPage}
-                                marginPagesDisplayed={1}
-                                pageRangeDisplayed={2}
-                                onPageChange={handlePageClick}
-                                containerClassName={cx('pagination')}
-                                activeClassName={cx('active')}
-                            />
-                        )}
                     </>
                 ) : (
                     <p className={cx('no-result')}>Không có kết quả tìm kiếm</p>

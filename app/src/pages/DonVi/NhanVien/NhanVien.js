@@ -18,6 +18,7 @@ import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from '~/pages/DonVi/DonVi.module.scss';
+import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
@@ -31,11 +32,11 @@ function NhanVien() {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const PER_PAGE = 5;
+    const PER_PAGE = 7;
 
     useEffect(() => {
         const getDSNhanVien = async () => {
-            const response = await axiosClient.get('/getNhanVien');
+            const response = await axiosClient.get('/get_NhanVien');
             setDSNhanVien(response.data.nhanViens);
         };
         getDSNhanVien();
@@ -45,6 +46,29 @@ function NhanVien() {
         const filteredNhanVien = dSNhanVien.filter((nv) => nv.dv_id.toString() === dv_id);
         setDSNhanVienTheoDV(filteredNhanVien);
     }, [dv_id, dSNhanVien]);
+
+    const handleXoaNhanVien = (nv) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa nhân viên ${nv.nv_ten.toUpperCase()} này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục nhân viên này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                const deletenv_ids = [nv.nv_id];
+                await axiosClient.delete('/delete_NhanVien', {
+                    data: { deletenv_ids },
+                });
+                swal(`${nv.nv_ten.toUpperCase()} đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
+            }
+        });
+    };
 
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -158,7 +182,7 @@ function NhanVien() {
                                         <td>{nv.nv_sdt}</td>
                                         <td>{nv.nv_diachi}</td>
                                         <td>
-                                            <Link to={`/chinhsua/${nv.dv_id}`}>
+                                            <Link to={`${nv.nv_id}/chinhsua`}>
                                                 <Tippy content="Chỉnh sửa" placement="bottom">
                                                     <button className={cx('handle', 'edit-btn')}>
                                                         <FontAwesomeIcon icon={faPenToSquare} />
@@ -167,7 +191,10 @@ function NhanVien() {
                                             </Link>
 
                                             <Tippy content="Xóa" placement="bottom">
-                                                <button className={cx('handle', 'delete-btn')}>
+                                                <button
+                                                    className={cx('handle', 'delete-btn')}
+                                                    onClick={() => handleXoaNhanVien(nv)}
+                                                >
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
                                             </Tippy>

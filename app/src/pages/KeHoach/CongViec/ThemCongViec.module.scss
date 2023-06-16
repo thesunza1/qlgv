@@ -36,14 +36,14 @@
         cursor: pointer;
     }
 }
-  
+
 .inner {
     width: 100%;
     height: auto;
     margin-top: 10px;
     background: #fff;
     border-radius: 5px;
-    box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
 }
 
 .features {
@@ -89,16 +89,6 @@
             outline: 1.5px solid #0087E1;
         }
     }
-
-    .save-btn {
-        padding: 7px;
-        font-size: 1.5rem;
-        font-weight: 500;
-        border-radius: 3px;
-        background: none;
-        border: 1px solid #333;
-        cursor: pointer;
-    }
 }
 
 .table {
@@ -106,7 +96,8 @@
     max-width: 100%;
     border-collapse: collapse;
 
-    th, td {
+    th,
+    td {
         padding: 10px;
         text-align: center;
     }
@@ -140,17 +131,17 @@
             outline: none;
             width: 100px;
         }
+
+        input[type="date"] {
+            text-align: center;
+            border: none;
+            outline: none;
+            width: 100px;
+        }
     }
 
     td:first-child {
         font-weight: 600;
-    }
-    
-    td:nth-child(3),
-    td:nth-child(4),
-    td:nth-child(5),
-    td:nth-child(6) {
-        text-align: left;
     }
 
     tr:nth-child(even) {
@@ -181,7 +172,7 @@
         }
     }
 }
-  
+
 .active {
     color: var(--text-white);
     background: #0087E1;
@@ -190,4 +181,3 @@
 .no-result {
     padding: 40px 20px;
 }
-  

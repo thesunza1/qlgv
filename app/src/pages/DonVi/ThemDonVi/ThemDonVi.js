@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -12,11 +12,30 @@ const cx = classNames.bind(styles);
 function ThemDonVi() {
     const navigate = useNavigate();
 
+    const [dSDonViTruong, setDSDonViTruong] = useState([]);
+    const [dSDonViCha, setDSDonViCha] = useState([]);
+
     const [themDonVi, setThemDonVi] = useState({
         dv_ten: '',
         dv_id_dvtruong: '',
         dv_dvcha: '',
     });
+
+    useEffect(() => {
+        const getDSDonViTruong = async () => {
+            const response = await axiosClient.get('/get_NhanVien');
+            setDSDonViTruong(response.data.nhanViens);
+        };
+        getDSDonViTruong();
+    }, []);
+
+    useEffect(() => {
+        const getDSDonViCha = async () => {
+            const response = await axiosClient.get('/get_DonVi');
+            setDSDonViCha(response.data.don_vis);
+        };
+        getDSDonViCha();
+    }, []);
 
     function handleChange(event) {
         setThemDonVi({
@@ -30,7 +49,7 @@ function ThemDonVi() {
 
         const { dv_ten, dv_id_dvtruong, dv_dvcha } = themDonVi;
 
-        const response = await axiosClient.post('/add_donvi', {
+        const response = await axiosClient.post('/add_DonVi', {
             dv_ten,
             dv_id_dvtruong,
             dv_dvcha,
@@ -38,7 +57,7 @@ function ThemDonVi() {
 
         if (response.status === 200) {
             navigate('/qlcv/donvi');
-            cogoToast.success(`Thêm đơn vị ${dv_ten.toUpperCase()} mới thành công`, {
+            cogoToast.success(`Đơn vị ${dv_ten.toUpperCase()} đã được thêm`, {
                 position: 'top-right',
             });
         }
@@ -69,36 +88,33 @@ function ThemDonVi() {
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị trưởng</label>
-                        {/* <input
-                            type="search"
-                            name="dv_id_dvtruong"
-                            value={themDonVi.dv_id_dvtruong}
-                            onChange={handleChange}
-                        /> */}
                         <select
                             name="dv_id_dvtruong"
                             value={themDonVi.dv_id_dvtruong}
                             onChange={handleChange}
                         >
-                            <option value="" disabled selected>
-                                Chọn đơn vị trưởng
+                            <option value="" disabled>
+                                -- Chọn đơn vị trưởng --
                             </option>
-                            <option value="volvo">Volvo</option>
-                            <option value="saab">Saab</option>
-                            <option value="vw">VW</option>
-                            <option value="audi" selected>
-                                Audi
-                            </option>
+                            {dSDonViTruong.map((dvTruong) => (
+                                <option key={dvTruong.nv_id} value={dvTruong.nv_id}>
+                                    {dvTruong.nv_ten}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị cha</label>
-                        <input
-                            type="search"
-                            name="dv_dvcha"
-                            value={themDonVi.dv_dvcha}
-                            onChange={handleChange}
-                        />
+                        <select name="dv_dvcha" value={themDonVi.dv_dvcha} onChange={handleChange}>
+                            <option value="" disabled>
+                                -- Chọn đơn vị cha --
+                            </option>
+                            {dSDonViCha.map((dvCha) => (
+                                <option key={dvCha.dv_id} value={dvCha.dv_id}>
+                                    {dvCha.dv_ten}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </form>
                 <div className={cx('handle')}>

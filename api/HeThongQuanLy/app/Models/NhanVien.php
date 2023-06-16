@@ -48,7 +48,7 @@ class NhanVien extends Authenticatable implements JWTSubject
     
     public function baoCaoHangNgay()
     {
-        return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'id');
+        return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'nv_id');
     }
     
     public function xinGiaHans()

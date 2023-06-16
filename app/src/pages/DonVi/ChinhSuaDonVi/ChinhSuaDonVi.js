@@ -11,7 +11,10 @@ const cx = classNames.bind(styles);
 
 function ChinhSuaDonVi() {
     const navigate = useNavigate();
-    const { dv_id, dv_ten, dv_id_dvtruong, dv_dvcha } = useParams();
+    const { dv_id } = useParams();
+
+    const [dSDonViTruong, setDSDonViTruong] = useState([]);
+    const [dSDonViCha, setDSDonViCha] = useState([]);
 
     const [chinhSuaDonVi, setChinhSuaDonVi] = useState({
         dv_ten: '',
@@ -20,13 +23,22 @@ function ChinhSuaDonVi() {
     });
 
     useEffect(() => {
-        setChinhSuaDonVi({
-            dv_id,
-            dv_ten,
-            dv_id_dvtruong,
-            dv_dvcha,
-        });
-    }, [dv_id, dv_ten, dv_id_dvtruong, dv_dvcha]);
+        const getData = async () => {
+            try {
+                const responseDonViID = await axiosClient.get(`/get_ID_DonVi/${dv_id}`);
+                setChinhSuaDonVi(responseDonViID.data.don_vi);
+
+                const responseDonViTruong = await axiosClient.get('/get_NhanVien');
+                setDSDonViTruong(responseDonViTruong.data.nhanViens);
+
+                const responseDonViCha = await axiosClient.get('/get_DonVi');
+                setDSDonViCha(responseDonViCha.data.don_vis);
+            } catch (error) {
+                cogoToast.error('Không thể lấy dữ liệu', { position: 'top-right' });
+            }
+        };
+        getData();
+    }, [dv_id]);
 
     function handleChange(event) {
         setChinhSuaDonVi({
@@ -40,7 +52,7 @@ function ChinhSuaDonVi() {
 
         const { dv_ten, dv_id_dvtruong, dv_dvcha } = chinhSuaDonVi;
 
-        const response = await axiosClient.put(`/update_donvi/${dv_id}`, {
+        const response = await axiosClient.put(`/update_DonVi/${dv_id}`, {
             dv_ten,
             dv_id_dvtruong,
             dv_dvcha,
@@ -48,7 +60,7 @@ function ChinhSuaDonVi() {
 
         if (response.status === 200) {
             navigate('/qlcv/donvi');
-            cogoToast.success(`Chỉnh sửa đơn vị ${dv_ten.toUpperCase()} thành công`, {
+            cogoToast.success(`Đơn vị ${dv_ten.toUpperCase()} đã được cập nhật`, {
                 position: 'top-right',
             });
         }
@@ -79,29 +91,40 @@ function ChinhSuaDonVi() {
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị trưởng</label>
-                        {/* <input
-                            type="search"
+                        <select
                             name="dv_id_dvtruong"
-                            value={chinhSuaDonVi.dv_id_dvtruong}
+                            value={chinhSuaDonVi.dv_id_dvtruong?.nv_id}
                             onChange={handleChange}
-                        /> */}
-                        <select>
-                            <option value="volvo">Volvo</option>
-                            <option value="saab">Saab</option>
-                            <option value="vw">VW</option>
-                            <option value="audi" selected>
-                                Audi
+                        >
+                            <option value="" disabled>
+                                -- Chọn đơn vị trưởng --
                             </option>
+                            {dSDonViTruong.map((dvTruong) => (
+                                <option key={dvTruong.nv_id} value={dvTruong.nv_id}>
+                                    {dvTruong.nv_ten}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className={cx('form-item')}>
                         <label>Đơn vị cha</label>
-                        <input
-                            type="search"
+                        <select
                             name="dv_dvcha"
-                            value={chinhSuaDonVi.dv_dvcha}
+                            value={chinhSuaDonVi.dv_dvcha?.dv_id}
                             onChange={handleChange}
-                        />
+                        >
+                            <option value="" disabled>
+                                -- Chọn đơn vị cha --
+                            </option>
+                            {dSDonViCha.map((dvCha) => (
+                                <option key={dvCha.dv_id} value={dvCha.dv_id}>
+                                    {dvCha.dv_ten}
+                                </option>
+                            ))}
+                            {chinhSuaDonVi.dv_dvcha === null ? (
+                                <option value="">-- Chưa có đơn vị cha --</option>
+                            ) : null}
+                        </select>
                     </div>
                 </form>
                 <div className={cx('handle')}>
