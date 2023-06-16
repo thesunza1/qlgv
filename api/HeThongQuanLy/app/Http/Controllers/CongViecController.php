@@ -49,6 +49,14 @@ class CongViecController extends Controller
                 $congViecItem = [
                     'cv_id' => $congViec->cv_id,
                     'cv_ten' => $congViec->cv_ten,
+                    'cv_trangthai' => $congViec->cv_trangthai,
+                    'cv_thgianbatdau' => $congViec->cv_thgianbatdau,
+                    'cv_thgianhoanthanh' => $congViec->cv_ten,
+                    'cv_tiendo' => $congViec->cv_tiendo,
+                    'cv_noidung' => $congViec->cv_noidung,
+                    'cv_trongso' => $congViec->cv_trongso,
+                    'cv_hanhoanthanh' => $congViec->cv_hanhoanthanh,
+                    'cv_tgthuchien' => $congViec->cv_tgthuchien,
                     // Thêm các thông tin khác của công việc cần lấy
                     'nhan_vien' => $nhanVien ? [
                         'ten_nhan_vien' => $nhanVien->nv_ten,
@@ -191,7 +199,7 @@ class CongViecController extends Controller
 
     public function get_CV_DotXuat()
     {
-        $kh_id = 5; // ID của kế hoạch đột xuất
+        $kh_id = 1; // ID của kế hoạch đột xuất
 
         $congViec = CongViec::where('kh_id', $kh_id)->get();
 
@@ -210,29 +218,34 @@ class CongViecController extends Controller
             return response()->json(['message' => 'Không tìm thấy kế hoạch'], 404);
         }
 
-        // Tạo công việc mới
-        $congViec = new CongViec();
-        $congViec->kh_id = $keHoach->kh_id;
-        $congViec->cv_ten = $request->input('cv_ten');
-        $congViec->cv_thgianbatdau = $request->input('cv_thgianbatdau');
-        $congViec->cv_trangthai = $request->input('cv_trangthai');
-        $congViec->cv_noidung = $request->input('cv_noidung');
-        $congViec->cv_cv_cha = $request->input('cv_cv_cha');
-        $congViec->cv_trongso = $request->input('cv_trongso');
-        $congViec->dv_id = $request->input('dv_id');
-        $congViec->kh_id = $kh_id;
-        $congViec->da_id = $request->input('da_id');
-        $congViec->n_cv_id = $request->input('n_cv_id');
-        $congViec->cv_hanhoanthanh = $request->input('cv_hanhoanthanh');
-        $congViec->cv_tgthuchien = $request->input('cv_tgthuchien');
-        $congViec->nv_id = auth()->user()->nv_id; // Lấy nv_id của người dùng hiện tại
-        // ...Thêm các thuộc tính khác của công việc
+        $congViecData = $request->input('cong_viec'); // Mảng chứa thông tin các công việc
 
-        // Lưu công việc vào cơ sở dữ liệu
-        $congViec->save();
+        // Lưu các công việc
+        foreach ($congViecData as $cvData) {
+            // Tạo công việc mới
+            $congViec = new CongViec();
+            $congViec->kh_id = $keHoach->kh_id;
+            $congViec->cv_ten = $cvData['cv_ten'];
+            $congViec->cv_thgianbatdau = $cvData['cv_thgianbatdau'];
+            $congViec->cv_trangthai = $cvData['cv_trangthai'];
+            $congViec->cv_noidung = $cvData['cv_noidung'];
+            $congViec->cv_cv_cha = $cvData['cv_cv_cha'];
+            $congViec->cv_trongso = $cvData['cv_trongso'];
+            $congViec->dv_id = $cvData['dv_id'];
+            $congViec->kh_id = $kh_id;
+            $congViec->da_id = $cvData['da_id'];
+            $congViec->n_cv_id = $cvData['n_cv_id'];
+            $congViec->cv_hanhoanthanh = $cvData['cv_hanhoanthanh'];
+            $congViec->cv_tgthuchien = $cvData['cv_tgthuchien'];
+            $congViec->nv_id = auth()->user()->nv_id; // Lấy nv_id của người dùng hiện tại
+            // ...Thêm các thuộc tính khác của công việc
 
+            // Lưu công việc vào cơ sở dữ liệu
+            $congViec->save();
+        }
         return response()->json(['message' => 'Thêm công việc đột xuất thành công'], 200);
     }
+
 
     public function duyet_CongViec(Request $request, $cv_ids)
     {

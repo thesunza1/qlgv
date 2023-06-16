@@ -3,7 +3,7 @@
         font-size: 3rem;
         text-align: center;
         font-weight: bold;
-        margin: 10px 0 20px 0;
+        transition: all 0.3s ease;
 
         .back-icon {
             margin-right: 30px;
@@ -11,11 +11,36 @@
             color: #0d7d3c;
         }
     }
+
+    p {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin: 0 0 10px 20px;
+        opacity: 0.7;
+
+        span {
+            color: var(--primary);
+        }
+    }
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+
+    .right-icon {
+        font-size: 2.5rem;
+        padding-top: 5px;
+        cursor: pointer;
+    }
 }
 
 .inner {
     width: 100%;
     height: auto;
+    margin-top: 10px;
     background: #fff;
     border-radius: 5px;
     box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
@@ -51,12 +76,13 @@
 
     .add-btn {
         margin-right: 10px;
-        padding: 6px 8px;
+        padding: 7px;
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
         color: #e2e2e2;
         background: linear-gradient(#27ae60, #1e8449);
+        cursor: pointer;
 
         &:hover {
             background: linear-gradient(#15b357, #0d7d3c);
@@ -64,7 +90,6 @@
         }
     }
 }
-
 
 .table {
     width: 100%;
@@ -94,6 +119,25 @@
     td {
         font-size: 1.4rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        textarea {
+            text-align: center;
+            border: none;
+            outline: none;
+            width: 100px;
+        }
+
+        input[type="date"] {
+            text-align: center;
+            border: none;
+            outline: none;
+            width: 100px;
+        }
     }
 
     td:first-child {
@@ -107,30 +151,6 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
-}
-
-.handle {
-    padding: 7px;
-    font-size: 1.6rem;
-    background: transparent;
-    cursor: pointer;
-
-    &:hover {
-        background: #e2e2e2;
-        border-radius: 50%;
-    }
-}
-
-.view-btn {
-    color: #000;
-}
-
-.edit-btn {
-    color: #2400FF;
-}
-
-.delete-btn {
-    color: var(--primary);
 }
 
 .pagination {

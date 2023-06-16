@@ -9,18 +9,20 @@ import {
     faTrash,
     faAnglesLeft,
     faAnglesRight,
+    faAdd,
+    faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
-import styles from './KeHoach.module.scss';
-import CongViecDotXuat from './CongViecDotXuat/CongViecDotXuat';
-import swal from 'sweetalert';
+import styles from './KeHoachThang.module.scss';
+import CongViecDotXuat from '../CongViecDotXuat/CongViecDotXuat';
+
 const cx = classNames.bind(styles);
 
-function KeHoach() {
+function KeHoachThang() {
     const [dSKeHoach, setDSKeHoach] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
@@ -31,26 +33,15 @@ function KeHoach() {
 
     useEffect(() => {
         const getListProduct = async () => {
+            var now = new Date();
+            let month = now.getMonth();
             const token = localStorage.getItem('Token')
-            const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
-            setDSKeHoach(response.data.ke_hoachs);
-
+            const response = await axiosClient.get(`/get_CV_Thang/${month + 1}/?token=${token}`);
+            setDSKeHoach(response.data.cong_viecs);
         };
         getListProduct();
     }, []);
-    // const plansWithEmployee = dSKeHoach.filter(plan => plan.nhan_vien !== null);
 
-    // // Map the new array to extract nv_ten property
-    // const employees = useMemo(
-    //     () => dSKeHoach.filter(plan => plan.nhan_vien !== null).map(plan => plan.nhan_vien.nv_ten),
-    //     [dSKeHoach]
-    // );
-    // const unit = useMemo(
-    //     () => dSKeHoach.filter(plan => plan.don_vi !== null).map(plan => plan.don_vi.dv_ten),
-    //     [dSKeHoach]
-    // );
-
-    // Print the array of nv_ten values
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -77,8 +68,8 @@ function KeHoach() {
     }, [dSKeHoach, sortColumn, sortDirection]);
 
     const getDisplayKeHoach = useCallback(() => {
-        const filteredKeHoach = sortedKeHoach.filter((kh) =>
-            kh.kh_ten.toLowerCase().includes(searchText.toLowerCase()),
+        const filteredKeHoach = sortedKeHoach.filter((cv) =>
+            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredKeHoach.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -89,53 +80,35 @@ function KeHoach() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
-    const handleXoaKH = (kh) => {
-        swal({
-            title: `Bạn chắc chắn muốn xóa kế hoạch ${kh.kh_ten.toUpperCase()} này`,
-            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-        }).then(async (willDelete) => {
-            if (willDelete) {
-                const token = localStorage.getItem('Token')
-                await axiosClient.delete(`/delete_KeHoach?token=${token}`);
-                swal(`kế hoạch đã được xóa`, {
-                    icon: 'success',
-                });
-                window.location.reload();
-            } else {
-                return;
-            }
-        });
-    };
 
     const displayedKeHoach = getDisplayKeHoach();
-
+    var now = new Date();
+    let month = now.getMonth();
     return (
+
         <>
             <div className={cx('wrapper')}>
                 <div className={cx('inner')}>
                     <div className={cx('title')}>
-                        <h2>Kế Hoạch</h2>
+                        <h2>Công việc trong tháng {month + 1}</h2>
                     </div>
                     <div className={cx('features')}>
-                        <Link to="/qlcv/congviec" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
+                        <Link to="them" className={cx('add-btn')}>
+                            <FontAwesomeIcon icon={faPlus} /> Thêm
                         </Link>
                         <div className={cx('search')}>
                             <input
                                 type="search"
-                                placeholder="Tìm kiếm kế hoạch"
+                                placeholder="Tìm kiếm công việc"
                                 value={searchText}
                                 onChange={handleSearchInputChange}
                             />
                             <FontAwesomeIcon icon={faSearch} />
                         </div>
-                        <Link to="them" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm
-                        </Link>
 
+                        <Link to="/qlcv/congviec" className={cx('add-btn')}>
+                            <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
+                        </Link>
                     </div>
                     {displayedKeHoach.length > 0 ? (
                         <>
@@ -143,26 +116,25 @@ function KeHoach() {
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th onClick={() => handleSortColumn('kh_ten')}>
-                                            <span>Tên kế hoạch</span>
+                                        <th onClick={() => handleSortColumn('cv_ten')}>
+                                            <span>Tên công việc</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('kh_thgianbatdau')}>
-                                            <span>Thời gian bắt đầu</span>
+                                        <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
+                                            <span>Ngày bắt đầu</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
-                                            <span>Thời gian hết hạn</span>
+                                        <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
+                                            <span>Ngày hết hạn</span>
                                         </th>
-                                        <th>Đơn vị</th>
-                                        <th>Người lập</th>
-                                        <th>Tổng thời gian</th>
+                                        <th>Nội dung</th>
+                                        <th>Trạng thái</th>
                                         <th>Xử lý</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {displayedKeHoach.map((kh, index) => (
-                                        <tr key={kh.kh_id}>
+                                    {displayedKeHoach.map((cv, index) => (
+                                        <tr key={cv.cv_id}>
                                             <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                            <td>{kh.kh_ten}</td>
+                                            <td>{cv.cv_ten}</td>
                                             {/* <td>
                                             {kh.nhan_viens.map((nv) =>
                                                 parseInt(kh.dv_id_dvtruong) === nv.nv_id
@@ -170,20 +142,26 @@ function KeHoach() {
                                                     : null,
                                             )}
                                         </td> */}
-                                            <td>{kh.kh_thgianbatdau.split(' ')[0]}</td>
-                                            <td>{kh.kh_thgianketthuc.split(' ')[0]}</td>
-                                            <td>{kh.don_vi ? kh.don_vi.dv_ten : '-'}</td>
-                                            <td>{kh.nhan_vien ? kh.nhan_vien.nv_ten : '-'}</td>
-                                            <td>{kh.kh_tongthgian}</td>
+                                            <td>{cv.cv_thgianbatdau}</td>
+                                            <td>{cv.cv_thgianketthuc}</td>
+                                            <td>{cv.cv_noidung}</td>
+                                            <td>{cv.cv_trangthai}</td>
                                             <td>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nv_id}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
-                                                    <Tippy content="Xem chi tiết" placement="bottom">
+                                                <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
+                                                    <Tippy content="Xin gia hạn" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
-                                                            <FontAwesomeIcon icon={faEye} />
+                                                            <FontAwesomeIcon icon={faEnvelope} />
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.dv_id}/${kh.nv_id}/chinhsua`}>
+                                                {/* <Link to={`${cv.cv_id}/nhanvien`}>
+                                                    <Tippy content="Xem chi tiết" placement="bottom">
+                                                        <button className={cx('handle', 'view-btn')}>
+                                                            <FontAwesomeIcon icon={faAdd} />
+                                                        </button>
+                                                    </Tippy>
+                                                </Link> */}
+                                                <Link to={`chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
                                                         <button className={cx('handle', 'edit-btn')}>
                                                             <FontAwesomeIcon icon={faPenToSquare} />
@@ -191,7 +169,7 @@ function KeHoach() {
                                                     </Tippy>
                                                 </Link>
                                                 <Tippy content="Xóa" placement="bottom">
-                                                    <button className={cx('handle', 'delete-btn')} onClick={() => handleXoaKH(kh)}>
+                                                    <button className={cx('handle', 'delete-btn')}>
                                                         <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                 </Tippy>
@@ -225,4 +203,4 @@ function KeHoach() {
     );
 }
 
-export default KeHoach;
+export default KeHoachThang;
