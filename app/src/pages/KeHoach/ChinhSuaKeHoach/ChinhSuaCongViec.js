@@ -11,12 +11,12 @@ const cx = classNames.bind(styles);
 
 function ChinhSuaCV() {
     const navigate = useNavigate();
-    const { cv_id, cv_ten, cv_thgianbatdau, cv_thgianketthuc, dv_id, nv_id } = useParams();
+    const { cv_id, cv_ten, cv_thgianbatdau, cv_thgianhoanthanh, dv_id, nv_id } = useParams();
 
     const [chinhSuaCV, setChinhSuaCV] = useState({
         cv_ten: '',
         cv_thgianbatdau: '',
-        cv_thgianketthuc: '',
+        cv_thgianhoanthanh: '',
         dv_id: '',
         nv_id: '',
     });
@@ -26,11 +26,11 @@ function ChinhSuaCV() {
             cv_id,
             cv_ten,
             cv_thgianbatdau,
-            cv_thgianketthuc,
+            cv_thgianhoanthanh,
             dv_id,
             nv_id,
         });
-    }, [cv_id, cv_ten, cv_thgianbatdau, cv_thgianketthuc, dv_id, nv_id]);
+    }, [cv_id, cv_ten, cv_thgianbatdau, cv_thgianhoanthanh, dv_id, nv_id]);
 
     function handleChange(event) {
         setChinhSuaCV({
@@ -38,16 +38,28 @@ function ChinhSuaCV() {
             [event.target.name]: event.target.value,
         });
     }
+    const [optionList, setOptionList] = useState([]);
+    const [optionListDV, setOptionListDV] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const resSoNhanVien = await axiosClient.get(`/get_NhanVien`);
+            const resDonVi = await axiosClient.get(`/get_DonVi`);
+            setOptionList(resSoNhanVien.data.nhanViens);
+            setOptionListDV(resDonVi.data.don_vis);
+        };
+
+        fetchData()
+    }, []);
 
     const handleChinhSuaCV = async (e) => {
         e.preventDefault();
 
-        const { cv_ten, cv_thgianbatdau, cv_thgianketthuc, dv_id, nv_id } = chinhSuaCV;
+        const { cv_ten, cv_thgianbatdau, cv_thgianhoanthanh, dv_id, nv_id } = chinhSuaCV;
 
         const response = await axiosClient.put(`/update`, {
             cv_ten,
             cv_thgianbatdau,
-            cv_thgianketthuc,
+            cv_thgianhoanthanh,
             dv_id,
             nv_id,
         });
@@ -63,8 +75,8 @@ function ChinhSuaCV() {
     const handleCancel = () => {
         navigate('/qlcv/congviec');
     };
-    const [startDateValues, startTimeValues] = chinhSuaCV.cv_thgianbatdau.split(' ');
-    const [endDateValues, endTimeValues] = chinhSuaCV.cv_thgianketthuc.split(' ');
+    // const [startDateValues, startTimeValues] = chinhSuaCV.cv_thgianbatdau.split(' ');
+    // const [endDateValues, endTimeValues] = chinhSuaCV.cv_thgianhoanthanh.split(' ');
     return (
         <div className={cx('wrapper')}>
             <h2>
@@ -92,7 +104,7 @@ function ChinhSuaCV() {
                         <input
                             type="date"
                             name="cv_thgianbatdau"
-                            value={startDateValues}
+                            value={chinhSuaCV.cv_thgianbatdau ? chinhSuaCV.cv_thgianbatdau.split(' ')[0] : '2023-01-01'}
                             onChange={handleChange}
                         />
                     </div>
@@ -100,8 +112,8 @@ function ChinhSuaCV() {
                         <label>Thời gian hoàn thành</label>
                         <input
                             type="date"
-                            name="cv_thgianketthuc"
-                            value={endDateValues}
+                            name="cv_thgianhoanthanh"
+                            value={chinhSuaCV.cv_thgianhoanthanh ? chinhSuaCV.cv_thgianhoanthanh.split(' ')[0] : '2023-01-01'}
                             onChange={handleChange}
                         />
                     </div>
@@ -114,14 +126,9 @@ function ChinhSuaCV() {
                             onChange={handleChange}
                         /> */}
                         <select name='dv_id' onChange={handleChange} defaultValue={chinhSuaCV.dv_id}>
-                            <option value="1">Thế Anh</option>
-                            <option value="2">B</option>
-                            <option value="3">C</option>
-                            <option value="4">D</option>
-                            <option value="5">E</option>
-                            <option value="6">F</option>
-                            <option value="7">Văn Thạch</option>
-                            <option value="8">Thanh Trọng</option>
+                            {optionListDV.map(dv => (
+                                <option key={dv.dv_id} value={dv.dv_id}>{dv.dv_ten}</option>
+                            ))}
                         </select>
                     </div>
                     <div className={cx('form-item')}>
@@ -133,14 +140,9 @@ function ChinhSuaCV() {
                             onChange={handleChange}
                         /> */}
                         <select name='nv_id' onChange={handleChange} defaultValue={chinhSuaCV.nv_id}>
-                            <option value="1">A</option>
-                            <option value="2">B</option>
-                            <option value="3">C</option>
-                            <option value="4">D</option>
-                            <option value="5">E</option>
-                            <option value="6">F</option>
-                            <option value="7">G</option>
-                            <option value="8">H</option>
+                            {optionList.map(employee => (
+                                <option key={employee.nv_id} value={employee.nv_id}>{employee.nv_ten}</option>
+                            ))}
                         </select>
                     </div>
                 </form>

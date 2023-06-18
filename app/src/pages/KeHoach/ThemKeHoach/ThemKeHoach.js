@@ -19,6 +19,8 @@ function ThemKeHoach() {
         kh_loaikehoach: '',
         kh_thgianbatdau: '',
         kh_thgianketthuc: '',
+        kh_stt: '',
+        kh_tongthgian: '',
 
     });
 
@@ -32,15 +34,21 @@ function ThemKeHoach() {
     const handleThemDonVi = async (e) => {
         e.preventDefault();
 
-        const { kh_ten, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach } = themKeHoach;
+        const { kh_stt, kh_ten, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } = themKeHoach;
+        console.log(themKeHoach)
         const token = localStorage.getItem('Token')
-        const response = await axiosClient.post(`/create_KeHoach?token=${token}`, {
+        const response = await axiosClient.post(`/createee_KeHoach?token=${token}`, {
             kh_ten,
             kh_loaikehoach,
             kh_thgianbatdau,
             kh_thgianketthuc,
+            kh_tongthgian,
+            kh_stt,
+
 
         });
+
+
 
         if (response.status === 200) {
             navigate('/qlcv/kehoach');
@@ -51,7 +59,7 @@ function ThemKeHoach() {
     };
 
     const handleCancel = () => {
-        navigate('/qlcv/donvi');
+        navigate('/qlcv/kehoach');
     };
 
     return (
@@ -65,6 +73,15 @@ function ThemKeHoach() {
                 </h2>
                 <div className={cx('inner')}>
                     <form className={cx('form-group')}>
+                        <div className={cx('form-item')}>
+                            <label>Số thứ tự</label>
+                            <input
+                                type="search"
+                                name="kh_stt"
+                                value={themKeHoach.kh_stt}
+                                onChange={handleChange}
+                            />
+                        </div>
                         <div className={cx('form-item')}>
                             <label>Tên kế hoạch</label>
                             <input
@@ -89,6 +106,15 @@ function ThemKeHoach() {
                                 type="date"
                                 name="kh_thgianketthuc"
                                 value={themKeHoach.kh_thgianketthuc}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={cx('form-item')}>
+                            <label>Tổng thời gian</label>
+                            <input
+                                type="search"
+                                name="kh_tongthgian"
+                                value={themKeHoach.kh_tongthgian}
                                 onChange={handleChange}
                             />
                         </div>

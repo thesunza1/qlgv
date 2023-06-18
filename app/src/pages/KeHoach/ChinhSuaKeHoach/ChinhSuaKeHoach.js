@@ -11,12 +11,12 @@ const cx = classNames.bind(styles);
 
 function ChinhSuaKH() {
     const navigate = useNavigate();
-    const { kh_id, kh_ten, kh_thgianbatdau, kh_thgianketthuc, dv_id, nv_id, kh_loaikehoach } = useParams();
+    const { kh_id, kh_ten, kh_thgianbatdau, kh_thgianhoanthanh, dv_id, nv_id, kh_loaikehoach } = useParams();
 
     const [chinhSuaKH, setChinhSuaKH] = useState({
         kh_ten: '',
         kh_thgianbatdau: '',
-        kh_thgianketthuc: '',
+        kh_thgianhoanthanh: '',
         dv_id: '',
         nv_id: '',
         kh_loaikehoach: '',
@@ -27,12 +27,12 @@ function ChinhSuaKH() {
             kh_id,
             kh_ten,
             kh_thgianbatdau,
-            kh_thgianketthuc,
+            kh_thgianhoanthanh,
             dv_id,
             nv_id,
             kh_loaikehoach,
         });
-    }, [kh_id, kh_ten, kh_thgianbatdau, kh_thgianketthuc, dv_id, nv_id, kh_loaikehoach]);
+    }, [kh_id, kh_ten, kh_thgianbatdau, kh_thgianhoanthanh, dv_id, nv_id, kh_loaikehoach]);
 
     function handleChange(event) {
         setChinhSuaKH({
@@ -44,20 +44,19 @@ function ChinhSuaKH() {
     const handleChinhSuaKH = async (e) => {
         e.preventDefault();
 
-        const { kh_ten, kh_thgianbatdau, kh_thgianketthuc, dv_id, nv_id, kh_loaikehoach } = chinhSuaKH;
+        const { kh_ten, kh_thgianbatdau, kh_thgianhoanthanh, dv_id, nv_id, kh_loaikehoach } = chinhSuaKH;
 
         const response = await axiosClient.put(`/update_KeHoach/${kh_id}?token=${localStorage.getItem('Token')}`, {
             kh_ten,
             kh_thgianbatdau,
-            kh_thgianketthuc,
+            kh_thgianhoanthanh,
             dv_id,
             nv_id,
             kh_loaikehoach,
         });
-        console.log(kh_ten, kh_thgianbatdau, kh_thgianketthuc, dv_id, nv_id, kh_loaikehoach)
         if (response.status === 200) {
             navigate('/qlcv/kehoach');
-            cogoToast.success(`Chỉnh sửa công việc ${kh_ten.toUpperCase()} thành công`, {
+            cogoToast.success(`Chỉnh sửa kế hoạch ${kh_ten.toUpperCase()} thành công`, {
                 position: 'top-right',
             });
         }
@@ -66,9 +65,20 @@ function ChinhSuaKH() {
     const handleCancel = () => {
         navigate('/qlcv/kehoach');
     };
-    const [startDateValues, startTimeValues] = chinhSuaKH.kh_thgianbatdau.split(' ');
-    const [endDateValues, endTimeValues] = chinhSuaKH.kh_thgianketthuc.split(' ');
+    // const [startDateValues, startTimeValues] = chinhSuaKH.kh_thgianbatdau.split(' ');
+    // const [endDateValues, endTimeValues] = chinhSuaKH.kh_thgianhoanthanh.split(' ');
+    const [optionList, setOptionList] = useState([]);
+    const [optionListDV, setOptionListDV] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const resSoNhanVien = await axiosClient.get(`/get_NhanVien`);
+            const resDonVi = await axiosClient.get(`/get_DonVi`);
+            setOptionList(resSoNhanVien.data.nhanViens);
+            setOptionListDV(resDonVi.data.don_vis);
+        };
 
+        fetchData()
+    }, []);
     return (
         <div className={cx('wrapper')}>
             <h2>
@@ -93,7 +103,7 @@ function ChinhSuaKH() {
                         <input
                             type="date"
                             name="kh_thgianbatdau"
-                            value={startDateValues}
+                            value={chinhSuaKH.kh_thgianbatdau ? chinhSuaKH.kh_thgianbatdau.split(' ')[0] : '2023-01-01'}
                             onChange={handleChange}
                         />
                     </div>
@@ -101,8 +111,8 @@ function ChinhSuaKH() {
                         <label>Thời gian hoàn thành</label>
                         <input
                             type="date"
-                            name="kh_thgianketthuc"
-                            value={endDateValues}
+                            name="kh_thgianhoanthanh"
+                            value={chinhSuaKH.kh_thgianhoanthanh ? chinhSuaKH.kh_thgianhoanthanh.split(' ')[0] : '2023-01-01'}
                             onChange={handleChange}
                         />
                     </div>
@@ -115,27 +125,21 @@ function ChinhSuaKH() {
                             onChange={handleChange}
                         /> */}
                         <select name='dv_id' onChange={handleChange}>
-                            <option value="1">A</option>
-                            <option value="2">B</option>
-                            <option value="3">C</option>
-                            <option value="4">D</option>
-                            <option value="5">E</option>
-                            <option value="6">F</option>
-                            <option value="7">G</option>
-                            <option value="8">H</option>
+                            {optionListDV.map((item) => (
+                                <option key={item.dv_id} value={item.dv_id}>
+                                    {item.dv_ten}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className={cx('form-item')}>
                         <label>Nhân viên </label>
-                        <select name='nv_id' onChange={handleChange}>
-                            <option value="1">A</option>
-                            <option value="2">B</option>
-                            <option value="3">C</option>
-                            <option value="4">D</option>
-                            <option value="5">E</option>
-                            <option value="6">F</option>
-                            <option value="7">G</option>
-                            <option value="8">H</option>
+                        <select name='nv_id' onChange={handleChange} defaultValue={nv_id}>
+                            {optionList.map((item) => (
+                                <option key={item.nv_id} value={item.nv_id} >
+                                    {item.nv_ten}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className={cx('form-item')}>

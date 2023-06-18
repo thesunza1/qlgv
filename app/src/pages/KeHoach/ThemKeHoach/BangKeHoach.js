@@ -78,7 +78,20 @@ function BangKeHoach() {
     };
 
     const displayedCongViec = getDisplayCongViec();
-
+    function trangThai(trangThai) {
+        switch (trangThai) {
+            case '1':
+                return "Đang chờ phê duyệt";
+            case '2':
+                return "Đã được duyệt";
+            case '3':
+                return "Đang thực hiện";
+            case '4':
+                return "Đã hoàn thành";
+            default:
+                return "Unknown trạng thái";
+        }
+    }
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
@@ -129,9 +142,9 @@ function BangKeHoach() {
                                         </td> */}
                                         <td>{cv.cv_thgianbatdau}</td>
                                         <td>{cv.cv_thgianketthuc}</td>
-                                        <td>{cv.dv_id}</td>
-                                        <td>{cv.nv_id}</td>
-                                        <td>{cv.cv_trangthai}</td>
+                                        <td>{cv.don_vi ? cv.don_vi.dv_ten : "-"}</td>
+                                        <td>{cv.nhan_vien ? cv.nhan_vien.nv_ten : "-"}</td>
+                                        <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td>
                                             <Link to={`${cv.dv_id}/nhanvien`}>
                                                 <Tippy content="Xem chi tiết" placement="bottom">

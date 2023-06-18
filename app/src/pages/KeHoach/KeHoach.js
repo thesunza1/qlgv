@@ -34,10 +34,23 @@ function KeHoach() {
             const token = localStorage.getItem('Token')
             const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
             setDSKeHoach(response.data.ke_hoachs);
+
         };
         getListProduct();
     }, []);
+    // const plansWithEmployee = dSKeHoach.filter(plan => plan.nhan_vien !== null);
 
+    // // Map the new array to extract nv_ten property
+    // const employees = useMemo(
+    //     () => dSKeHoach.filter(plan => plan.nhan_vien !== null).map(plan => plan.nhan_vien.nv_ten),
+    //     [dSKeHoach]
+    // );
+    // const unit = useMemo(
+    //     () => dSKeHoach.filter(plan => plan.don_vi !== null).map(plan => plan.don_vi.dv_ten),
+    //     [dSKeHoach]
+    // );
+
+    // Print the array of nv_ten values
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -85,20 +98,30 @@ function KeHoach() {
             dangerMode: true,
         }).then(async (willDelete) => {
             if (willDelete) {
-                const token = localStorage.getItem('Token')
-                await axiosClient.delete(`/delete_KeHoach?token=${token}`);
-                swal(`kế hoạch đã được xóa`, {
-                    icon: 'success',
-                });
-                window.location.reload();
-            } else {
-                return;
+                try {
+                    const token = localStorage.getItem('Token');
+                    await axiosClient.delete(`/delete_KeHoach?token=${token}`);
+                    swal(`Kế hoạch ${kh.kh_ten} đã được xóa.`, {
+                        icon: 'success',
+                    });
+                    // Remove the deleted plan from the state
+                    setDSKeHoach((prev) => prev.filter((p) => p.kh_id !== kh.kh_id));
+                } catch (error) {
+                    swal('Lỗi', 'Không thể xóa kế hoạch này.', 'error');
+                }
             }
         });
     };
 
     const displayedKeHoach = getDisplayKeHoach();
-
+    const [expandedRows, setExpandedRows] = useState([]);
+    const handleRowExpansion = (kh_id) => {
+        if (expandedRows.includes(kh_id)) {
+            setExpandedRows((prev) => prev.filter((id) => id !== kh_id));
+        } else {
+            setExpandedRows((prev) => [...prev, kh_id]);
+        }
+    };
     return (
         <>
             <div className={cx('wrapper')}>
@@ -139,10 +162,10 @@ function KeHoach() {
                                         <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
                                             <span>Thời gian hết hạn</span>
                                         </th>
-                                        <th>Đơn vị</th>
-                                        <th>Người lập</th>
-                                        <th>Trạng thái</th>
-                                        <th>Xử lý</th>
+                                        <th onClick={() => handleSortColumn('dv_ten')}>Đơn vị</th>
+                                        <th onClick={() => handleSortColumn('nv_ten')}>Người lập</th>
+                                        <th className={cx('center')} onClick={() => handleSortColumn('kh_tongthgian')}>Tổng thời gian</th>
+                                        <th className={cx('center')}>Xử lý</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -150,19 +173,12 @@ function KeHoach() {
                                         <tr key={kh.kh_id}>
                                             <td>{index + 1 + currentPage * PER_PAGE}</td>
                                             <td>{kh.kh_ten}</td>
-                                            {/* <td>
-                                            {kh.nhan_viens.map((nv) =>
-                                                parseInt(kh.dv_id_dvtruong) === nv.nv_id
-                                                    ? nv.nv_ten
-                                                    : null,
-                                            )}
-                                        </td> */}
                                             <td>{kh.kh_thgianbatdau.split(' ')[0]}</td>
                                             <td>{kh.kh_thgianketthuc.split(' ')[0]}</td>
-                                            <td>{kh.dv_id}</td>
-                                            <td>{kh.nv_id}</td>
-                                            <td>{kh.kh_trangthai}</td>
-                                            <td>
+                                            <td>{kh.don_vi ? kh.don_vi.dv_ten : '-'}</td>
+                                            <td>{kh.nhan_vien ? kh.nhan_vien.nv_ten : '-'}</td>
+                                            <td className={cx('center')}>{kh.kh_tongthgian}</td>
+                                            <td className={cx('center')}>
                                                 <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nv_id}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
                                                     <Tippy content="Xem chi tiết" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>

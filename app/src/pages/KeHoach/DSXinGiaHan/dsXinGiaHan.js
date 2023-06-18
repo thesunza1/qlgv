@@ -163,7 +163,7 @@ function DSXinGiaHan() {
                                         </td> */}
                                         {/* <td>{cv.cv_thgianbatdau}</td>
                                         <td>{cv.cv_thgianketthuc}</td> */}
-                                        <td>{cv.thgiandenghi}</td>
+                                        <td>{cv.thgiandenghi ? cv.thgiandenghi.split(' ')[0] : '-'}</td>
                                         <td>{cv.nv_id}</td>
                                         <td>{cv.lido}</td>
                                         <td>{cv.nv_idduyet}</td>

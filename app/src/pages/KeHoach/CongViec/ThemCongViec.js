@@ -26,7 +26,7 @@ function createData(
     id,
     cv_ten,
     cv_thgianbatdau,
-    cv_thgianketthuc,
+    cv_thgianhoanthanh,
     dv_id,
     nv_id,
     cv_trangthai,
@@ -35,7 +35,7 @@ function createData(
         id,
         cv_ten,
         cv_thgianbatdau,
-        cv_thgianketthuc,
+        cv_thgianhoanthanh,
         dv_id,
         nv_id,
         cv_trangthai,
@@ -86,7 +86,7 @@ function ThemCongViec() {
             cv_id: id,
             cv_ten: '',
             cv_thgianbatdau: '',
-            cv_thgianketthuc: '',
+            cv_thgianhoanthanh: '',
             dv_id: '',
             nv_id: '',
             cv_trangthai: '',
@@ -94,7 +94,20 @@ function ThemCongViec() {
         };
         setDSCongViec([...dSCongViec, newRow]);
     };
-
+    function trangThai(trangThai) {
+        switch (trangThai) {
+            case '1':
+                return "Đang chờ phê duyệt";
+            case '2':
+                return "Đã được duyệt";
+            case '3':
+                return "Đang thực hiện";
+            case '4':
+                return "Đã hoàn thành";
+            default:
+                return "Unknown trạng thái";
+        }
+    }
     const handleInputChange = (event, id) => {
         const { name, value } = event.target;
         const newData = dSCongViec.map((item) =>
@@ -248,7 +261,6 @@ function ThemCongViec() {
                                             />
                                         )}
                                     </th>
-                                    <th>Xử lý</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -278,7 +290,7 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.kh_id}</>
+                                                <>{cv.ke_hoachs ? cv.ke_hoachs.kh_ten : '-'}</>
                                             )}
                                         </td>
                                         <td>
@@ -292,21 +304,21 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.cv_thgianbatdau}</>
+                                                <>{cv.cv_thgianbatdau ? cv.cv_thgianbatdau.split(' ')[0] : '-'}</>
                                             )}
                                         </td>
                                         <td>
                                             {cv.isEdit ? (
                                                 <input
                                                     type="date"
-                                                    name="cv_thgianketthuc"
-                                                    value={cv.cv_thgianketthuc}
+                                                    name="cv_thgianhoanthanh"
+                                                    value={cv.cv_thgianhoanthanh}
                                                     onChange={(event) =>
                                                         handleInputChange(event, cv.cv_id)
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.cv_thgianketthuc}</>
+                                                <>{cv.cv_thgianhoanthanh ? cv.cv_thgianhoanthanh.split(' ')[0] : '-'}</>
                                             )}
                                         </td>
                                         <td>
@@ -320,7 +332,7 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.dv_id}</>
+                                                <>{cv.don_vi ? cv.don_vi.dv_ten : '-'}</>
                                             )}
                                         </td>
                                         <td>
@@ -334,7 +346,7 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.nv}</>
+                                                <>{cv.nhan_vien ? cv.nhan_vien.nv_ten : '-'}</>
                                             )}
                                         </td>
 
@@ -354,11 +366,8 @@ function ThemCongViec() {
                                                     <option value='3'>Đang soạn</option>
                                                 </select>
                                             ) : (
-                                                <>{cv.cv_trangthai}</>
+                                                <>{trangThai(cv.cv_trangthai)}</>
                                             )}
-                                        </td>
-                                        <td>
-                                            <input type="checkbox"></input>
                                         </td>
                                     </tr>
                                 ))}

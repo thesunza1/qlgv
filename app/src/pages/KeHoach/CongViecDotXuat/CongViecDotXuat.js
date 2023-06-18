@@ -2,14 +2,11 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faSearch,
     faPlus,
-    faEye,
     faPenToSquare,
     faTrash,
     faAnglesLeft,
     faAnglesRight,
-    faAdd,
     faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
@@ -77,6 +74,20 @@ function CongViecDotXuat() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
+    function trangThai(trangThai) {
+        switch (trangThai) {
+            case '1':
+                return "Đang chờ phê duyệt";
+            case '2':
+                return "Đã được duyệt";
+            case '3':
+                return "Đang thực hiện";
+            case '4':
+                return "Đã hoàn thành";
+            default:
+                return "Unknown trạng thái";
+        }
+    }
 
     const displayedCongViec = getDisplayCongViec();
 
@@ -113,10 +124,9 @@ function CongViecDotXuat() {
                                     <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
                                         <span>Thời gian hết hạn</span>
                                     </th>
-                                    <th>Đơn vị</th>
-                                    <th>Nhân viên</th>
+                                    <th>Nội dung</th>
                                     <th>Trạng thái</th>
-                                    <th>Xử lý</th>
+                                    <th className={cx('center')}>Xử lý</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,11 +142,10 @@ function CongViecDotXuat() {
                                             )}
                                         </td> */}
                                         <td>{cv.cv_thgianbatdau.split(' ')[0]}</td>
-                                        <td>{cv.cv_thgianketthuc}</td>
-                                        <td>{cv.dv_id}</td>
-                                        <td>{cv.nv_id}</td>
-                                        <td>{cv.cv_trangthai}</td>
-                                        <td>
+                                        <td>{cv.cv_thgianhoanthanh ? cv.cv_thgianhoanthanh.split(' ')[0] : '-'}</td>
+                                        <td>{cv.cv_noidung}</td>
+                                        <td>{trangThai(cv.cv_trangthai)}</td>
+                                        <td className={cx('center')}>
                                             <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
                                                 <Tippy content="Xin gia hạn" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
