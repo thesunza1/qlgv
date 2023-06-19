@@ -10,6 +10,7 @@ import {
     faAnglesRight,
     faEnvelope,
     faCircleArrowLeft,
+    faSave,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -35,6 +36,7 @@ function CongViec() {
             const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CongViec?token=${token}`);
             setDSCongViec(response.data.cong_viecs);
+            console.log(dSCongViec)
         };
         getListProduct();
     }, []);
@@ -99,18 +101,51 @@ function CongViec() {
     function trangThai(trangThai) {
         switch (trangThai) {
             case '1':
-                return "Đã hoàn thành";
+                return (<button className={cx('done-btn')}>Hoàn Thành</button>);
             case '2':
                 return "";
             case '3':
                 return "";
             case '4':
-                return "Đã hoàn thành";
+                return (<button className={cx('out-date-btn')}>Trể hạn</button>);
             default:
-                return "Chưa hoàn thành";
+                return (<button className={cx('chuaht-btn')}>Chưa hoàn thành</button>);
         }
     }
     const displayedCongViec = getDisplayCongViec();
+    const [optionList, setOptionList] = useState([]);
+    const [optionListDV, setOptionListDV] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const resSoNhanVien = await axiosClient.get(`/get_NhanVien`);
+            const resDonVi = await axiosClient.get(`/get_DonVi`);
+            setOptionList(resSoNhanVien.data.nhanViens);
+            setOptionListDV(resDonVi.data.don_vis);
+        };
+
+        fetchData()
+    }, []);
+
+    const handleGiaoViec = (cv) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa công việc này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                await axiosClient.delete(`/xoaCongViec1ấdsad`);
+                swal(` đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
+            }
+        });
+    };
+
 
     return (
         <div className={cx('wrapper')}>
@@ -157,6 +192,7 @@ function CongViec() {
                                     <th onClick={() => handleSortColumn('cv_thgianhoanthanh')}>
                                         <span>Thời gian hết hạn</span>
                                     </th>
+                                    <th>Mục đích hoàn thành</th>
                                     <th onClick={() => handleSortColumn('dv_id')}>Đơn vị</th>
                                     <th onClick={() => handleSortColumn('nv_id')}>Nhân viên</th>
                                     <th onClick={() => handleSortColumn('cv_trangthai')}>Trạng thái</th>
@@ -178,8 +214,51 @@ function CongViec() {
                                         <td>{cv.ke_hoachs?.kh_ten || "-"}</td>
                                         <td>{cv.cv_thgianbatdau.split(' ')[0]}</td>
                                         <td>{cv.cv_thgianhoanthanh ? cv.cv_thgianhoanthanh.split(' ')[0] : '-'}</td>
+                                        <td>Mục đích hoàn thành</td>
                                         <td>{cv.don_vi.dv_ten}</td>
+                                        {/* <td>
+                                            <select
+                                                pla={cv.don_vi.dv_ten}
+                                                value={cv.don_vi.dv_ten}
+                                                onChange={(e) => {
+                                                    const selectedValue = e.target.value;
+                                                    const updatedCV = { ...cv, don_vi: { dv_ten: selectedValue } };
+                                                    setDSCongViec((prev) =>
+                                                        prev.map((prevCV) =>
+                                                            prevCV.cv_id === cv.cv_id ? updatedCV : prevCV
+                                                        )
+                                                    );
+                                                }}
+                                            >
+                                                {optionListDV.map((item) => (
+                                                    <option key={item.dv_id} value={item.dv_id}>
+                                                        {item.dv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td> */}
                                         <td>{cv.nhan_vien.nv_ten}</td>
+                                        {/* <td>
+                                            <select
+                                                placeholder={cv.nhan_vien.nv_ten}
+                                                value={cv.nhan_vien.nv_ten}
+                                                onChange={(e) => {
+                                                    const selectedValue = e.target.value;
+                                                    const updatedCV = { ...cv, nhan_vien: { nv_ten: selectedValue } };
+                                                    setDSCongViec((prev) =>
+                                                        prev.map((prevCV) =>
+                                                            prevCV.cv_id === cv.cv_id ? updatedCV : prevCV
+                                                        )
+                                                    );
+                                                }}
+                                            >
+                                                {optionList.map((item) => (
+                                                    <option key={item.nv_id} value={item.nv_id}>
+                                                        {item.nv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td> */}
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
                                             <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianhoanthanh}/xingiahan`}>
@@ -206,6 +285,11 @@ function CongViec() {
                                             <Tippy content="Xóa" placement="bottom">
                                                 <button className={cx('handle', 'delete-btn')} onClick={handleXoaCongViec}>
                                                     <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </Tippy>
+                                            <Tippy content="Lưu" placement="bottom">
+                                                <button className={cx('handle', 'edit-btn')} onClick={handleGiaoViec}>
+                                                    <FontAwesomeIcon icon={faSave} />
                                                 </button>
                                             </Tippy>
                                         </td>

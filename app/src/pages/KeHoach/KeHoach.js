@@ -26,15 +26,15 @@ function KeHoach() {
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
-
+    // const [loading, setLoading] = useState(true);
     const PER_PAGE = 5;
 
     useEffect(() => {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token')
             const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
-            setDSKeHoach(response.data.ke_hoachs);
-
+            setDSKeHoach(response.data.ke_hoachs || []);
+            // setLoading(false);
         };
         getListProduct();
     }, []);
@@ -98,30 +98,41 @@ function KeHoach() {
             dangerMode: true,
         }).then(async (willDelete) => {
             if (willDelete) {
-                try {
-                    const token = localStorage.getItem('Token');
-                    await axiosClient.delete(`/delete_KeHoach?token=${token}`);
-                    swal(`Kế hoạch ${kh.kh_ten} đã được xóa.`, {
-                        icon: 'success',
-                    });
-                    // Remove the deleted plan from the state
-                    setDSKeHoach((prev) => prev.filter((p) => p.kh_id !== kh.kh_id));
-                } catch (error) {
-                    swal('Lỗi', 'Không thể xóa kế hoạch này.', 'error');
-                }
+                const token = localStorage.getItem('Token')
+                await axiosClient.delete('/delete_KeHoach', {
+                    data: { delletekh_ids: kh },
+                    params: { token: token },
+                });
+                swal(`kế hoạch đã được xóa`, {
+                    icon: 'success',
+                });
+                window.location.reload();
+            } else {
+                return;
             }
         });
     };
 
+    // const handleDelete = async (selectedIds) => {
+    //     try {
+    //         const token = localStorage.getItem('Token');
+    //         const response = await axiosClient.delete('/delete_KeHoach', {
+    //             data: { delletekh_ids: selectedIds },
+    //             params: { token: token },
+    //         });
+    //         // If the response is successful, reload the page
+    //         if (response.status === 200) {
+    //             swal('Xóa kế hoạch thành công!', { icon: 'success' });
+    //             window.location.reload();
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //         swal('Xóa kế hoạch không thành công!', { icon: 'error' });
+    //     }
+    //     console.log(selectedIds)
+    // };
+
     const displayedKeHoach = getDisplayKeHoach();
-    const [expandedRows, setExpandedRows] = useState([]);
-    const handleRowExpansion = (kh_id) => {
-        if (expandedRows.includes(kh_id)) {
-            setExpandedRows((prev) => prev.filter((id) => id !== kh_id));
-        } else {
-            setExpandedRows((prev) => [...prev, kh_id]);
-        }
-    };
     return (
         <>
             <div className={cx('wrapper')}>
@@ -162,9 +173,9 @@ function KeHoach() {
                                         <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
                                             <span>Thời gian hết hạn</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('dv_ten')}>Đơn vị</th>
-                                        <th onClick={() => handleSortColumn('nv_ten')}>Người lập</th>
-                                        <th className={cx('center')} onClick={() => handleSortColumn('kh_tongthgian')}>Tổng thời gian</th>
+                                        <th>Đơn vị</th>
+                                        <th>Người lập</th>
+                                        <th className={cx('center')}>Tổng thời gian</th>
                                         <th className={cx('center')}>Xử lý</th>
                                     </tr>
                                 </thead>
@@ -173,6 +184,13 @@ function KeHoach() {
                                         <tr key={kh.kh_id}>
                                             <td>{index + 1 + currentPage * PER_PAGE}</td>
                                             <td>{kh.kh_ten}</td>
+                                            {/* <td>
+                                            {kh.nhan_viens.map((nv) =>
+                                                parseInt(kh.dv_id_dvtruong) === nv.nv_id
+                                                    ? nv.nv_ten
+                                                    : null,
+                                            )}
+                                        </td> */}
                                             <td>{kh.kh_thgianbatdau.split(' ')[0]}</td>
                                             <td>{kh.kh_thgianketthuc.split(' ')[0]}</td>
                                             <td>{kh.don_vi ? kh.don_vi.dv_ten : '-'}</td>
@@ -186,7 +204,7 @@ function KeHoach() {
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.dv_id}/${kh.nv_id}/chinhsua`}>
+                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.kh_tongthgian}/${kh.kh_stt}/chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
                                                         <button className={cx('handle', 'edit-btn')}>
                                                             <FontAwesomeIcon icon={faPenToSquare} />

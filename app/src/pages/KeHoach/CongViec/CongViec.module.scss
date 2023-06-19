@@ -111,6 +111,40 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
+
+    button {
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: 700;
+
+
+    }
+}
+
+.done-btn {
+    background-color: #00e165;
+    color: white;
+    width: 130px;
+}
+
+.out-date-btn {
+    background-color: #cd1e1e;
+    color: white;
+    width: 130px;
+}
+
+.save-btn {
+    color: #0d7d3c;
+}
+
+.chuaht-btn {
+    background-color: #afafaf;
+    color: white;
+    width: 130px;
+}
+
+select {
+    width: 100px;
 }
 
 .handle {

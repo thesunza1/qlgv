@@ -37,16 +37,15 @@ function ThemKeHoach() {
         const { kh_stt, kh_ten, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } = themKeHoach;
         console.log(themKeHoach)
         const token = localStorage.getItem('Token')
-        const response = await axiosClient.post(`/createee_KeHoach?token=${token}`, {
+        const response = await axiosClient.post(`/create_KeHoach?token=${token}`, {
             kh_ten,
             kh_loaikehoach,
             kh_thgianbatdau,
             kh_thgianketthuc,
             kh_tongthgian,
             kh_stt,
-
-
         });
+
 
 
 
@@ -76,8 +75,11 @@ function ThemKeHoach() {
                         <div className={cx('form-item')}>
                             <label>Số thứ tự</label>
                             <input
-                                type="search"
+                                type="number"
+                                min={0}
+                                max={999}
                                 name="kh_stt"
+
                                 value={themKeHoach.kh_stt}
                                 onChange={handleChange}
                             />
@@ -127,9 +129,11 @@ function ThemKeHoach() {
                                 onChange={handleChange}
                             /> */}
                             <select name='kh_loaikehoach' onChange={handleChange}>
+                                <option>-- Chọn loại kế hoạch --</option>
                                 <option value='Kế Hoạch Theo Tháng'>Tháng</option>
                                 <option value='Kế Hoạch Theo Quý'>Quý</option>
                                 <option value='Kế Hoạch Theo Năm'>Năm</option>
+
                             </select>
                         </div>
                     </form>
