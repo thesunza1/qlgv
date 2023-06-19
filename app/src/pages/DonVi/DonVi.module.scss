@@ -131,22 +131,28 @@
     color: var(--primary);
 }
 
-.pagination {
+.paginate {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
     margin: 20px;
     padding-bottom: 20px;
 
-    li {
-        margin-right: 5px;
-
-        a {
-            padding: 3px 8px;
-            font-size: 1.4rem;
-            color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            cursor: pointer;
+    .pagination {
+        display: flex;
+    
+        li {
+            margin-right: 5px;
+    
+            a {
+                padding: 3px 8px;
+                font-size: 1.4rem;
+                color: var(text-black);
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                cursor: pointer;
+            }
         }
     }
 }

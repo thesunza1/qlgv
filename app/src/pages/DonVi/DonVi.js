@@ -103,6 +103,13 @@ function DonVi() {
 
     const displayedDonVi = getDisplayDonVi();
 
+    const startIndex = currentPage * PER_PAGE + 1;
+    const endIndex =
+        startIndex + displayedDonVi.length - 1 <= dSDonVi.length
+            ? startIndex + displayedDonVi.length - 1
+            : dSDonVi.length;
+    const total = dSDonVi.length;
+
     return (
         <div className={cx('wrapper')}>
             <h2>Danh sách đơn vị</h2>
@@ -205,17 +212,20 @@ function DonVi() {
                             </tbody>
                         </table>
                         {sortedDonVi.length > PER_PAGE && (
-                            <ReactPaginate
-                                previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
-                                nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
-                                breakLabel={'...'}
-                                pageCount={totalPage}
-                                marginPagesDisplayed={1}
-                                pageRangeDisplayed={2}
-                                onPageChange={handlePageClick}
-                                containerClassName={cx('pagination')}
-                                activeClassName={cx('active')}
-                            />
+                            <div className={cx('paginate')}>
+                                {startIndex}-{endIndex} của {total}
+                                <ReactPaginate
+                                    previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
+                                    nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
+                                    breakLabel={'...'}
+                                    pageCount={totalPage}
+                                    marginPagesDisplayed={1}
+                                    pageRangeDisplayed={2}
+                                    onPageChange={handlePageClick}
+                                    containerClassName={cx('pagination')}
+                                    activeClassName={cx('active')}
+                                />
+                            </div>
                         )}
                     </>
                 ) : (

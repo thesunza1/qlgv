@@ -90,6 +90,13 @@ function BaoCaoKeHoach() {
 
     const displayedBaocao = getDisplayBaocao();
 
+    const startIndex = currentPage * PER_PAGE + 1;
+    const endIndex =
+        startIndex + displayedBaocao.length - 1 <= dSBaoCao.length
+            ? startIndex + displayedBaocao.length - 1
+            : dSBaoCao.length;
+    const total = dSBaoCao.length;
+
     return (
         <div className={cx('wrapper')}>
             <div
@@ -192,7 +199,7 @@ function BaoCaoKeHoach() {
                             </thead>
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
-                                    <tr key={bc.id}>
+                                    <tr key={bc.kh_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.kh_ten}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.kh_loaikehoach}</td>
@@ -206,17 +213,20 @@ function BaoCaoKeHoach() {
                             </tbody>
                         </table>
                         {sortedBaocao.length > PER_PAGE && (
-                            <ReactPaginate
-                                previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
-                                nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
-                                breakLabel={'...'}
-                                pageCount={totalPage}
-                                marginPagesDisplayed={1}
-                                pageRangeDisplayed={2}
-                                onPageChange={handlePageClick}
-                                containerClassName={cx('pagination')}
-                                activeClassName={cx('active')}
-                            />
+                            <div className={cx('paginate')}>
+                                {startIndex}-{endIndex} của {total}
+                                <ReactPaginate
+                                    previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
+                                    nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
+                                    breakLabel={'...'}
+                                    pageCount={totalPage}
+                                    marginPagesDisplayed={1}
+                                    pageRangeDisplayed={2}
+                                    onPageChange={handlePageClick}
+                                    containerClassName={cx('pagination')}
+                                    activeClassName={cx('active')}
+                                />
+                            </div>
                         )}
                     </>
                 ) : (

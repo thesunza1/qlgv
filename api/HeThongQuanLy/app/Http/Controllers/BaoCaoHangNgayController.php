@@ -175,6 +175,7 @@ public function get_CV_BC_HangNgay()
                         // Thêm các thông tin khác của loại công việc cần lấy
                     ],
                     'nhan_vien' => $nhanVien ? [
+                        'id_nhan_vien' => $nhanVien->nv_id,
                         'ten_nhan_vien' => $nhanVien->nv_ten,
                         // Thêm các thông tin khác của nhân viên cần lấy
                     ] : null,

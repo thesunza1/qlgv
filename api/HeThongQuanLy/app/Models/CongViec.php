@@ -67,4 +67,9 @@ class CongViec extends Model
     {
         return $this->belongsTo(CongViec::class, 'cv_cv_cha', 'cv_id');
     }
+
+    public function loaiCongViecs()
+    {
+        return $this->belongsTo(LoaiCongViec::class, 'lcv_id', 'lcv_id');
+    }
 }

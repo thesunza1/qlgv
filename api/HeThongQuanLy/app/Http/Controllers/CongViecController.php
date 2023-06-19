@@ -36,7 +36,7 @@ class CongViecController extends Controller
             $tenNhanVien = $nhanVien->nv_ten;
 
             // Khởi tạo query để lấy danh sách kế hoạch và công việc
-            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha');
+            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs');
 
             if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
                 // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
@@ -62,7 +62,8 @@ class CongViecController extends Controller
                 'chuc_vu_nhan_vien' => $chucVuNhanVien,
                 'quyen_tham_dinh' => $quyenThamDinh,
                 'so_luong_cong_viec' => $tongLuongCongViec,
-                'cong_viecs' => $congViecs
+                'cong_viecs' => $congViecs,
+               
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);

@@ -128,11 +128,20 @@
             height: 20px;
         }
 
-        textarea {
+        input,
+        textarea,
+        select  {
+            width: auto;
+            height: 40px;
+            font-size: 1.4rem;
             text-align: center;
+            border-radius: 3px;
             border: none;
             outline: none;
-            width: 100px;
+
+            &:hover {
+                outline: 1px solid rgba(0, 0, 0, 0.3);
+            }
         }
     }
 
@@ -146,26 +155,6 @@
 
     tbody tr:hover {
         background-color: #abccf130;
-    }
-}
-
-.pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin: 20px;
-    padding-bottom: 20px;
-
-    li {
-        margin-right: 5px;
-
-        a {
-            padding: 3px 8px;
-            font-size: 1.4rem;
-            color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            cursor: pointer;
-        }
     }
 }
 
@@ -184,7 +173,33 @@
 .edit-btn {
     color: #2400FF;
 }
-  
+
+.paginate {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin: 20px;
+    padding-bottom: 20px;
+
+    .pagination {
+        display: flex;
+    
+        li {
+            margin-right: 5px;
+    
+            a {
+                padding: 3px 8px;
+                font-size: 1.4rem;
+                color: var(text-black);
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
 .active {
     color: var(--text-white);
     background: #0087E1;
@@ -193,4 +208,3 @@
 .no-result {
     padding: 40px 20px;
 }
-  

@@ -14,6 +14,7 @@ import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
 import BaoCaoKeHoach from './BaoCaoKeHoach';
 import BaoCaoCongViec from './BaoCaoCongViec';
+import cogoToast from 'cogo-toast';
 
 const cx = classNames.bind(styles);
 
@@ -29,17 +30,20 @@ function BaoCaoHangNgay() {
     const [icon, setIcon] = useState(faCaretDown);
 
     const [displayedBaocao, setDisplayedBaocao] = useState([]);
-    const [nextId, setNextId] = useState(displayedBaocao.length);
 
-    const [themBaoCao, setThemBaoCao] = useState({
-        nhan_vien: { ten_nhan_vien: '' },
-        cong_viec: { ten_cong_viec: '' },
-        loai_cong_viec: { ten_loai_cong_viec: '' },
-        bchn_noidung: '',
-        so_gio_lam: '',
-    });
-
+    const [themBaoCao, setThemBaoCao] = useState([]);
     console.log(themBaoCao);
+
+    const [dSCongViec, setDSCongViec] = useState([]);
+
+    useEffect(() => {
+        const getInfoUser = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CongViec?token=${token}`);
+            setDSCongViec(response.data.cong_viecs);
+        };
+        getInfoUser();
+    }, []);
 
     useEffect(() => {
         const getInfoUser = async () => {
@@ -79,20 +83,20 @@ function BaoCaoHangNgay() {
 
     const handleAddRowTable = () => {
         const newRow = {
-            bchn_id: nextId,
-            bchn_ngay: new Date().toISOString().substr(0, 10),
-            nhan_vien: { ten_nhan_vien: '' },
-            cong_viec: { ten_cong_viec: '' },
-            loai_cong_viec: { ten_loai_cong_viec: '' },
+            cv_id: '',
+            lcv_id: '',
+            bdhn_tiendo: '',
             bchn_noidung: '',
             so_gio_lam: '',
-            bchn_tiendo: '',
-            bchn_giothamdinh: '',
-            bchn_trangthai: '0',
-            isEdit: true,
         };
-        setDisplayedBaocao([newRow, ...displayedBaocao]);
-        setNextId(nextId + 1);
+        setThemBaoCao((prevRows) => [...prevRows, newRow]);
+    };
+
+    const handleChangeNewInput = (event, index) => {
+        const { name, value } = event.target;
+        setThemBaoCao((prevRows) =>
+            prevRows.map((row, i) => (i === index ? { ...row, [name]: value } : row)),
+        );
     };
 
     const handleChangeInput = (event, rowIndex) => {
@@ -100,6 +104,24 @@ function BaoCaoHangNgay() {
         const updatedBaoCao = [...displayedBaocao];
         updatedBaoCao[rowIndex] = { ...updatedBaoCao[rowIndex], [name]: value };
         setDisplayedBaocao(updatedBaoCao);
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        const [{ cv_id, lcv_id, bdhn_tiendo, bchn_noidung, so_gio_lam }] = themBaoCao;
+        const token = localStorage.getItem('Token');
+
+        const response = await axiosClient.post(`/add_CV_BC_HangNgay?token=${token}`, {
+            danh_sach_cong_viec_bao_cao: [{ cv_id, lcv_id, bdhn_tiendo, bchn_noidung, so_gio_lam }],
+        });
+
+        if (response.status === 200) {
+            window.location.reload();
+            cogoToast.success(`Báo cáo đã được thêm`, {
+                position: 'top-right',
+            });
+        }
     };
 
     const handleSortColumn = (key) => {
@@ -178,7 +200,7 @@ function BaoCaoHangNgay() {
                         <button className={cx('add-btn')} onClick={handleAddRowTable}>
                             <FontAwesomeIcon icon={faPlus} /> Thêm hàng
                         </button>
-                        <button className={cx('save-btn')}>
+                        <button className={cx('save-btn')} onClick={handleSave}>
                             <FontAwesomeIcon icon={faSave} /> Lưu
                         </button>
                     </div>
@@ -244,6 +266,77 @@ function BaoCaoHangNgay() {
                                 </tr>
                             </thead>
                             <tbody>
+                                {themBaoCao.map((bc, index) => (
+                                    <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>
+                                            <input
+                                                type="date"
+                                                style={{ border: 'none' }}
+                                                name="bchn_ngay"
+                                                value={
+                                                    bc.bchn_ngay ||
+                                                    new Date().toISOString().substr(0, 10)
+                                                }
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            <select
+                                                name="cv_id"
+                                                value={bc.cv_id}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            >
+                                                <option value="" disabled>
+                                                    Chọn tên công việc
+                                                </option>
+                                                {dSCongViec.map((cv) => (
+                                                    <option key={cv.cv_id} value={cv.cv_id}>
+                                                        {cv.cv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select
+                                                name="lcv_id"
+                                                value={bc.lcv_id}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            >
+                                                <option value="" disabled>
+                                                    Chọn loại công việc
+                                                </option>
+                                                {dSCongViec.map((cv) => (
+                                                    <option key={cv.lcv_id} value={cv.lcv_id}>
+                                                        {cv.loai_cong_viecs.lcv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            <textarea
+                                                name="bchn_noidung"
+                                                value={bc.bchn_noidung}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <textarea
+                                                name="so_gio_lam"
+                                                value={bc.so_gio_lam}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <textarea
+                                                name="bdhn_tiendo"
+                                                value={bc.bdhn_tiendo}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td>Chưa thẩm định</td>
+                                    </tr>
+                                ))}
                                 {displayedBaocao.map((bc, index) => (
                                     <tr key={bc.bchn_id}>
                                         <td>{index + 1}</td>
