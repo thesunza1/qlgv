@@ -6,6 +6,8 @@ import {
     faArrowDown,
     faSave,
     faPlus,
+    faCaretRight,
+    faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
@@ -15,13 +17,16 @@ import BaoCaoCongViec from './BaoCaoCongViec';
 
 const cx = classNames.bind(styles);
 
-function BaoCao() {
+function BaoCaoHangNgay() {
     const [infoUser, setInfoUser] = useState([]);
     const [dSBaoCaoHangNgay, setDSBaoCaoHangNgay] = useState([]);
     const [dSBaocao, setDSBaocao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
+
+    const [isBaoCao, setIsBaoCao] = useState(true);
+    const [icon, setIcon] = useState(faCaretDown);
 
     const [displayedBaocao, setDisplayedBaocao] = useState([]);
     const [nextId, setNextId] = useState(displayedBaocao.length);
@@ -47,7 +52,8 @@ function BaoCao() {
 
     useEffect(() => {
         const getDSBaoCaoHangNgay = async () => {
-            const response = await axiosClient.get('/get_CV_BC_HangNgay');
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CV_BC_HangNgay?token=${token}`);
             setDSBaoCaoHangNgay(response.data);
         };
         getDSBaoCaoHangNgay();
@@ -61,6 +67,15 @@ function BaoCao() {
             })),
         );
     }, [dSBaoCaoHangNgay]);
+
+    const toggleBaocao = () => {
+        setIsBaoCao(!isBaoCao);
+        if (icon === faCaretRight) {
+            setIcon(faCaretDown);
+        } else {
+            setIcon(faCaretRight);
+        }
+    };
 
     const handleAddRowTable = () => {
         const newRow = {
@@ -100,13 +115,8 @@ function BaoCao() {
         setSearchText(event.target.value);
     };
 
-    const filterBaocao = (baocao, infoUser) => {
-        const filteredBaocao =
-            infoUser.nv_quyenthamdinh === '1'
-                ? baocao
-                : baocao.filter((item) => item.nhan_vien.ten_nhan_vien === infoUser.nv_ten);
-
-        const searchedBaocao = filteredBaocao
+    const filterBaocao = (baocao) => {
+        const searchedBaocao = baocao
             .filter(
                 (bc) =>
                     bc.cong_viec.ten_cong_viec &&
@@ -133,19 +143,27 @@ function BaoCao() {
     };
 
     useEffect(() => {
-        setDisplayedBaocao(filterBaocao(dSBaocao, infoUser));
+        setDisplayedBaocao(filterBaocao(dSBaocao));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchText, sortDirection, sortColumn, infoUser, dSBaocao]);
+    }, [searchText, sortDirection, sortColumn, dSBaocao]);
 
     return (
         <div className={cx('wrapper')}>
-            <BaoCaoKeHoach />
+            {infoUser.nv_quyen === 'ld' && <BaoCaoKeHoach />}
+
             <BaoCaoCongViec />
-            <h2>Báo cáo công việc hàng ngày</h2>
-            <p>
+            <div
+                className={cx('title')}
+                style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}
+                onClick={toggleBaocao}
+            >
+                <h2 style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}>Báo cáo tiến độ hàng ngày</h2>
+                <FontAwesomeIcon className={cx('right-icon')} icon={icon} />
+            </div>
+            <p style={{ display: isBaoCao ? 'block' : 'none' }}>
                 Tổng giờ đã làm: <span>16 giờ</span>
             </p>
-            <div className={cx('inner')}>
+            <div className={cx('inner')} style={{ display: isBaoCao ? 'block' : 'none' }}>
                 <div className={cx('features')}>
                     <div className={cx('search')}>
                         <input
@@ -261,7 +279,7 @@ function BaoCao() {
                                                 )}
                                             </td>
                                         )}
-                                        <td>
+                                        <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="cong_viec"
@@ -287,7 +305,7 @@ function BaoCao() {
                                                 <>{bc.loai_cong_viec?.ten_loai_cong_viec}</>
                                             )}
                                         </td>
-                                        <td>
+                                        <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="bchn_noidung"
@@ -300,7 +318,7 @@ function BaoCao() {
                                                 <>{bc.bchn_noidung}</>
                                             )}
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="so_gio_lam"
@@ -376,4 +394,4 @@ function BaoCao() {
     );
 }
 
-export default BaoCao;
+export default BaoCaoHangNgay;

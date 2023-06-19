@@ -4,12 +4,6 @@
         text-align: center;
         font-weight: bold;
         transition: all 0.3s ease;
-
-        .back-icon {
-            margin-right: 30px;
-            font-size: 2.5rem;
-            color: #0d7d3c;
-        }
     }
 
     p {
@@ -29,18 +23,18 @@
     justify-content: center;
     align-items: center;
     gap: 30px;
+    cursor: pointer;
 
     .right-icon {
         font-size: 2.5rem;
         padding-top: 5px;
-        cursor: pointer;
     }
 }
   
 .inner {
     width: 100%;
     height: auto;
-    margin-top: 10px;
+    margin: 10px 0;
     background: #fff;
     border-radius: 5px;
     box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
@@ -145,13 +139,6 @@
     td:first-child {
         font-weight: 600;
     }
-    
-    td:nth-child(3),
-    td:nth-child(4),
-    td:nth-child(5),
-    td:nth-child(6) {
-        text-align: left;
-    }
 
     tr:nth-child(even) {
         background: #f4f4f4;
@@ -180,6 +167,22 @@
             cursor: pointer;
         }
     }
+}
+
+.handle {
+    padding: 7px;
+    font-size: 1.6rem;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+        background: #e2e2e2;
+        border-radius: 50%;
+    }
+}
+
+.edit-btn {
+    color: #2400FF;
 }
   
 .active {
