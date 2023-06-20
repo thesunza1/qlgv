@@ -48,9 +48,13 @@ class NhanVien extends Authenticatable implements JWTSubject
     
     public function baoCaoHangNgay()
     {
-        return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'id');
+        return $this->hasMany(BaoCaoHangNgay::class, 'nv_id', 'nv_id');
     }
-
+    
+    public function xinGiaHans()
+    {
+        return $this->hasMany(XinGiaHan::class, 'nv_id', 'nv_id');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -68,7 +72,6 @@ class NhanVien extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'nv_matkhau' => 'hashed',
     ];
 
     /**

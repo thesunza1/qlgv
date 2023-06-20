@@ -14,18 +14,26 @@ class DonVi extends Model
     protected $fillable = [
         'dv_ten',
         'dv_id_dvtruong',
-        'dv_dvcha',
+        'dv_dvcha'
     ];
     // Các phần còn lại của model
+    public function congViecs()
+    {
+        return $this->hasMany(CongViec::class, 'dv_id', 'dv_id');
+    }
+
+    public function dv_id_dvtruong()
+    {
+        return $this->belongsTo(NhanVien::class, 'dv_id_dvtruong', 'nv_id');
+    }
+
+    public function dv_dvcha()
+    {
+        return $this->belongsTo(DonVi::class, 'dv_dvcha', 'dv_id');
+    }
 
     public function nhanViens()
     {
         return $this->hasMany(NhanVien::class, 'dv_id', 'dv_id');
     }
-    
-    public function congViecs()
-    {
-        return $this->hasMany(CongViec::class, 'cv_id', 'cv_id');
-    }
 }
-
