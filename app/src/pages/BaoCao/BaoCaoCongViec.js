@@ -1,11 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
     faAnglesLeft,
     faAnglesRight,
-    faSave,
     faCaretRight,
     faCaretDown,
     faArrowUp,
@@ -118,9 +116,6 @@ function BaoCaoKeHoach() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <Link className={cx('save-btn')}>
-                        <FontAwesomeIcon icon={faSave} /> Lưu
-                    </Link>
                 </div>
                 {displayedBaocao.length > 0 ? (
                     <>
@@ -176,7 +171,7 @@ function BaoCaoKeHoach() {
                             </thead>
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
-                                    <tr key={bc.id}>
+                                    <tr key={bc.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_ten}</td>
                                         <td>{bc.cv_thgianbatdau}</td>

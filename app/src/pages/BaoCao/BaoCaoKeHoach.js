@@ -1,11 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
     faAnglesLeft,
     faAnglesRight,
-    faSave,
     faCaretRight,
     faCaretDown,
     faArrowUp,
@@ -118,9 +116,6 @@ function BaoCaoKeHoach() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <Link className={cx('save-btn')}>
-                        <FontAwesomeIcon icon={faSave} /> Lưu
-                    </Link>
                 </div>
                 {displayedBaocao.length > 0 ? (
                     <>

@@ -5,17 +5,6 @@
         font-weight: bold;
         transition: all 0.3s ease;
     }
-
-    p {
-        font-size: 1.8rem;
-        font-weight: 500;
-        margin: 0 0 10px 20px;
-        opacity: 0.7;
-
-        span {
-            color: var(--primary);
-        }
-    }
 }
 
 .title {
@@ -28,6 +17,37 @@
     .right-icon {
         font-size: 2.5rem;
         padding-top: 5px;
+    }
+}
+
+.month {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+
+    select {
+        padding: 3px 5px;
+        font-size: 1.7rem;
+        font-weight: 600;
+        opacity: 0.6;
+        background: #fff;
+        border-radius: 3px;
+
+        &:focus {
+            outline: 1px solid rgba(0, 0, 0, 0.3);
+        }
+    }   
+
+    p {
+        margin-left: 20px;
+        font-size: 1.7rem;
+        font-weight: 500;
+        opacity: 0.7;
+
+        span {
+            color: var(--primary);
+        }
     }
 }
   
@@ -92,6 +112,10 @@
         background: none;
         border: 1px solid #333;
         cursor: pointer;
+
+        &:hover {
+            outline: 1.5px solid #0087E1;
+        }
     }
 }
 
@@ -136,7 +160,7 @@
             font-size: 1.4rem;
             text-align: center;
             border-radius: 3px;
-            border: none;
+            border: 1px solid rgba(0, 0, 0, 0.1);
             outline: none;
 
             &:hover {
@@ -207,4 +231,8 @@
 
 .no-result {
     padding: 40px 20px;
+}
+
+.tham-dinh {
+    color: #15b357;
 }

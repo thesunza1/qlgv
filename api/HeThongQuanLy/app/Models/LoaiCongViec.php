@@ -21,10 +21,9 @@ class LoaiCongViec extends Model
     {
         return $this->hasMany(BaoCaoHangNgay::class, 'lcv_id', 'lcv_id');
     }
-
     public function congViecs()
     {
-        return $this->hasMany(CongViecs::class, 'lcv_id', 'lcv_id');
+        return $this->hasMany(CongViec::class, 'lcv_id', 'lcv_id');
     }
     
 }

@@ -8,6 +8,8 @@ use App\Models\CongViec;
 use App\Models\XinGiaHan;
 use App\Models\NhomCongViec;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use App\Models\BaoCaoHangNgay;
 
 class CongViecController extends Controller
 {
@@ -71,7 +73,6 @@ class CongViecController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy thông tin chức vụ nhân viên: ' . $e->getMessage()], 500);
         }
     }
-
     public function get_CV_Thang($thang)
     {
         // Lấy thông tin người dùng đã xác thực từ token JWT
@@ -388,5 +389,33 @@ class CongViecController extends Controller
             'Trạng Thái' => $trangThai,
         ], 200);
     }
+    function capnhatTGThucHienCV(Request $request, $cv_id)
+    {
+        // Tìm công việc theo ID
+        $congViec = CongViec::find($cv_id);
 
+        if ($congViec) {
+            // Lấy tổng thời gian thực hiện từ bảng công việc
+            $tongThoiGianThucHien = $congViec->cv_tgthuchien;
+
+            // Lấy tổng thời gian thẩm định từ bảng báo cáo hàng ngày
+            $baoCaoHangNgay = BaoCaoHangNgay::where('cv_id', $cv_id)->sum('bchn_giothamdinh');
+
+            // Cập nhật tổng thời gian thực hiện công việc
+            $congViec->cv_tgthuchien = $tongThoiGianThucHien + $baoCaoHangNgay;
+            $congViec->save();
+
+            // Tạo dữ liệu JSON
+            $responseData = [
+                'cv_tgthuchien' => $congViec->cv_tgthuchien,
+                'message' => 'Cập nhật tổng thời gian thực hiện công việc thành công.'
+            ];
+
+            // Trả về response JSON
+            return Response::json($responseData, 200);
+        }
+
+        // Trường hợp không tìm thấy công việc
+        return Response::json(['message' => 'Không tìm thấy công việc.'], 404);
+    }
 }
