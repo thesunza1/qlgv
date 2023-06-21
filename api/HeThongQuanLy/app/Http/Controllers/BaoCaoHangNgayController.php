@@ -70,16 +70,16 @@ class BaoCaoHangNgayController extends Controller
         $baoCao->bchn_noidung = $congViecBaoCao['bchn_noidung'];
         $baoCao->so_gio_lam = $congViecBaoCao['so_gio_lam'];
         $baoCao->cv_id = $congViecBaoCao['cv_id'];
-        // Chuyển đổi giờ bắt đầu thành định dạng 'H:i'
-        $giobatdau = explode(':', $congViecBaoCao['bchn_giobatdau']);
-        $giobatdau_formatted = str_pad($giobatdau[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($giobatdau[1], 2, '0', STR_PAD_LEFT);
+        // // Chuyển đổi giờ bắt đầu thành định dạng 'H:i'
+        // $giobatdau = explode(':', $congViecBaoCao['bchn_giobatdau']);
+        // $giobatdau_formatted = str_pad($giobatdau[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($giobatdau[1], 2, '0', STR_PAD_LEFT);
         
-        // Chuyển đổi giờ kết thúc thành định dạng 'H:i'
-        $gioketthuc = explode(':', $congViecBaoCao['bchn_gioketthuc']);
-        $gioketthuc_formatted = str_pad($gioketthuc[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($gioketthuc[1], 2, '0', STR_PAD_LEFT);
+        // // Chuyển đổi giờ kết thúc thành định dạng 'H:i'
+        // $gioketthuc = explode(':', $congViecBaoCao['bchn_gioketthuc']);
+        // $gioketthuc_formatted = str_pad($gioketthuc[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($gioketthuc[1], 2, '0', STR_PAD_LEFT);
         
-        $baoCao->bchn_giobatdau = $giobatdau_formatted;
-        $baoCao->bchn_gioketthuc = $gioketthuc_formatted;
+        $baoCao->bchn_giobatdau = $congViecBaoCao['bchn_giobatdau'];
+        $baoCao->bchn_gioketthuc = $congViecBaoCao['bchn_gioketthuc'];
         
 
         // Tăng giá trị BCHN_ID theo chỉ số vòng lặp

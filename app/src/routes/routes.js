@@ -8,7 +8,7 @@ import ThemNhanVien from '~/pages/DonVi/NhanVien/ThemNhanVien';
 import ChinhSuaNhanVien from '~/pages/DonVi/NhanVien/ChinhSuaNhanVien';
 
 import KeHoach from '~/pages/KeHoach';
-import BaoCao from '~/pages/BaoCao';
+import BaoCaoHangNgay from '~/pages/BaoCao/BaoCaoHangNgay';
 
 import CongViec from '~/pages/KeHoach/CongViec/CongViec';
 import ThemKeHoach from '~/pages/KeHoach/ThemKeHoach/ThemKeHoach';
@@ -52,7 +52,7 @@ const publicRoutes = [
     { path: 'congviec', component: CongViec },
     { path: 'congviec/them', component: ThemCongViec },
 
-    { path: 'baocao', component: BaoCao },
+    { path: 'baocao', component: BaoCaoHangNgay },
 ];
 
 const privateRoutes = [];

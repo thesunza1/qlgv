@@ -11,11 +11,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
 import cogoToast from 'cogo-toast';
+import moment from 'moment';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
 import BaoCaoKeHoach from './BaoCaoKeHoach';
 import BaoCaoCongViec from './BaoCaoCongViec';
-import moment from 'moment';
 
 const cx = classNames.bind(styles);
 
@@ -35,6 +35,7 @@ function BaoCaoHangNgay() {
         month: new Date().getMonth(),
         year: new Date().getFullYear(),
     });
+    console.log(themBaoCao);
 
     useEffect(() => {
         const getDSBaoCaoHangNgay = async () => {
@@ -81,23 +82,6 @@ function BaoCaoHangNgay() {
         }
     };
 
-    const handleAddRowTable = () => {
-        const newRow = {
-            cv_id: '',
-            bdhn_tiendo: '',
-            bchn_noidung: '',
-            so_gio_lam: '',
-        };
-        setThemBaoCao((prevRows) => [...prevRows, newRow]);
-    };
-
-    const handleChangeNewInput = (event, index) => {
-        const { name, value } = event.target;
-        setThemBaoCao((prevRows) =>
-            prevRows.map((row, i) => (i === index ? { ...row, [name]: value } : row)),
-        );
-    };
-
     const handleChangeInput = (event, rowIndex) => {
         const { name, value } = event.target;
         const updatedBaoCao = [...displayedBaocao];
@@ -111,12 +95,21 @@ function BaoCaoHangNgay() {
         const danh_sach_cong_viec_bao_cao = [];
 
         for (let bc of themBaoCao) {
-            const { cv_id, bdhn_tiendo, bchn_noidung, so_gio_lam } = bc;
+            const {
+                cv_id,
+                bdhn_tiendo,
+                bchn_noidung,
+                so_gio_lam,
+                bchn_giobatdau,
+                bchn_gioketthuc,
+            } = bc;
             danh_sach_cong_viec_bao_cao.push({
                 cv_id,
                 bdhn_tiendo,
                 bchn_noidung,
                 so_gio_lam,
+                bchn_giobatdau,
+                bchn_gioketthuc,
             });
         }
 
@@ -202,21 +195,17 @@ function BaoCaoHangNgay() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchText, sortDirection, sortColumn, dSBaocao, dateFilter]);
 
-    const totalHour = displayedBaocao.reduce((total, bc) => {
+    const filteredBaocao = displayedBaocao.filter((bc) => bc.bchn_trangthai === '1');
+
+    const totalHour = filteredBaocao.reduce((total, bc) => {
         return total + Number(bc.so_gio_lam);
     }, 0);
 
+    // eslint-disable-next-line no-unused-vars
     const [startHour, setStartHour] = useState('07:00');
+    // eslint-disable-next-line no-unused-vars
     const [endHour, setEndHour] = useState(moment().format('HH:mm'));
     const [totalHours, setTotalHours] = useState('');
-
-    const handleStartHourChange = (e) => {
-        setStartHour(e.target.value);
-    };
-
-    const handleEndHourChange = (e) => {
-        setEndHour(e.target.value);
-    };
 
     useEffect(() => {
         const start = moment(`${startHour}:00`, 'HH:mm');
@@ -225,8 +214,27 @@ function BaoCaoHangNgay() {
             .utc(moment.duration(end.diff(start)).asMilliseconds())
             .format('HH:mm');
 
-        setTotalHours(formattedHours);
+        setTotalHours(parseInt(formattedHours));
     }, [startHour, endHour]);
+
+    const handleAddRowTable = () => {
+        const newRow = {
+            cv_id: '',
+            bdhn_tiendo: 7,
+            bchn_noidung: '',
+            so_gio_lam: totalHours.toString(),
+            bchn_giobatdau: startHour,
+            bchn_gioketthuc: endHour,
+        };
+        setThemBaoCao((prevRows) => [...prevRows, newRow]);
+    };
+
+    const handleChangeNewInput = (event, index) => {
+        const { name, value } = event.target;
+        setThemBaoCao((prevRows) =>
+            prevRows.map((row, i) => (i === index ? { ...row, [name]: value } : row)),
+        );
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -390,30 +398,44 @@ function BaoCaoHangNgay() {
                                         <td>
                                             <input
                                                 type="time"
-                                                id="startHour"
-                                                name="startHour"
-                                                value={startHour}
-                                                onChange={handleStartHourChange}
+                                                name="bchn_giobatdau"
+                                                value={bc.bchn_giobatdau}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
                                             />
                                         </td>
                                         <td>
                                             <input
                                                 type="time"
-                                                id="endHour"
-                                                name="endHour"
-                                                value={endHour}
-                                                onChange={handleEndHourChange}
+                                                name="bchn_gioketthuc"
+                                                value={bc.bchn_gioketthuc}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
                                             />
                                         </td>
                                         <td>
                                             <input
                                                 type="number"
-                                                placeholder={totalHours}
                                                 min="1"
                                                 max="24"
                                                 name="so_gio_lam"
                                                 value={bc.so_gio_lam}
                                                 onChange={(e) => handleChangeNewInput(e, index)}
+                                                // onBlur={(e) => {
+                                                //     if (e.target.value > e.target.max) {
+                                                //         e.target.value = e.target.max;
+                                                //         handleChangeNewInput(e, index);
+                                                //     } else if (e.target.value < e.target.min) {
+                                                //         e.target.value = e.target.min;
+                                                //         handleChangeNewInput(e, index);
+                                                //     }
+                                                // }}
+                                                onInvalid={(e) => {
+                                                    e.target.setCustomValidity(
+                                                        'Giá trị phải từ 1 đến 24',
+                                                    );
+                                                }}
+                                                onInput={(e) => {
+                                                    e.target.setCustomValidity('');
+                                                }}
                                             />
                                         </td>
                                         <td>
@@ -425,15 +447,15 @@ function BaoCaoHangNgay() {
                                                 name="bdhn_tiendo"
                                                 value={bc.bdhn_tiendo}
                                                 onChange={(e) => handleChangeNewInput(e, index)}
-                                                onBlur={(e) => {
-                                                    if (e.target.value > e.target.max) {
-                                                        e.target.value = e.target.max;
-                                                        handleChangeNewInput(e, index);
-                                                    } else if (e.target.value < e.target.min) {
-                                                        e.target.value = e.target.min;
-                                                        handleChangeNewInput(e, index);
-                                                    }
-                                                }}
+                                                // onBlur={(e) => {
+                                                //     if (e.target.value > e.target.max) {
+                                                //         e.target.value = e.target.max;
+                                                //         handleChangeNewInput(e, index);
+                                                //     } else if (e.target.value < e.target.min) {
+                                                //         e.target.value = e.target.min;
+                                                //         handleChangeNewInput(e, index);
+                                                //     }
+                                                // }}
                                                 onInvalid={(e) => {
                                                     e.target.setCustomValidity(
                                                         'Giá trị phải từ 1 đến 24',
@@ -508,8 +530,8 @@ function BaoCaoHangNgay() {
                                                 <>{bc.bchn_noidung}</>
                                             )}
                                         </td>
-                                        <td>05:00:00</td>
-                                        <td>07:00:00</td>
+                                        <td>{bc.bchn_giobatdau}</td>
+                                        <td>{bc.bchn_gioketthuc}</td>
                                         <td>
                                             {bc.isEdit ? (
                                                 <input
