@@ -1,74 +1,24 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
-    faArrowUp,
-    faArrowDown,
     faAnglesLeft,
     faAnglesRight,
-    faSave,
     faCaretRight,
     faCaretDown,
+    faArrowUp,
+    faArrowDown,
 } from '@fortawesome/free-solid-svg-icons';
 import 'tippy.js/dist/tippy.css';
 import ReactPaginate from 'react-paginate';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
+import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
-function createData(
-    id,
-    thoi_gian,
-    ten_cong_viec,
-    noi_dung_cong_viec,
-    gio_lam_viec,
-    tien_do,
-    duyet_gio,
-    trang_thai,
-    tham_dinh,
-) {
-    return {
-        id,
-        thoi_gian,
-        ten_cong_viec,
-        noi_dung_cong_viec,
-        gio_lam_viec,
-        tien_do,
-        duyet_gio,
-        trang_thai,
-        tham_dinh,
-    };
-}
-
-const rows = [
-    createData(1, '31/5/2023', 'Lập trình', 'Bằng Reactjs 1', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(
-        2,
-        '31/5/2023',
-        'Lập trình',
-        'Bằng Reactjs 2',
-        '2',
-        '50%',
-        '2',
-        'Chưa thẩm định',
-        '1',
-    ),
-    createData(3, '29/5/2023', 'Lập trình 1', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(4, '30/5/2023', 'Thiết kế', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(5, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(6, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(7, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(8, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(9, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(10, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(11, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-    createData(12, '31/5/2023', 'Lập trình', 'Bằng Reactjs', '2', '50%', '2', 'Đã thẩm định', '1'),
-];
-
-function BaoCaoCongViec() {
-    const [dSBaocao, setDSBaocao] = useState(rows);
+function BaoCaoKeHoach() {
+    const [dSBaoCao, setDSBaoCao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
@@ -76,6 +26,17 @@ function BaoCaoCongViec() {
 
     const [isBaoCao, setIsBaoCao] = useState(false);
     const [icon, setIcon] = useState(faCaretRight);
+
+    const PER_PAGE = 10;
+
+    useEffect(() => {
+        const getBaoCao = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CongViec?token=${token}`);
+            setDSBaoCao(response.data.cong_viecs);
+        };
+        getBaoCao();
+    }, []);
 
     const toggleBaocao = () => {
         setIsBaoCao(!isBaoCao);
@@ -85,8 +46,6 @@ function BaoCaoCongViec() {
             setIcon(faCaretRight);
         }
     };
-
-    const PER_PAGE = 5;
 
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -103,7 +62,7 @@ function BaoCaoCongViec() {
     };
 
     const sortedBaocao = useMemo(() => {
-        let sortedItems = [...dSBaocao];
+        let sortedItems = [...dSBaoCao];
         sortedItems = sortedItems.sort((a, b) =>
             a[sortColumn] > b[sortColumn] ? 1 : b[sortColumn] > a[sortColumn] ? -1 : 0,
         );
@@ -111,11 +70,11 @@ function BaoCaoCongViec() {
             sortedItems.reverse();
         }
         return sortedItems;
-    }, [dSBaocao, sortColumn, sortDirection]);
+    }, [dSBaoCao, sortColumn, sortDirection]);
 
     const getDisplayBaocao = useCallback(() => {
         const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
+            bc.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -129,17 +88,22 @@ function BaoCaoCongViec() {
 
     const displayedBaocao = getDisplayBaocao();
 
+    const startIndex = currentPage * PER_PAGE + 1;
+    const endIndex =
+        startIndex + displayedBaocao.length - 1 <= dSBaoCao.length
+            ? startIndex + displayedBaocao.length - 1
+            : dSBaoCao.length;
+    const total = dSBaoCao.length;
+
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('title')}>
-                <h2
-                    style={{
-                        fontSize: isBaoCao ? '3rem' : '2rem',
-                    }}
-                >
-                    Báo cáo tiến độ công việc
-                </h2>
-                <FontAwesomeIcon className={cx('right-icon')} icon={icon} onClick={toggleBaocao} />
+            <div
+                className={cx('title')}
+                style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}
+                onClick={toggleBaocao}
+            >
+                <h2 style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}>Báo cáo tiến độ công việc</h2>
+                <FontAwesomeIcon className={cx('right-icon')} icon={icon} />
             </div>
             <div className={cx('inner')} style={{ display: isBaoCao ? 'block' : 'none' }}>
                 <div className={cx('features')}>
@@ -152,9 +116,6 @@ function BaoCaoCongViec() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <Link className={cx('add-btn')}>
-                        <FontAwesomeIcon icon={faSave} /> Lưu
-                    </Link>
                 </div>
                 {displayedBaocao.length > 0 ? (
                     <>
@@ -162,22 +123,9 @@ function BaoCaoCongViec() {
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th onClick={() => handleSortColumn('thoi_gian')}>
-                                        <span>Thời gian</span>
-                                        {sortColumn === 'thoi_gian' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
-                                    <th onClick={() => handleSortColumn('ten_cong_viec')}>
+                                    <th onClick={() => handleSortColumn('kh_ten')}>
                                         <span>Tên công việc</span>
-                                        {sortColumn === 'ten_cong_viec' && (
+                                        {sortColumn === 'kh_ten' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -188,56 +136,70 @@ function BaoCaoCongViec() {
                                             />
                                         )}
                                     </th>
-                                    <th>Nội dung công việc</th>
-                                    <th>Giờ làm việc</th>
+                                    <th onClick={() => handleSortColumn('kh_thgianbatdau')}>
+                                        <span>Thời gian bắt đầu</span>
+                                        {sortColumn === 'kh_thgianbatdau' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
+                                    <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
+                                        <span>Thời gian kết thúc</span>
+                                        {sortColumn === 'kh_thgianketthuc' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
+                                    <th>Nội dung</th>
+                                    <th>Người lập</th>
+                                    <th>Đơn vị</th>
                                     <th>Tiến độ</th>
-                                    <th>Duyệt giờ</th>
-                                    <th onClick={() => handleSortColumn('trang_thai')}>
-                                        <span>Trạng thái</span>
-                                        {sortColumn === 'trang_thai' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
-                                    <th>Thẩm định</th>
+                                    <th>Tổng thời gian</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {displayedBaocao.map((bc, index) => (
-                                    <tr key={bc.id}>
+                                    <tr key={bc.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                        <td>{bc.thoi_gian}</td>
-                                        <td>{bc.ten_cong_viec}</td>
-                                        <td>{bc.noi_dung_cong_viec}</td>
-                                        <td>{bc.gio_lam_viec}</td>
-                                        <td>{bc.tien_do}</td>
-                                        <td>{bc.duyet_gio}</td>
-                                        <td>{bc.trang_thai}</td>
-                                        <td>
-                                            <input type="checkbox"></input>
-                                        </td>
+                                        <td style={{ textAlign: 'left' }}>{bc.cv_ten}</td>
+                                        <td>{bc.cv_thgianbatdau}</td>
+                                        <td>{bc.cv_hanhoanthanh}</td>
+                                        <td style={{ textAlign: 'left' }}>{bc.cv_noidung}</td>
+                                        <td>{bc.nhan_vien?.nv_ten}</td>
+                                        <td>{bc.don_vi?.dv_ten}</td>
+                                        <td>{bc.cv_tiendo}</td>
+                                        <td>{bc.cv_tgthuchien}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         {sortedBaocao.length > PER_PAGE && (
-                            <ReactPaginate
-                                previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
-                                nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
-                                breakLabel={'...'}
-                                pageCount={totalPage}
-                                marginPagesDisplayed={1}
-                                pageRangeDisplayed={2}
-                                onPageChange={handlePageClick}
-                                containerClassName={cx('pagination')}
-                                activeClassName={cx('active')}
-                            />
+                            <div className={cx('paginate')}>
+                                {startIndex}-{endIndex} của {total}
+                                <ReactPaginate
+                                    previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
+                                    nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
+                                    breakLabel={'...'}
+                                    pageCount={totalPage}
+                                    marginPagesDisplayed={1}
+                                    pageRangeDisplayed={2}
+                                    onPageChange={handlePageClick}
+                                    containerClassName={cx('pagination')}
+                                    activeClassName={cx('active')}
+                                />
+                            </div>
                         )}
                     </>
                 ) : (
@@ -248,4 +210,4 @@ function BaoCaoCongViec() {
     );
 }
 
-export default BaoCaoCongViec;
+export default BaoCaoKeHoach;

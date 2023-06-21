@@ -70,4 +70,9 @@ Route::delete('/delete_NhanVien', [NhanVienController::class, 'delete_NhanVien']
 Route::put('/update_TienDoBaoCaoHangNgay/{bchn_id}/', [BaoCaoHangNgayController::class, 'update_TienDoBaoCaoHangNgay']);
 Route::post('/add_CV_BC_HangNgay', [BaoCaoHangNgayController::class, 'add_CV_BC_HangNgay']);
 Route::get('/get_CV_BC_HangNgay', [BaoCaoHangNgayController::class, 'get_CV_BC_HangNgay']);
+Route::get('/tongGioLamTrongThang/{thang}/{nam}', [BaoCaoHangNgayController::class, 'tongGioLamTrongThang']);
+Route::post('/capnhatTGThucHienCV/{cv_id}', [CongViecController::class, 'capnhatTGThucHienCV']);
+// /Rputer Kế Hoạch
+Route::post('/get_KeHoach_CongViec', [KeHoachController::class, 'get_KeHoach_CongViec']);
+
 });

@@ -4,23 +4,6 @@
         text-align: center;
         font-weight: bold;
         transition: all 0.3s ease;
-
-        .back-icon {
-            margin-right: 30px;
-            font-size: 2.5rem;
-            color: #0d7d3c;
-        }
-    }
-
-    p {
-        font-size: 1.8rem;
-        font-weight: 500;
-        margin: 0 0 10px 20px;
-        opacity: 0.7;
-
-        span {
-            color: var(--primary);
-        }
     }
 }
 
@@ -29,18 +12,49 @@
     justify-content: center;
     align-items: center;
     gap: 30px;
+    cursor: pointer;
 
     .right-icon {
         font-size: 2.5rem;
         padding-top: 5px;
-        cursor: pointer;
+    }
+}
+
+.month {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+
+    select {
+        padding: 3px 5px;
+        font-size: 1.7rem;
+        font-weight: 600;
+        opacity: 0.6;
+        background: #fff;
+        border-radius: 3px;
+
+        &:focus {
+            outline: 1px solid rgba(0, 0, 0, 0.3);
+        }
+    }   
+
+    p {
+        margin-left: 20px;
+        font-size: 1.7rem;
+        font-weight: 500;
+        opacity: 0.7;
+
+        span {
+            color: var(--primary);
+        }
     }
 }
   
 .inner {
     width: 100%;
     height: auto;
-    margin-top: 10px;
+    margin: 10px 0;
     background: #fff;
     border-radius: 5px;
     box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
@@ -98,6 +112,10 @@
         background: none;
         border: 1px solid #333;
         cursor: pointer;
+
+        &:hover {
+            outline: 1.5px solid #0087E1;
+        }
     }
 }
 
@@ -134,23 +152,25 @@
             height: 20px;
         }
 
-        textarea {
+        input,
+        textarea,
+        select  {
+            width: auto;
+            height: 40px;
+            font-size: 1.4rem;
             text-align: center;
-            border: none;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
             outline: none;
-            width: 100px;
+
+            &:hover {
+                outline: 1px solid rgba(0, 0, 0, 0.3);
+            }
         }
     }
 
     td:first-child {
         font-weight: 600;
-    }
-    
-    td:nth-child(3),
-    td:nth-child(4),
-    td:nth-child(5),
-    td:nth-child(6) {
-        text-align: left;
     }
 
     tr:nth-child(even) {
@@ -162,26 +182,48 @@
     }
 }
 
-.pagination {
+.handle {
+    padding: 7px;
+    font-size: 1.6rem;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+        background: #e2e2e2;
+        border-radius: 50%;
+    }
+}
+
+.edit-btn {
+    color: #2400FF;
+}
+
+.paginate {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
     margin: 20px;
     padding-bottom: 20px;
 
-    li {
-        margin-right: 5px;
-
-        a {
-            padding: 3px 8px;
-            font-size: 1.4rem;
-            color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            cursor: pointer;
+    .pagination {
+        display: flex;
+    
+        li {
+            margin-right: 5px;
+    
+            a {
+                padding: 3px 8px;
+                font-size: 1.4rem;
+                color: var(text-black);
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                cursor: pointer;
+            }
         }
     }
 }
-  
+
 .active {
     color: var(--text-white);
     background: #0087E1;
@@ -190,4 +232,7 @@
 .no-result {
     padding: 40px 20px;
 }
-  
+
+.tham-dinh {
+    color: #15b357;
+}

@@ -261,7 +261,6 @@ function ThemCongViec() {
                                             />
                                         )}
                                     </th>
-                                    <th>Xử lý</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -333,7 +332,7 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.dv_id}</>
+                                                <>{cv.don_vi ? cv.don_vi.dv_ten : '-'}</>
                                             )}
                                         </td>
                                         <td>
@@ -347,7 +346,7 @@ function ThemCongViec() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{cv.nv}</>
+                                                <>{cv.nhan_vien ? cv.nhan_vien.nv_ten : '-'}</>
                                             )}
                                         </td>
 
@@ -369,9 +368,6 @@ function ThemCongViec() {
                                             ) : (
                                                 <>{trangThai(cv.cv_trangthai)}</>
                                             )}
-                                        </td>
-                                        <td>
-                                            <input type="checkbox"></input>
                                         </td>
                                     </tr>
                                 ))}

@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
+import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
 import styles from './DangNhap.module.scss';
-import Logo from '~/assets/images/logo.png';
+import Logo from '~/assets/images/logo_vnpt.png';
 import Background from '~/assets/images/background_vnpt.jpg';
-import cogoToast from 'cogo-toast';
 
 const cx = classNames.bind(styles);
 
@@ -53,7 +53,7 @@ function DangNhap() {
                 <h1>Hệ thống quản lý</h1>
             </div>
             <div className={cx('inner')}>
-                <img src={Background} alt="Image_VNPT_HG" />
+                <img src={Background} alt="Background_VNPT_HG" />
                 <div className={cx('form-login')}>
                     <form onSubmit={handleSubmitLogin}>
                         <h2>ĐĂNG NHẬP</h2>

@@ -1,1 +1,1 @@
-export { default } from './BaoCao';
+export { default } from './BaoCaoHangNgay';

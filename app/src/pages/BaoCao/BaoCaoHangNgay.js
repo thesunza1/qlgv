@@ -6,35 +6,53 @@ import {
     faArrowDown,
     faSave,
     faPlus,
+    faCaretRight,
+    faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
+import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
 import styles from './BaoCao.module.scss';
 import BaoCaoKeHoach from './BaoCaoKeHoach';
 import BaoCaoCongViec from './BaoCaoCongViec';
+import moment from 'moment';
 
 const cx = classNames.bind(styles);
 
-function BaoCao() {
+function BaoCaoHangNgay() {
     const [infoUser, setInfoUser] = useState([]);
     const [dSBaoCaoHangNgay, setDSBaoCaoHangNgay] = useState([]);
     const [dSBaocao, setDSBaocao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
-
+    const [isBaoCao, setIsBaoCao] = useState(true);
+    const [icon, setIcon] = useState(faCaretDown);
     const [displayedBaocao, setDisplayedBaocao] = useState([]);
-    const [nextId, setNextId] = useState(displayedBaocao.length);
-
-    const [themBaoCao, setThemBaoCao] = useState({
-        nhan_vien: { ten_nhan_vien: '' },
-        cong_viec: { ten_cong_viec: '' },
-        loai_cong_viec: { ten_loai_cong_viec: '' },
-        bchn_noidung: '',
-        so_gio_lam: '',
+    const [themBaoCao, setThemBaoCao] = useState([]);
+    const [dSCongViec, setDSCongViec] = useState([]);
+    const [dateFilter, setDateFilter] = useState({
+        month: new Date().getMonth(),
+        year: new Date().getFullYear(),
     });
 
-    console.log(themBaoCao);
+    useEffect(() => {
+        const getDSBaoCaoHangNgay = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CV_BC_HangNgay?token=${token}`);
+            setDSBaoCaoHangNgay(response.data);
+        };
+        getDSBaoCaoHangNgay();
+    }, []);
+
+    useEffect(() => {
+        const getInfoUser = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/get_CongViec?token=${token}`);
+            setDSCongViec(response.data.cong_viecs);
+        };
+        getInfoUser();
+    }, []);
 
     useEffect(() => {
         const getInfoUser = async () => {
@@ -46,14 +64,6 @@ function BaoCao() {
     }, []);
 
     useEffect(() => {
-        const getDSBaoCaoHangNgay = async () => {
-            const response = await axiosClient.get('/get_CV_BC_HangNgay');
-            setDSBaoCaoHangNgay(response.data);
-        };
-        getDSBaoCaoHangNgay();
-    }, []);
-
-    useEffect(() => {
         setDSBaocao(
             dSBaoCaoHangNgay.map((bc) => ({
                 ...bc,
@@ -62,22 +72,30 @@ function BaoCao() {
         );
     }, [dSBaoCaoHangNgay]);
 
+    const toggleBaocao = () => {
+        setIsBaoCao(!isBaoCao);
+        if (icon === faCaretRight) {
+            setIcon(faCaretDown);
+        } else {
+            setIcon(faCaretRight);
+        }
+    };
+
     const handleAddRowTable = () => {
         const newRow = {
-            bchn_id: nextId,
-            bchn_ngay: new Date().toISOString().substr(0, 10),
-            nhan_vien: { ten_nhan_vien: '' },
-            cong_viec: { ten_cong_viec: '' },
-            loai_cong_viec: { ten_loai_cong_viec: '' },
+            cv_id: '',
+            bdhn_tiendo: '',
             bchn_noidung: '',
             so_gio_lam: '',
-            bchn_tiendo: '',
-            bchn_giothamdinh: '',
-            bchn_trangthai: '0',
-            isEdit: true,
         };
-        setDisplayedBaocao([newRow, ...displayedBaocao]);
-        setNextId(nextId + 1);
+        setThemBaoCao((prevRows) => [...prevRows, newRow]);
+    };
+
+    const handleChangeNewInput = (event, index) => {
+        const { name, value } = event.target;
+        setThemBaoCao((prevRows) =>
+            prevRows.map((row, i) => (i === index ? { ...row, [name]: value } : row)),
+        );
     };
 
     const handleChangeInput = (event, rowIndex) => {
@@ -85,6 +103,35 @@ function BaoCao() {
         const updatedBaoCao = [...displayedBaocao];
         updatedBaoCao[rowIndex] = { ...updatedBaoCao[rowIndex], [name]: value };
         setDisplayedBaocao(updatedBaoCao);
+    };
+
+    const handleThemBaoCao = async (e) => {
+        e.preventDefault();
+
+        const danh_sach_cong_viec_bao_cao = [];
+
+        for (let bc of themBaoCao) {
+            const { cv_id, bdhn_tiendo, bchn_noidung, so_gio_lam } = bc;
+            danh_sach_cong_viec_bao_cao.push({
+                cv_id,
+                bdhn_tiendo,
+                bchn_noidung,
+                so_gio_lam,
+            });
+        }
+
+        const token = localStorage.getItem('Token');
+
+        const response = await axiosClient.post(`/add_CV_BC_HangNgay?token=${token}`, {
+            danh_sach_cong_viec_bao_cao,
+        });
+
+        if (response.status === 200) {
+            window.location.reload();
+            cogoToast.success(`Báo cáo đã được thêm`, {
+                position: 'top-right',
+            });
+        }
     };
 
     const handleSortColumn = (key) => {
@@ -100,19 +147,37 @@ function BaoCao() {
         setSearchText(event.target.value);
     };
 
-    const filterBaocao = (baocao, infoUser) => {
-        const filteredBaocao =
-            infoUser.nv_quyenthamdinh === '1'
-                ? baocao
-                : baocao.filter((item) => item.nhan_vien.ten_nhan_vien === infoUser.nv_ten);
+    const handleChangeDate = (event) => {
+        const { value, name } = event.target;
+        setDateFilter((prevFilter) => ({
+            ...prevFilter,
+            [name]: parseInt(value),
+        }));
+    };
 
-        const searchedBaocao = filteredBaocao
+    const formatDate = (dateString) => {
+        const [day, month, year] = dateString.split('-');
+        return `${month}-${day}-${year}`;
+    };
+
+    const filterBaocao = (baocao) => {
+        const searchedBaocao = baocao
             .filter(
                 (bc) =>
                     bc.cong_viec.ten_cong_viec &&
                     bc.cong_viec.ten_cong_viec.toLowerCase().includes(searchText.toLowerCase()),
             )
-            .filter((bc) => bc.bchn_trangthai === '0')
+            .filter((event) => {
+                const formattedDate = formatDate(event.bchn_ngay);
+                const eventDate = new Date(formattedDate);
+                if (
+                    eventDate.getMonth() === dateFilter.month &&
+                    eventDate.getFullYear() === dateFilter.year
+                ) {
+                    return event;
+                }
+                return null;
+            })
             .sort((a, b) => {
                 if (sortDirection === 'asc') {
                     return a[sortColumn] < b[sortColumn]
@@ -129,23 +194,82 @@ function BaoCao() {
                 }
             });
 
-        return searchedBaocao || [];
+        return searchedBaocao.filter((bc) => bc !== null) || [];
     };
 
     useEffect(() => {
-        setDisplayedBaocao(filterBaocao(dSBaocao, infoUser));
+        setDisplayedBaocao(filterBaocao(dSBaocao));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchText, sortDirection, sortColumn, infoUser, dSBaocao]);
+    }, [searchText, sortDirection, sortColumn, dSBaocao, dateFilter]);
+
+    const totalHour = displayedBaocao.reduce((total, bc) => {
+        return total + Number(bc.so_gio_lam);
+    }, 0);
+
+    const [startHour, setStartHour] = useState('07:00');
+    const [endHour, setEndHour] = useState(moment().format('HH:mm'));
+    const [totalHours, setTotalHours] = useState('');
+
+    const handleStartHourChange = (e) => {
+        setStartHour(e.target.value);
+    };
+
+    const handleEndHourChange = (e) => {
+        setEndHour(e.target.value);
+    };
+
+    useEffect(() => {
+        const start = moment(`${startHour}:00`, 'HH:mm');
+        const end = moment(`${endHour}:00`, 'HH:mm');
+        const formattedHours = moment
+            .utc(moment.duration(end.diff(start)).asMilliseconds())
+            .format('HH:mm');
+
+        setTotalHours(formattedHours);
+    }, [startHour, endHour]);
 
     return (
         <div className={cx('wrapper')}>
-            <BaoCaoKeHoach />
+            {infoUser.nv_quyen === 'ld' && <BaoCaoKeHoach />}
             <BaoCaoCongViec />
-            <h2>Báo cáo công việc hàng ngày</h2>
-            <p>
-                Tổng giờ đã làm: <span>16 giờ</span>
-            </p>
-            <div className={cx('inner')}>
+            <div
+                className={cx('title')}
+                style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}
+                onClick={toggleBaocao}
+            >
+                <h2 style={{ fontSize: isBaoCao ? '3rem' : '2rem' }}>Báo cáo tiến độ hàng ngày</h2>
+                <FontAwesomeIcon className={cx('right-icon')} icon={icon} />
+            </div>
+            <div style={{ display: isBaoCao ? 'block' : 'none' }}>
+                <div className={cx('month')}>
+                    <select name="month" value={dateFilter.month} onChange={handleChangeDate}>
+                        <option value={0}>Tháng 1</option>
+                        <option value={1}>Tháng 2</option>
+                        <option value={2}>Tháng 3</option>
+                        <option value={3}>Tháng 4</option>
+                        <option value={4}>Tháng 5</option>
+                        <option value={5}>Tháng 6</option>
+                        <option value={6}>Tháng 7</option>
+                        <option value={7}>Tháng 8</option>
+                        <option value={8}>Tháng 9</option>
+                        <option value={9}>Tháng 10</option>
+                        <option value={10}>Tháng 11</option>
+                        <option value={11}>Tháng 12</option>
+                    </select>
+                    <select name="year" value={dateFilter.year} onChange={handleChangeDate}>
+                        <option value={2021}>2021</option>
+                        <option value={2022}>2022</option>
+                        <option value={2023}>2023</option>
+                    </select>
+                    <p>
+                        Số dòng: <span>{displayedBaocao.length}</span>
+                    </p>
+                    <p>
+                        Tổng số giờ đã làm: <span>{totalHour} giờ</span>
+                    </p>
+                </div>
+            </div>
+            <div className={cx('inner')} style={{ display: isBaoCao ? 'block' : 'none' }}>
                 <div className={cx('features')}>
                     <div className={cx('search')}>
                         <input
@@ -160,7 +284,7 @@ function BaoCao() {
                         <button className={cx('add-btn')} onClick={handleAddRowTable}>
                             <FontAwesomeIcon icon={faPlus} /> Thêm hàng
                         </button>
-                        <button className={cx('save-btn')}>
+                        <button className={cx('save-btn')} onClick={handleThemBaoCao}>
                             <FontAwesomeIcon icon={faSave} /> Lưu
                         </button>
                     </div>
@@ -184,6 +308,8 @@ function BaoCao() {
                                             />
                                         )}
                                     </th>
+                                    <th>Tên công việc</th>
+                                    <th>Nội dung công việc</th>
                                     {infoUser.nv_quyenthamdinh === '1' && (
                                         <th
                                             onClick={() =>
@@ -203,9 +329,8 @@ function BaoCao() {
                                             )}
                                         </th>
                                     )}
-                                    <th>Tên công việc</th>
-                                    <th>Loại công việc</th>
-                                    <th>Nội dung công việc</th>
+                                    <th>Giờ bắt đầu</th>
+                                    <th>Giờ kết thúc</th>
                                     <th>Giờ làm việc (h)</th>
                                     <th>Tiến độ (%)</th>
                                     {infoUser.nv_quyenthamdinh === '1' && <th>Duyệt giờ (h)</th>}
@@ -226,10 +351,106 @@ function BaoCao() {
                                 </tr>
                             </thead>
                             <tbody>
+                                {themBaoCao.map((bc, index) => (
+                                    <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>
+                                            <input
+                                                type="date"
+                                                name="bchn_ngay"
+                                                defaultValue={new Date()
+                                                    .toISOString()
+                                                    .substr(0, 10)}
+                                                disabled
+                                            />
+                                        </td>
+                                        <td>
+                                            <select
+                                                name="cv_id"
+                                                value={bc.cv_id}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            >
+                                                <option value="" disabled>
+                                                    Chọn tên công việc
+                                                </option>
+                                                {dSCongViec.map((cv) => (
+                                                    <option key={cv.cv_id} value={cv.cv_id}>
+                                                        {cv.cv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <textarea
+                                                name="bchn_noidung"
+                                                value={bc.bchn_noidung}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="time"
+                                                id="startHour"
+                                                name="startHour"
+                                                value={startHour}
+                                                onChange={handleStartHourChange}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="time"
+                                                id="endHour"
+                                                name="endHour"
+                                                value={endHour}
+                                                onChange={handleEndHourChange}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                placeholder={totalHours}
+                                                min="1"
+                                                max="24"
+                                                name="so_gio_lam"
+                                                value={bc.so_gio_lam}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                placeholder="1-100"
+                                                min="1"
+                                                max="100"
+                                                name="bdhn_tiendo"
+                                                value={bc.bdhn_tiendo}
+                                                onChange={(e) => handleChangeNewInput(e, index)}
+                                                onBlur={(e) => {
+                                                    if (e.target.value > e.target.max) {
+                                                        e.target.value = e.target.max;
+                                                        handleChangeNewInput(e, index);
+                                                    } else if (e.target.value < e.target.min) {
+                                                        e.target.value = e.target.min;
+                                                        handleChangeNewInput(e, index);
+                                                    }
+                                                }}
+                                                onInvalid={(e) => {
+                                                    e.target.setCustomValidity(
+                                                        'Giá trị phải từ 1 đến 24',
+                                                    );
+                                                }}
+                                                onInput={(e) => {
+                                                    e.target.setCustomValidity('');
+                                                }}
+                                            />
+                                        </td>
+                                        <td>Chưa thẩm định</td>
+                                    </tr>
+                                ))}
                                 {displayedBaocao.map((bc, index) => (
                                     <tr key={bc.bchn_id}>
                                         <td>{index + 1}</td>
-                                        <td>
+                                        <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <input
                                                     type="date"
@@ -243,7 +464,7 @@ function BaoCao() {
                                                     }
                                                 />
                                             ) : (
-                                                <>{bc.bchn_ngay}</>
+                                                <>{bc.bchn_ngay.split(' ')[0]}</>
                                             )}
                                         </td>
                                         {infoUser.nv_quyenthamdinh === '1' && (
@@ -261,7 +482,7 @@ function BaoCao() {
                                                 )}
                                             </td>
                                         )}
-                                        <td>
+                                        <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="cong_viec"
@@ -274,20 +495,7 @@ function BaoCao() {
                                                 <>{bc.cong_viec?.ten_cong_viec}</>
                                             )}
                                         </td>
-                                        <td>
-                                            {bc.isEdit ? (
-                                                <textarea
-                                                    name="loai_cong_viec"
-                                                    value={bc.loai_cong_viec?.ten_loai_cong_viec}
-                                                    onChange={(event) =>
-                                                        handleChangeInput(event, index)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.loai_cong_viec?.ten_loai_cong_viec}</>
-                                            )}
-                                        </td>
-                                        <td>
+                                        <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="bchn_noidung"
@@ -300,9 +508,11 @@ function BaoCao() {
                                                 <>{bc.bchn_noidung}</>
                                             )}
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td>05:00:00</td>
+                                        <td>07:00:00</td>
+                                        <td>
                                             {bc.isEdit ? (
-                                                <textarea
+                                                <input
                                                     name="so_gio_lam"
                                                     value={bc.so_gio_lam}
                                                     onChange={(event) =>
@@ -315,7 +525,7 @@ function BaoCao() {
                                         </td>
                                         <td>
                                             {bc.isEdit ? (
-                                                <textarea
+                                                <input
                                                     name="bchn_tiendo"
                                                     value={bc.bchn_tiendo}
                                                     onChange={(event) =>
@@ -329,7 +539,7 @@ function BaoCao() {
                                         {infoUser.nv_quyenthamdinh === '1' && (
                                             <td>
                                                 {bc.isEdit ? (
-                                                    <textarea
+                                                    <input
                                                         name="bchn_giothamdinh"
                                                         value={bc.bchn_giothamdinh}
                                                         onChange={(event) =>
@@ -337,11 +547,15 @@ function BaoCao() {
                                                         }
                                                     />
                                                 ) : (
-                                                    <>{bc.bchn_giothamdinh}</>
+                                                    <input value={bc.bchn_giothamdinh} />
                                                 )}
                                             </td>
                                         )}
-                                        <td>
+                                        <td
+                                            className={
+                                                bc.bchn_trangthai === '1' ? cx('tham-dinh') : ''
+                                            }
+                                        >
                                             {bc.isEdit ? (
                                                 <textarea
                                                     name="bchn_trangthai"
@@ -358,6 +572,7 @@ function BaoCao() {
                                                 </>
                                             )}
                                         </td>
+
                                         {infoUser.nv_quyenthamdinh === '1' && (
                                             <td>
                                                 <input type="checkbox"></input>
@@ -376,4 +591,4 @@ function BaoCao() {
     );
 }
 
-export default BaoCao;
+export default BaoCaoHangNgay;

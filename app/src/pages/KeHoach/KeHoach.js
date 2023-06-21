@@ -26,15 +26,15 @@ function KeHoach() {
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
-
+    // const [loading, setLoading] = useState(true);
     const PER_PAGE = 5;
 
     useEffect(() => {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token')
             const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
-            setDSKeHoach(response.data.ke_hoachs);
-
+            setDSKeHoach(response.data.ke_hoachs || []);
+            // setLoading(false);
         };
         getListProduct();
     }, []);
@@ -98,20 +98,26 @@ function KeHoach() {
             dangerMode: true,
         }).then(async (willDelete) => {
             if (willDelete) {
-                const token = localStorage.getItem('Token')
-                await axiosClient.delete(`/delete_KeHoach?token=${token}`);
-                swal(`kế hoạch đã được xóa`, {
-                    icon: 'success',
-                });
-                window.location.reload();
+                try {
+                    const token = localStorage.getItem('Token');
+                    const response = await axiosClient.delete('/delete_KeHoach', {
+                        data: { delletekh_ids: [kh.kh_id] }, // pass an array of the ID to delete
+                        params: { token: token },
+                    });
+                    if (response.status === 200) {
+                        swal(`Kế hoạch ${kh.kh_ten} đã được xóa thành công!`, { icon: 'success' });
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error(error);
+                    swal(`Lỗi khi xóa kế hoạch ${kh.kh_ten} : ${error.message}`, { icon: 'error' });
+                }
             } else {
                 return;
             }
         });
     };
-
     const displayedKeHoach = getDisplayKeHoach();
-
     return (
         <>
             <div className={cx('wrapper')}>
@@ -154,8 +160,8 @@ function KeHoach() {
                                         </th>
                                         <th>Đơn vị</th>
                                         <th>Người lập</th>
-                                        <th>Tổng thời gian</th>
-                                        <th>Xử lý</th>
+                                        <th className={cx('center')}>Tổng thời gian</th>
+                                        <th className={cx('center')}>Xử lý</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -174,8 +180,8 @@ function KeHoach() {
                                             <td>{kh.kh_thgianketthuc.split(' ')[0]}</td>
                                             <td>{kh.don_vi ? kh.don_vi.dv_ten : '-'}</td>
                                             <td>{kh.nhan_vien ? kh.nhan_vien.nv_ten : '-'}</td>
-                                            <td>{kh.kh_tongthgian}</td>
-                                            <td>
+                                            <td className={cx('center')}>{kh.kh_tongthgian}</td>
+                                            <td className={cx('center')}>
                                                 <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nv_id}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
                                                     <Tippy content="Xem chi tiết" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
@@ -183,7 +189,7 @@ function KeHoach() {
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.dv_id}/${kh.nv_id}/chinhsua`}>
+                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.kh_tongthgian}/${kh.kh_stt}/chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
                                                         <button className={cx('handle', 'edit-btn')}>
                                                             <FontAwesomeIcon icon={faPenToSquare} />
