@@ -12,24 +12,24 @@ const cx = classNames.bind(styles);
 
 function XinGiaHan() {
     const navigate = useNavigate();
-    const { cv_id, cv_ten, cv_thgianketthuc, lydo, thoigian_giahan } = useParams();
+    const { cv_id, cv_ten, cv_thgianhoanthanh, lido, thgiandenghi } = useParams();
 
     const [xinGiaHan, setXinGiaHan] = useState({
         cv_id: '',
         cv_ten: '',
-        cv_thgianketthuc: '',
-        lydo: '',
-        thoigian_giahan: '',
+        cv_thgianhoanthanh: '',
+        lido: '',
+        thgiandenghi: '',
     });
     useEffect(() => {
         setXinGiaHan({
             cv_id,
             cv_ten,
-            cv_thgianketthuc,
-            lydo,
-            thoigian_giahan,
+            cv_thgianhoanthanh,
+            lido,
+            thgiandenghi,
         });
-    }, [cv_id, cv_ten, cv_thgianketthuc, lydo, thoigian_giahan]);
+    }, [cv_id, cv_ten, cv_thgianhoanthanh, lido, thgiandenghi]);
 
     function handleChange(event) {
         setXinGiaHan({
@@ -41,14 +41,14 @@ function XinGiaHan() {
     const handleXinGiaHan = async (e) => {
         e.preventDefault();
 
-        const { kh_ten, kh_thgianketthuc, lydo, thoigian_giahan } = xinGiaHan;
+        const { kh_ten, kh_thgianhoanthanh, lido, thgiandenghi } = xinGiaHan;
         const token = localStorage.getItem('Token');
         const response = await axiosClient.post(`/update_KeHoach/${cv_id}?token=${token}`, {
             cv_id,
             cv_ten,
-            cv_thgianketthuc,
-            lydo,
-            thoigian_giahan,
+            cv_thgianhoanthanh,
+            lido,
+            thgiandenghi,
         });
 
         if (response.status === 200) {
@@ -88,7 +88,7 @@ function XinGiaHan() {
                             <input
                                 type="date"
                                 name="kh_thgianbatdau"
-                                value={xinGiaHan.cv_thgianketthuc}
+                                value={xinGiaHan.cv_thgianhoanthanh ? xinGiaHan.cv_thgianhoanthanh.split(' ')[0] : '2023-01-01'}
                                 onChange={handleChange}
                             />
                         </div>
@@ -97,7 +97,7 @@ function XinGiaHan() {
                             <input
                                 type="search"
                                 name="kh_ten"
-                                value={xinGiaHan.lydo}
+                                value={xinGiaHan.lido}
                                 onChange={handleChange}
                             />
                         </div>
@@ -106,7 +106,7 @@ function XinGiaHan() {
                             <input
                                 type="date"
                                 name="kh_ten"
-                                value={xinGiaHan.thoigian_giahan}
+                                value={xinGiaHan.thgiandenghi}
                                 onChange={handleChange}
                             />
                         </div>

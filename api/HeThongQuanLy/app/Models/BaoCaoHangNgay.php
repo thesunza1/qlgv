@@ -21,7 +21,8 @@ class BaoCaoHangNgay extends Model
         'so_gio_lam',
         'nv_id_ngduyet',
         'bchn_giothamdinh',
-        'lcv_id',
+        'bchn_giobatdau',
+        'bchn_gioketthuc'
     ];
     public function nhanVien()
     {
@@ -33,10 +34,7 @@ class BaoCaoHangNgay extends Model
         return $this->belongsTo(CongViec::class, 'cv_id', 'cv_id');
     }
 
-    public function loaiCongViecs()
-    {
-        return $this->belongsTo(LoaiCongViec::class, 'lcv_id', 'lcv_id');
-    }
+   
     public function nhanVienDuyet()
     {
         return $this->belongsTo(NhanVien::class, 'nv_id_ngduyet', 'nv_id');

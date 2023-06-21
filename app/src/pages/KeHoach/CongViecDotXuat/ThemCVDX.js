@@ -5,27 +5,27 @@ import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
 // import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
-import styles from './ThemKeHoach.module.scss';
+import styles from './ThemCVDX.module.scss';
 import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
-function ThemKeHoach() {
+function ThemCVDX() {
     const navigate = useNavigate();
 
-    const [themKeHoach, setThemKeHoach] = useState({
-        kh_ten: '',
-        kh_loaikehoach: '',
-        kh_thgianbatdau: '',
-        kh_thgianketthuc: '',
-        kh_stt: '',
-        kh_tongthgian: '',
+    const [ThemCVDX, setThemCVDX] = useState({
+        cv_ten: '',
+        cv_loaikehoach: '',
+        cv_thgianbatdau: '',
+        cv_thgianketthuc: '',
+        cv_stt: '',
+        cv_tongthgian: '',
 
     });
 
     function handleChange(event) {
-        setThemKeHoach({
-            ...themKeHoach,
+        setThemCVDX({
+            ...ThemCVDX,
             [event.target.name]: event.target.value,
         });
     }
@@ -33,16 +33,16 @@ function ThemKeHoach() {
     const handleThemDonVi = async (e) => {
         e.preventDefault();
 
-        const { kh_stt, kh_ten, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } = themKeHoach;
-        console.log(themKeHoach)
+        const { cv_stt, cv_ten, cv_thgianbatdau, cv_thgianketthuc, cv_loaikehoach, cv_tongthgian } = ThemCVDX;
+        console.log(ThemCVDX)
         const token = localStorage.getItem('Token')
-        const response = await axiosClient.post(`/create_KeHoach?token=${token}`, {
-            kh_ten,
-            kh_loaikehoach,
-            kh_thgianbatdau,
-            kh_thgianketthuc,
-            kh_tongthgian,
-            kh_stt,
+        const response = await axiosClient.post(`/add_CV_DotXuat?token=${token}`, {
+            cv_ten,
+            cv_loaikehoach,
+            cv_thgianbatdau,
+            cv_thgianketthuc,
+            cv_tongthgian,
+            cv_stt,
         });
 
 
@@ -50,7 +50,7 @@ function ThemKeHoach() {
 
         if (response.status === 200) {
             navigate('/qlcv/kehoach');
-            swal(`Thêm kế hoạch ${kh_ten.toUpperCase()} mới thành công`, {
+            swal(`Thêm kế hoạch ${cv_ten.toUpperCase()} mới thành công`, {
                 position: 'top-right',
             });
         } else { alert('error') }
@@ -67,7 +67,7 @@ function ThemKeHoach() {
                     <Link to="/qlcv/kehoach">
                         <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
                     </Link>
-                    Thêm kế hoạch
+                    Thêm công việc đột xuất
                 </h2>
                 <div className={cx('inner')}>
                     <form className={cx('form-group')}>
@@ -77,9 +77,9 @@ function ThemKeHoach() {
                                 type="number"
                                 min={0}
                                 max={999}
-                                name="kh_stt"
+                                name="cv_stt"
 
-                                value={themKeHoach.kh_stt}
+                                value={ThemCVDX.cv_stt}
                                 onChange={handleChange}
                             />
                         </div>
@@ -87,8 +87,8 @@ function ThemKeHoach() {
                             <label>Tên kế hoạch</label>
                             <input
                                 type="search"
-                                name="kh_ten"
-                                value={themKeHoach.kh_ten}
+                                name="cv_ten"
+                                value={ThemCVDX.cv_ten}
                                 onChange={handleChange}
                             />
                         </div>
@@ -96,8 +96,8 @@ function ThemKeHoach() {
                             <label>Thời gian bắt đầu</label>
                             <input
                                 type="date"
-                                name="kh_thgianbatdau"
-                                value={themKeHoach.kh_thgianbatdau}
+                                name="cv_thgianbatdau"
+                                value={ThemCVDX.cv_thgianbatdau}
                                 onChange={handleChange}
                             />
                         </div>
@@ -105,8 +105,8 @@ function ThemKeHoach() {
                             <label>Thời gian kết thúc</label>
                             <input
                                 type="date"
-                                name="kh_thgianketthuc"
-                                value={themKeHoach.kh_thgianketthuc}
+                                name="cv_thgianketthuc"
+                                value={ThemCVDX.cv_thgianketthuc}
                                 onChange={handleChange}
                             />
                         </div>
@@ -114,8 +114,8 @@ function ThemKeHoach() {
                             <label>Tổng thời gian</label>
                             <input
                                 type="search"
-                                name="kh_tongthgian"
-                                value={themKeHoach.kh_tongthgian}
+                                name="cv_tongthgian"
+                                value={ThemCVDX.cv_tongthgian}
                                 onChange={handleChange}
                             />
                         </div>
@@ -123,11 +123,11 @@ function ThemKeHoach() {
                             <label>Loại kế hoạch</label>
                             {/* <input
                                 type="search"
-                                name="kh_loaikehoach"
-                                value={themKeHoach.kh_loaikehoach}
+                                name="cv_loaikehoach"
+                                value={ThemCVDX.cv_loaikehoach}
                                 onChange={handleChange}
                             /> */}
-                            <select name='kh_loaikehoach' onChange={handleChange}>
+                            <select name='cv_loaikehoach' onChange={handleChange}>
                                 <option>-- Chọn loại kế hoạch --</option>
                                 <option value='Kế Hoạch Theo Tháng'>Tháng</option>
                                 <option value='Kế Hoạch Theo Quý'>Quý</option>
@@ -147,4 +147,4 @@ function ThemKeHoach() {
     );
 }
 
-export default ThemKeHoach;
+export default ThemCVDX;

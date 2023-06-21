@@ -3,14 +3,9 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
-    faPlus,
-    faEye,
     faPenToSquare,
-    faTrash,
     faAnglesLeft,
     faAnglesRight,
-    faAdd,
-    faEnvelope,
     faCircleArrowLeft,
     faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
@@ -124,9 +119,9 @@ function DSXinGiaHan() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <Link to="them" className={cx('add-btn')}>
+                    {/* <Link to="them" className={cx('add-btn')}>
                         <FontAwesomeIcon icon={faPlus} /> Thêm
-                    </Link>
+                    </Link> */}
                 </div>
                 {displayedCongViec.length > 0 ? (
                     <>
@@ -168,13 +163,11 @@ function DSXinGiaHan() {
                                         <td>{cv.lido}</td>
                                         <td>{cv.nv_idduyet}</td>
                                         <td>
-                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
-                                                <Tippy content="duyệt" placement="bottom">
-                                                    <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faCalendarCheck} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link>
+                                            <Tippy content="duyệt" placement="bottom">
+                                                <button className={cx('handle', 'view-btn')}>
+                                                    <FontAwesomeIcon icon={faCalendarCheck} />
+                                                </button>
+                                            </Tippy>
                                             {/* <Link to={`${cv.dv_id}/nhanvien`}>
                                                 <Tippy content="Xem chi tiết" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>

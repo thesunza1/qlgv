@@ -5,7 +5,6 @@ use App\Models\NhanVien;
 use App\Models\BaoCaoHangNgay;
 use App\Models\DonVi;
 use App\Models\CongViec;
-use App\Models\LoaiCongViec;
 use Illuminate\Http\Request;
 
 class BaoCaoHangNgayController extends Controller
@@ -13,42 +12,42 @@ class BaoCaoHangNgayController extends Controller
     public function update_TienDoBaoCaoHangNgay(Request $request, $bchn_id)
     {
         $baoCao = BaoCaoHangNgay::find($bchn_id);
-
+    
         if (!$baoCao) {
             return response()->json(['message' => 'Không tìm thấy báo cáo'], 404);
         }
-
+    
         // Lấy thông tin trạng thái từ request
         $bchn_trangthai = $request->input('bchn_trangthai');
-
+    
         if ($bchn_trangthai == 1) {
             // Cập nhật công việc
             $congViec = $baoCao->congViecs;
-            
             $congViec->cv_tiendo = $baoCao->bchn_tiendo;
-
+    
             // Kiểm tra xem tiến độ công việc đã đạt 100% chưa
             $congViec->cv_thgianhoanthanh = $baoCao->bchn_tiendo == 100 ? $baoCao->bchn_ngay : null;
             $congViec->save();
         }
-
+    
         // Lấy thông tin người duyệt từ người đăng nhập
         $nguoiDuyet = auth()->user();
         $baoCao->nv_id_ngduyet = $nguoiDuyet->nv_id;
-        
+    
         if ($bchn_trangthai == 1) {
             // Cập nhật thông tin thẩm định
-            $baoCao->bchn_giothamdinh = $baoCao->so_gio_lam;
+            $baoCao->bchn_giothamdinh = $request->input('bchn_giothamdinh');
         } elseif ($bchn_trangthai == 2) {
             // Không cập nhật cv_tiendo
         }
-
+    
         // Cập nhật trạng thái báo cáo
         $baoCao->bchn_trangthai = $bchn_trangthai;
         $baoCao->save();
-
+    
         return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
     }
+    
 
         
     public function add_CV_BC_HangNgay(Request $request)
@@ -70,15 +69,27 @@ class BaoCaoHangNgayController extends Controller
         $baoCao->bchn_tiendo = $congViecBaoCao['bdhn_tiendo'];
         $baoCao->bchn_noidung = $congViecBaoCao['bchn_noidung'];
         $baoCao->so_gio_lam = $congViecBaoCao['so_gio_lam'];
-        $baoCao->lcv_id = $congViecBaoCao['lcv_id'];
         $baoCao->cv_id = $congViecBaoCao['cv_id'];
+        // Chuyển đổi giờ bắt đầu thành định dạng 'H:i'
+        $giobatdau = explode(':', $congViecBaoCao['bchn_giobatdau']);
+        $giobatdau_formatted = str_pad($giobatdau[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($giobatdau[1], 2, '0', STR_PAD_LEFT);
         
+        // Chuyển đổi giờ kết thúc thành định dạng 'H:i'
+        $gioketthuc = explode(':', $congViecBaoCao['bchn_gioketthuc']);
+        $gioketthuc_formatted = str_pad($gioketthuc[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($gioketthuc[1], 2, '0', STR_PAD_LEFT);
+        
+        $baoCao->bchn_giobatdau = $giobatdau_formatted;
+        $baoCao->bchn_gioketthuc = $gioketthuc_formatted;
+        
+
         // Tăng giá trị BCHN_ID theo chỉ số vòng lặp
         $baoCao->bchn_id = $startId + $index;
 
         // Lấy ngày hiện tại
-        $ngayHienTai = date('Y-m-d');
+        $ngayHienTai = date('Y-m-d') . ' ' . date('H:i:s');
         $baoCao->bchn_ngay = $ngayHienTai;
+        
+       
 
         // Lấy thông tin công việc từ yêu cầu
         $cv_id = $congViecBaoCao['cv_id'];
@@ -120,7 +131,7 @@ class BaoCaoHangNgayController extends Controller
             }
             $chucVuNhanVien = $nhanVien->nv_quyen;
             $quyenThamDinh = $nhanVien->nv_quyenthamdinh;
-            $baoCaos = BaoCaoHangNgay::query()->with('congViecs', 'nhanVien', 'nhanVienDuyet', 'loaiCongViecs');
+            $baoCaos = BaoCaoHangNgay::query()->with('congViecs', 'nhanVien', 'nhanVienDuyet');
 
             if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
                 // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
@@ -154,24 +165,21 @@ class BaoCaoHangNgayController extends Controller
                 // Lấy thông tin nhân viên người duyệt
                 $nhanVienDuyet = $baoCao->nhanVienDuyet;
                 // Lấy thông tin loại công việc
-                $loaiCongViec = $baoCao->loaiCongViecs;
 
                 // Tạo một mảng chứa thông tin của báo cáo hàng ngày
                 $baoCaoItem = [
                     'bchn_id' => $baoCao->bchn_id,
                     'bchn_tiendo' => $baoCao->bchn_tiendo,
                     'bchn_trangthai' => $baoCao->bchn_trangthai,
-                    'bchn_ngay' => date('d-m-Y', strtotime($baoCao->bchn_ngay)),
+                    'bchn_ngay' => date('d-m-Y H:i:s', strtotime($baoCao->bchn_ngay)),
                     'bchn_noidung' => $baoCao->bchn_noidung,
                     'so_gio_lam' => $baoCao->so_gio_lam,
+                    'bchn_giobatdau' => $baoCao->bchn_giobatdau,
+                    'bchn_gioketthuc' => $baoCao->bchn_gioketthuc,
                     'bchn_giothamdinh' => $baoCao->bchn_giothamdinh,
                     'cong_viec' => [
                         'ten_cong_viec' => $congViec->cv_ten,
                         // Thêm các thông tin khác của công việc cần lấy 
-                    ],
-                    'loai_cong_viec' => [
-                        'ten_loai_cong_viec' => $loaiCongViec->lcv_ten,
-                        // Thêm các thông tin khác của loại công việc cần lấy
                     ],
                     'nhan_vien' => $nhanVien ? [
                         'ten_nhan_vien' => $nhanVien->nv_ten,

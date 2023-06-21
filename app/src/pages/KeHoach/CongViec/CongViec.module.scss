@@ -77,6 +77,10 @@
         text-align: left;
     }
 
+    .center {
+        text-align: center;
+    }
+
     th {
         color: var(--text-white);
         font-size: 1.6rem;
@@ -94,6 +98,36 @@
     td {
         font-size: 1.4rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        textarea {
+            text-align: center;
+            // border: none;
+            outline: none;
+            width: 120px;
+            height: 30px;
+        }
+
+        input {
+            text-align: center;
+            // border: none;
+            outline: none;
+            width: 120px;
+            height: 30px;
+        }
+
+        .small-input {
+            width: 120px;
+            width: 50px;
+        }
+
+        select {
+            text-align: center;
+            // border: none;
+            outline: none;
+            width: 120px;
+            height: 30px;
+        }
+
     }
 
     td:first-child {
@@ -107,6 +141,44 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
+
+    button {
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: 700;
+
+
+    }
+}
+
+.done-btn {
+    background-color: #00e165;
+    color: white;
+    width: 130px;
+}
+
+.out-date-btn {
+    background-color: #cd1e1e;
+    color: white;
+    width: 130px;
+}
+
+.save-btn {
+    color: #0d7d3c;
+}
+
+.chuaht-btn {
+    background-color: #afafaf;
+    color: white;
+    width: 130px;
+}
+
+.check-btn {
+    color: #00e165;
+}
+
+select {
+    width: 100px;
 }
 
 .handle {
