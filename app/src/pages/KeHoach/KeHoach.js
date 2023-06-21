@@ -98,40 +98,25 @@ function KeHoach() {
             dangerMode: true,
         }).then(async (willDelete) => {
             if (willDelete) {
-                const token = localStorage.getItem('Token')
-                await axiosClient.delete('/delete_KeHoach', {
-                    data: { delletekh_ids: kh },
-                    params: { token: token },
-                });
-                swal(`kế hoạch đã được xóa`, {
-                    icon: 'success',
-                });
-                window.location.reload();
+                try {
+                    const token = localStorage.getItem('Token');
+                    const response = await axiosClient.delete('/delete_KeHoach', {
+                        data: { delletekh_ids: [kh.kh_id] }, // pass an array of the ID to delete
+                        params: { token: token },
+                    });
+                    if (response.status === 200) {
+                        swal(`Kế hoạch ${kh.kh_ten} đã được xóa thành công!`, { icon: 'success' });
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error(error);
+                    swal(`Lỗi khi xóa kế hoạch ${kh.kh_ten} : ${error.message}`, { icon: 'error' });
+                }
             } else {
                 return;
             }
         });
     };
-
-    // const handleDelete = async (selectedIds) => {
-    //     try {
-    //         const token = localStorage.getItem('Token');
-    //         const response = await axiosClient.delete('/delete_KeHoach', {
-    //             data: { delletekh_ids: selectedIds },
-    //             params: { token: token },
-    //         });
-    //         // If the response is successful, reload the page
-    //         if (response.status === 200) {
-    //             swal('Xóa kế hoạch thành công!', { icon: 'success' });
-    //             window.location.reload();
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         swal('Xóa kế hoạch không thành công!', { icon: 'error' });
-    //     }
-    //     console.log(selectedIds)
-    // };
-
     const displayedKeHoach = getDisplayKeHoach();
     return (
         <>
@@ -197,7 +182,7 @@ function KeHoach() {
                                             <td>{kh.nhan_vien ? kh.nhan_vien.nv_ten : '-'}</td>
                                             <td className={cx('center')}>{kh.kh_tongthgian}</td>
                                             <td className={cx('center')}>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nv_id}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
+                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nhan_vien.nv_ten}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
                                                     <Tippy content="Xem chi tiết" placement="bottom">
                                                         <button className={cx('handle', 'view-btn')}>
                                                             <FontAwesomeIcon icon={faEye} />

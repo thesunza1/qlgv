@@ -11,6 +11,8 @@
             color: #0d7d3c;
         }
     }
+
+    margin-top: 20px;
 }
 
 .inner {
@@ -23,31 +25,11 @@
 
 .features {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 10px 20px;
 
-    .search {
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        border: 1px solid #afafaf;
-        border-radius: 4px;
-        cursor: pointer;
 
-
-        input {
-            width: 200px;
-            height: 35px;
-            border: none;
-            outline: none;
-            padding-right: 10px;
-        }
-
-        &:hover {
-            outline: 1.5px solid #0087E1;
-        }
-    }
 
     .add-btn {
         margin-right: 10px;
@@ -74,10 +56,6 @@
     th,
     td {
         padding: 10px;
-        text-align: left;
-    }
-
-    .center {
         text-align: center;
     }
 
@@ -98,36 +76,6 @@
     td {
         font-size: 1.4rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-        textarea {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        input {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        .small-input {
-            width: 120px;
-            width: 50px;
-        }
-
-        select {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
     }
 
     td:first-child {
@@ -141,67 +89,6 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
-
-    button {
-        padding: 5px;
-        border-radius: 5px;
-        font-weight: 700;
-
-
-    }
-}
-
-.b2 {
-    background-color: #4270e4;
-    color: white;
-    width: 130px;
-}
-
-.b1 {
-    background-color: #d0e595;
-    width: 130px;
-    color: white;
-}
-
-.b3 {
-    background-color: #00e165;
-    color: white;
-    width: 130px;
-}
-
-.b4 {
-    background-color: #d3594c;
-    color: white;
-    width: 130px;
-}
-
-.b0 {
-    width: 130px;
-}
-
-.save-btn {
-    background-color: rgb(200, 231, 238);
-    margin: 5px;
-}
-
-.save-btn:hover {
-    background-color: rgb(137, 174, 140);
-    color: white;
-    margin: 5px;
-}
-
-.chuaht-btn {
-    background-color: #afafaf;
-    color: white;
-    width: 130px;
-}
-
-.check-btn {
-    color: #00e165;
-}
-
-select {
-    width: 100px;
 }
 
 .handle {

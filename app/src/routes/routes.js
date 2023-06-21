@@ -17,6 +17,7 @@ import ChiTietKeHoach from '~/pages/KeHoach/ChiTietKeHoach/ChiTietKeHoach';
 import DSXinGiaHan from '~/pages/KeHoach/DSXinGiaHan/dsXinGiaHan';
 import ChinhSuaKH from '~/pages/KeHoach/ChinhSuaKeHoach/ChinhSuaKeHoach';
 import ChinhSuaCV from '~/pages/KeHoach/ChinhSuaKeHoach/ChinhSuaCongViec';
+import ThemCVDX from '~/pages/KeHoach/CongViecDotXuat/ThemCVDX';
 
 // Public routes
 const publicRoutes = [
@@ -31,6 +32,7 @@ const publicRoutes = [
 
     { path: 'kehoach', component: KeHoach },
     { path: 'kehoach/them', component: ThemKeHoach },
+    { path: 'kehoach/themcvdx', component: ThemCVDX },
     { path: 'kehoach', component: KeHoachThang },
     { path: 'kehoach/:kh_id/:kh_ten/:nv_id/:kh_tongthgian/:kh_thgianketthuc/chitiet', component: ChiTietKeHoach },
     { path: 'kehoach/:kh_id/:kh_ten/:kh_thgianbatdau/:kh_thgianketthuc/:kh_tongthgian/:kh_stt/chinhsua', component: ChinhSuaKH },

@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
 import styles from './ChiTietKeHoach.module.scss'
-import axiosClient from '~/api/axiosClient';
+import BangCongViec from './BangCongViec';
 
 const cx = classNames.bind(styles);
 
 function ChiTietKeHoach() {
-    const navigate = useNavigate();
     const { kh_id, kh_ten, nv_id, kh_thgianketthuc, kh_tongthgian } = useParams();
-    console.log(kh_id, kh_ten, nv_id, kh_thgianketthuc, kh_tongthgian)
     const [ChiTietKeHoach, setChiTietKeHoach] = useState({
         kh_id: '',
         kh_ten: '',
@@ -35,12 +32,17 @@ function ChiTietKeHoach() {
         kh_thgianketthuc,
         kh_tongthgian,]);
 
-    function handleChange(event) {
-        setChiTietKeHoach({
-            ...ChiTietKeHoach,
-            [event.target.name]: event.target.value,
-        });
-    }
+    // useEffect(() => {
+    //     const getListProduct = async (kh_id) => {
+    //         const token = localStorage.getItem('Token');
+    //         const response = await axiosClient.post(`/get_KeHoach_CongViec?token=${token}`, {
+    //             kh_id: 6,
+    //         });
+    //         setDSCongViec(response.data);
+    //         console.log(dSCongViec)
+    //     };
+    //     getListProduct(kh_id);
+    // }, []);
 
     // const handleChiTietKeHoach = async (e) => {
     //     e.preventDefault();
@@ -61,9 +63,6 @@ function ChiTietKeHoach() {
     //     }
     // };
 
-    const handleCancel = () => {
-        navigate('/qlcv/kehoach');
-    };
 
     return (
         <div className={cx('wrapper')}>
@@ -75,67 +74,51 @@ function ChiTietKeHoach() {
             </h2>
             <div className={cx('inner')}>
                 <form className={cx('form-group')}>
-                    <div className={cx('form-item')}>
-                        <label>Tên kế hoạch: </label>
-                        {/* <input
-                            type="search"
-                            name="kh_ten"
-                            value={ChiTietKeHoach.kh_ten}
-                            onChange={handleChange}
-                        /> */}
-                        <div>
-                            {ChiTietKeHoach.kh_ten}
+                    <div className={cx('item-group')}>
+                        <div className={cx('form-item')}>
+                            <label>Tên kế hoạch: </label>
+                            <div>
+                                {ChiTietKeHoach.kh_ten}
+                            </div>
+                        </div>
+                        <div className={cx('form-item')}>
+                            <label>Mức độ hoàn thành: </label>
+                            <div>
+                                {ChiTietKeHoach.kh_ten}
+                            </div>
+                        </div>
+                        <div className={cx('form-item')}>
+                            <label>Người chịu trách nhiệm: </label>
+                            <div>{ChiTietKeHoach.nv_id}
+                            </div>
                         </div>
                     </div>
-                    <div className={cx('form-item')}>
-                        <label>Mức độ hoàn thành: </label>
-                        {/* <input
-                            type="search"
-                            name="kh_id_khtruong"
-                            value={ChiTietKeHoach.kh_id_khtruong}
-                            onChange={handleChange}
-                        /> */}
-                        <div>
-                            {ChiTietKeHoach.kh_ten}
+
+
+                    <div className={cx('item-group')}>
+                        <div className={cx('form-item')}>
+                            <label>Tổng thời gian hiện tại: </label>
+                            <div>
+                                {ChiTietKeHoach.kh_tongthgian}
+                            </div>
+                        </div>
+                        <div className={cx('form-item')}>
+                            <label>Thời gian hoàn thành dự kiến: </label>
+                            <div>
+                                {ChiTietKeHoach.kh_thgianketthuc.split(" ")[0]}
+                            </div>
+                        </div>
+                        <div className={cx('form-item')}>
+                            <label>Trạng thái: </label>
+                            <div>
+                                {ChiTietKeHoach.kh_thgianketthuc.split(" ")[0]}
+                            </div>
                         </div>
                     </div>
-                    <div className={cx('form-item')}>
-                        <label>Người chịu trách nhiệm: </label>
-                        {/* <input
-                            type="search"
-                            name="kh_khcha"
-                            value={ChiTietKeHoach.kh_khcha}
-                            onChange={handleChange}
-                        /> */}
-                        <div>{ChiTietKeHoach.nv_id}
-                        </div>
-                    </div>
-                    <div className={cx('form-item')}>
-                        <label>Tổng thời gian hiện tại: </label>
-                        {/* <input
-                            type="search"
-                            name="kh_khcha"
-                            value={ChiTietKeHoach.kh_khcha}
-                            onChange={handleChange}
-                        /> */}
-                        <div>
-                            {ChiTietKeHoach.kh_tongthgian}
-                        </div>
-                    </div>
-                    <div className={cx('form-item')}>
-                        <label>Thời gian hoàn thành dự kiến: </label>
-                        {/* <input
-                            type="search"
-                            name="kh_khcha"
-                            value={ChiTietKeHoach.kh_khcha}
-                            onChange={handleChange}
-                        /> */}
-                        <div>
-                            {ChiTietKeHoach.kh_thgianketthuc.split(" ")[0]}
-                        </div>
-                    </div>
+
                 </form>
             </div>
+            <BangCongViec kh_id={ChiTietKeHoach.kh_id} />
         </div>
     );
 }

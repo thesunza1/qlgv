@@ -107,7 +107,7 @@ function CongViecDotXuat() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div> */}
-                    <Link to="them" className={cx('add-btn')}>
+                    <Link to="themcvdx" className={cx('add-btn')}>
                         <FontAwesomeIcon icon={faPlus} /> Thêm
                     </Link>
                 </div>
