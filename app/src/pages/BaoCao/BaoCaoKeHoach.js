@@ -198,8 +198,8 @@ function BaoCaoKeHoach() {
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.kh_ten}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.kh_loaikehoach}</td>
-                                        <td>{bc.kh_thgianbatdau}</td>
-                                        <td>{bc.kh_thgianketthuc}</td>
+                                        <td>{bc.kh_thgianbatdau.split(' ')[0]}</td>
+                                        <td>{bc.kh_thgianketthuc.split(' ')[0]}</td>
                                         <td>{bc.nhan_vien?.nv_ten}</td>
                                         <td>{bc.don_vi?.dv_ten}</td>
                                         <td>{bc.kh_tongthgian}</td>

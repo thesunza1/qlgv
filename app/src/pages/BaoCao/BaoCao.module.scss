@@ -104,6 +104,7 @@
         }
     }
 
+    .cancel-btn,
     .save-btn {
         padding: 7px;
         font-size: 1.5rem;
@@ -116,6 +117,11 @@
         &:hover {
             outline: 1.5px solid #0087E1;
         }
+    }
+
+    .cancel-btn {
+        margin-right: 5px;
+        background: rgb(227, 227, 227);
     }
 }
 
@@ -196,6 +202,15 @@
 
 .edit-btn {
     color: #2400FF;
+}
+
+.delete-btn {
+    color: var(--primary);
+}
+
+.cancle-btn {
+    font-size: 2.0rem;
+    color: rgb(137, 137, 137);
 }
 
 .paginate {

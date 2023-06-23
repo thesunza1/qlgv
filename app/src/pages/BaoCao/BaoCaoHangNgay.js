@@ -8,7 +8,14 @@ import {
     faPlus,
     faCaretRight,
     faCaretDown,
+    faPenToSquare,
+    faTrash,
+    faCancel,
+    faCircleMinus,
+    faCheck,
 } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
+import Tippy from '@tippyjs/react';
 import axiosClient from '~/api/axiosClient';
 import cogoToast from 'cogo-toast';
 import moment from 'moment';
@@ -35,7 +42,6 @@ function BaoCaoHangNgay() {
         month: new Date().getMonth(),
         year: new Date().getFullYear(),
     });
-    console.log(themBaoCao);
 
     useEffect(() => {
         const getDSBaoCaoHangNgay = async () => {
@@ -236,6 +242,14 @@ function BaoCaoHangNgay() {
         );
     };
 
+    const handleCancelAllNewRows = () => {
+        setThemBaoCao([]);
+    };
+
+    const handleCancelNewRows = (index) => {
+        setThemBaoCao((prevRows) => prevRows.filter((_, i) => i !== index));
+    };
+
     return (
         <div className={cx('wrapper')}>
             {infoUser.nv_quyen === 'ld' && <BaoCaoKeHoach />}
@@ -289,12 +303,33 @@ function BaoCaoHangNgay() {
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
                     <div>
-                        <button className={cx('add-btn')} onClick={handleAddRowTable}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm hàng
-                        </button>
-                        <button className={cx('save-btn')} onClick={handleThemBaoCao}>
-                            <FontAwesomeIcon icon={faSave} /> Lưu
-                        </button>
+                        {infoUser.nv_quyenthamdinh === '1' ? (
+                            <button className={cx('add-btn')} onClick={handleCancelAllNewRows}>
+                                <FontAwesomeIcon icon={faCheck} /> Thẩm định
+                            </button>
+                        ) : (
+                            <>
+                                <button className={cx('add-btn')} onClick={handleAddRowTable}>
+                                    <FontAwesomeIcon icon={faPlus} /> Thêm hàng
+                                </button>
+                                {themBaoCao.length > 0 && (
+                                    <>
+                                        <button
+                                            className={cx('cancel-btn')}
+                                            onClick={handleCancelAllNewRows}
+                                        >
+                                            <FontAwesomeIcon icon={faCancel} /> Hủy tất cả
+                                        </button>
+                                        <button
+                                            className={cx('save-btn')}
+                                            onClick={handleThemBaoCao}
+                                        >
+                                            <FontAwesomeIcon icon={faSave} /> Lưu
+                                        </button>
+                                    </>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
                 {displayedBaocao.length > 0 ? (
@@ -356,22 +391,22 @@ function BaoCaoHangNgay() {
                                         )}
                                     </th>
                                     {infoUser.nv_quyenthamdinh === '1' && <th>Thẩm định</th>}
+                                    <th>Xử lý</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {themBaoCao.map((bc, index) => (
                                     <tr key={index}>
                                         <td>{index + 1}</td>
-                                        <td>
+                                        {/* <td>
                                             <input
                                                 type="date"
-                                                name="bchn_ngay"
                                                 defaultValue={new Date()
                                                     .toISOString()
                                                     .substr(0, 10)}
                                                 disabled
                                             />
-                                        </td>
+                                        </td> */}
                                         <td>
                                             <select
                                                 name="cv_id"
@@ -419,15 +454,6 @@ function BaoCaoHangNgay() {
                                                 name="so_gio_lam"
                                                 value={bc.so_gio_lam}
                                                 onChange={(e) => handleChangeNewInput(e, index)}
-                                                // onBlur={(e) => {
-                                                //     if (e.target.value > e.target.max) {
-                                                //         e.target.value = e.target.max;
-                                                //         handleChangeNewInput(e, index);
-                                                //     } else if (e.target.value < e.target.min) {
-                                                //         e.target.value = e.target.min;
-                                                //         handleChangeNewInput(e, index);
-                                                //     }
-                                                // }}
                                                 onInvalid={(e) => {
                                                     e.target.setCustomValidity(
                                                         'Giá trị phải từ 1 đến 24',
@@ -447,15 +473,6 @@ function BaoCaoHangNgay() {
                                                 name="bdhn_tiendo"
                                                 value={bc.bdhn_tiendo}
                                                 onChange={(e) => handleChangeNewInput(e, index)}
-                                                // onBlur={(e) => {
-                                                //     if (e.target.value > e.target.max) {
-                                                //         e.target.value = e.target.max;
-                                                //         handleChangeNewInput(e, index);
-                                                //     } else if (e.target.value < e.target.min) {
-                                                //         e.target.value = e.target.min;
-                                                //         handleChangeNewInput(e, index);
-                                                //     }
-                                                // }}
                                                 onInvalid={(e) => {
                                                     e.target.setCustomValidity(
                                                         'Giá trị phải từ 1 đến 24',
@@ -467,43 +484,24 @@ function BaoCaoHangNgay() {
                                             />
                                         </td>
                                         <td>Chưa thẩm định</td>
+                                        <td>
+                                            <Tippy content="Hủy" placement="bottom">
+                                                <button
+                                                    className={cx('handle', 'cancle-btn')}
+                                                    onClick={() => handleCancelNewRows(index)}
+                                                >
+                                                    <FontAwesomeIcon icon={faCircleMinus} />
+                                                </button>
+                                            </Tippy>
+                                        </td>
                                     </tr>
                                 ))}
                                 {displayedBaocao.map((bc, index) => (
                                     <tr key={bc.bchn_id}>
                                         <td>{index + 1}</td>
                                         <td style={{ textAlign: 'left' }}>
-                                            {bc.isEdit ? (
-                                                <input
-                                                    type="date"
-                                                    name="bchn_ngay"
-                                                    value={
-                                                        bc.bchn_ngay ||
-                                                        new Date().toISOString().substr(0, 10)
-                                                    }
-                                                    onChange={(event) =>
-                                                        handleChangeInput(event, index)
-                                                    }
-                                                />
-                                            ) : (
-                                                <>{bc.bchn_ngay.split(' ')[0]}</>
-                                            )}
+                                            <>{bc.bchn_ngay.split(' ')[0]}</>
                                         </td>
-                                        {infoUser.nv_quyenthamdinh === '1' && (
-                                            <td>
-                                                {bc.isEdit ? (
-                                                    <textarea
-                                                        name="ten_nhan_vien"
-                                                        value={bc.nhan_vien?.ten_nhan_vien}
-                                                        onChange={(event) =>
-                                                            handleChangeInput(event, index)
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <>{bc.nhan_vien?.ten_nhan_vien}</>
-                                                )}
-                                            </td>
-                                        )}
                                         <td style={{ textAlign: 'left' }}>
                                             {bc.isEdit ? (
                                                 <textarea
@@ -530,6 +528,21 @@ function BaoCaoHangNgay() {
                                                 <>{bc.bchn_noidung}</>
                                             )}
                                         </td>
+                                        {infoUser.nv_quyenthamdinh === '1' && (
+                                            <td style={{ textAlign: 'left' }}>
+                                                {bc.isEdit ? (
+                                                    <textarea
+                                                        name="ten_nhan_vien"
+                                                        value={bc.nhan_vien?.ten_nhan_vien}
+                                                        onChange={(event) =>
+                                                            handleChangeInput(event, index)
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <>{bc.nhan_vien?.ten_nhan_vien}</>
+                                                )}
+                                            </td>
+                                        )}
                                         <td>{bc.bchn_giobatdau}</td>
                                         <td>{bc.bchn_gioketthuc}</td>
                                         <td>
@@ -560,17 +573,15 @@ function BaoCaoHangNgay() {
                                         </td>
                                         {infoUser.nv_quyenthamdinh === '1' && (
                                             <td>
-                                                {bc.isEdit ? (
-                                                    <input
-                                                        name="bchn_giothamdinh"
-                                                        value={bc.bchn_giothamdinh}
-                                                        onChange={(event) =>
-                                                            handleChangeInput(event, index)
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <input value={bc.bchn_giothamdinh} />
-                                                )}
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max={bc.so_gio_lam}
+                                                    value={bc.bchn_giothamdinh || bc.so_gio_lam}
+                                                    onChange={(event) =>
+                                                        handleChangeInput(event, index)
+                                                    }
+                                                />
                                             </td>
                                         )}
                                         <td
@@ -594,12 +605,25 @@ function BaoCaoHangNgay() {
                                                 </>
                                             )}
                                         </td>
-
                                         {infoUser.nv_quyenthamdinh === '1' && (
                                             <td>
                                                 <input type="checkbox"></input>
                                             </td>
                                         )}
+                                        <td>
+                                            <Link>
+                                                <Tippy content="Chỉnh sửa" placement="bottom">
+                                                    <button className={cx('handle', 'edit-btn')}>
+                                                        <FontAwesomeIcon icon={faPenToSquare} />
+                                                    </button>
+                                                </Tippy>
+                                                <Tippy content="Xóa" placement="bottom">
+                                                    <button className={cx('handle', 'delete-btn')}>
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
+                                                </Tippy>
+                                            </Link>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

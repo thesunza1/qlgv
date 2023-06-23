@@ -74,7 +74,7 @@ function BaoCaoKeHoach() {
 
     const getDisplayBaocao = useCallback(() => {
         const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
+            bc.nhan_vien.nv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -110,7 +110,7 @@ function BaoCaoKeHoach() {
                     <div className={cx('search')}>
                         <input
                             type="search"
-                            placeholder="Tìm kiếm báo cáo"
+                            placeholder="Tìm kiếm người lập"
                             value={searchText}
                             onChange={handleSearchInputChange}
                         />
@@ -149,9 +149,22 @@ function BaoCaoKeHoach() {
                                             />
                                         )}
                                     </th>
-                                    <th onClick={() => handleSortColumn('kh_thgianketthuc')}>
-                                        <span>Thời gian kết thúc</span>
-                                        {sortColumn === 'kh_thgianketthuc' && (
+                                    <th onClick={() => handleSortColumn('cv_hanhoanthanh')}>
+                                        <span>Hạn hoàn thành</span>
+                                        {sortColumn === 'cv_hanhoanthanh' && (
+                                            <FontAwesomeIcon
+                                                icon={
+                                                    sortDirection === 'asc'
+                                                        ? faArrowUp
+                                                        : faArrowDown
+                                                }
+                                                className={cx('icon')}
+                                            />
+                                        )}
+                                    </th>
+                                    <th onClick={() => handleSortColumn('cv_hanhoanthanh')}>
+                                        <span>Thời gian hoàn thành</span>
+                                        {sortColumn === 'cv_hanhoanthanh' && (
                                             <FontAwesomeIcon
                                                 icon={
                                                     sortDirection === 'asc'
@@ -174,10 +187,13 @@ function BaoCaoKeHoach() {
                                     <tr key={bc.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_ten}</td>
-                                        <td>{bc.cv_thgianbatdau}</td>
-                                        <td>{bc.cv_hanhoanthanh}</td>
+                                        <td>{bc.cv_thgianbatdau.split(' ')[0]}</td>
+                                        <td>{bc.cv_hanhoanthanh.split(' ')[0]}</td>
+                                        <td>{bc.cv_hanhoanthanh.split(' ')[0]}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_noidung}</td>
-                                        <td>{bc.nhan_vien?.nv_ten}</td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            {bc.nhan_vien?.nv_ten}
+                                        </td>
                                         <td>{bc.don_vi?.dv_ten}</td>
                                         <td>{bc.cv_tiendo}</td>
                                         <td>{bc.cv_tgthuchien}</td>
