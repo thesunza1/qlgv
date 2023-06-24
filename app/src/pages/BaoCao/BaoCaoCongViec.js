@@ -17,7 +17,7 @@ import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
-function BaoCaoKeHoach() {
+function BaoCaoCongViec() {
     const [dSBaoCao, setDSBaoCao] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
@@ -33,7 +33,7 @@ function BaoCaoKeHoach() {
         const getBaoCao = async () => {
             const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CongViec?token=${token}`);
-            setDSBaoCao(response.data.cong_viecs);
+            setDSBaoCao(response.data);
         };
         getBaoCao();
     }, []);
@@ -73,8 +73,8 @@ function BaoCaoKeHoach() {
     }, [dSBaoCao, sortColumn, sortDirection]);
 
     const getDisplayBaocao = useCallback(() => {
-        const filteredBaocao = sortedBaocao.filter((bc) =>
-            bc.nhan_vien.nv_ten.toLowerCase().includes(searchText.toLowerCase()),
+        const filteredBaocao = sortedBaocao.filter(
+            (bc) => bc.cv_ten && bc.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredBaocao.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -187,14 +187,16 @@ function BaoCaoKeHoach() {
                                     <tr key={bc.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_ten}</td>
-                                        <td>{bc.cv_thgianbatdau.split(' ')[0]}</td>
-                                        <td>{bc.cv_hanhoanthanh.split(' ')[0]}</td>
-                                        <td>{bc.cv_hanhoanthanh.split(' ')[0]}</td>
+                                        <td>{bc.cv_thgianbatdau}</td>
+                                        <td>{bc.cv_thgianhoanthanh}</td>
+                                        <td>{bc.cv_hanhoanthanh}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_noidung}</td>
                                         <td style={{ textAlign: 'left' }}>
-                                            {bc.nhan_vien?.nv_ten}
+                                            {bc.nhan_vien?.ten_nhan_vien}
                                         </td>
-                                        <td>{bc.don_vi?.dv_ten}</td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            {bc.don_vi?.ten_don_vi}
+                                        </td>
                                         <td>{bc.cv_tiendo}</td>
                                         <td>{bc.cv_tgthuchien}</td>
                                     </tr>
@@ -226,4 +228,4 @@ function BaoCaoKeHoach() {
     );
 }
 
-export default BaoCaoKeHoach;
+export default BaoCaoCongViec;
