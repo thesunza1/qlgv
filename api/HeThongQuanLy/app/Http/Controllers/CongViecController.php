@@ -38,7 +38,7 @@ class CongViecController extends Controller
             $tenNhanVien = $nhanVien->nv_ten;
 
             // Khởi tạo query để lấy danh sách kế hoạch và công việc
-            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs');
+            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs', 'nhanVienLam');
 
             if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
                 // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
@@ -50,7 +50,7 @@ class CongViecController extends Controller
                 })->get();
             } elseif ($chucVuNhanVien === 'nv' && $quyenThamDinh == 0) {
                 // Hiển thị công việc của chính nhân viên đó
-                $congViecs = $queryCongViec->where('nv_id', $userId)->get();
+                $congViecs = $queryCongViec->where('nv_id_lam', $userId)->get();
             } else {
                 // Xử lý trường hợp quyền không hợp lệ (nếu cần thiết)
                 return response()->json(['message' => 'Quyền không hợp lệ'], 403);
@@ -59,7 +59,7 @@ class CongViecController extends Controller
             // Lấy tổng số lượng kế hoạch và công việc
             $tongLuongCongViec = isset($congViecs) ? $congViecs->count() : 0;
 // Tạo một mảng chứa thông tin các công việc
-             $congViecData = [];
+$congViecData = [];
 
 foreach ($congViecs as $congViec) {
     // Lấy thông tin nhân viên
@@ -76,7 +76,8 @@ foreach ($congViecs as $congViec) {
     $congViecCha = $congViec->cv_cv_cha()->first();
     // Lấy thông tin loại công việc
     $loaiCongViec = $congViec->loaiCongViecs()->first();
-
+    //Lấy nhân viên làm
+    $nhanVienLam = $congViec->nhanVienLam()->first();
     // Tạo một mảng chứa thông tin của công việc
     $congViecItem = [
         'cv_id' => $congViec->cv_id,
@@ -95,8 +96,12 @@ foreach ($congViecs as $congViec) {
         'nv_id' => $congViec->nv_id,
         'cv_hanhoanthanh' =>$congViec->cv_hanhoanthanh ? date('d-m-Y', strtotime($congViec->cv_hanhoanthanh)) : null,
         'cv_tgthuchien' => $congViec->cv_tgthuchien,
-        'nhan_vien' => $nhanVien ? [
-            'ten_nhan_vien' => $nhanVien->nv_ten,
+        'nguoi_tao' => $nhanVien ? [
+            'ten_nguoi_tao' => $nhanVien->nv_ten,
+            // Thêm các thông tin khác của nhân viên cần lấy
+        ] : null,
+        'nhan_vien_lam' => $nhanVienLam ? [
+            'ten_nhan_vien' => $nhanVienLam->nv_ten,
             // Thêm các thông tin khác của nhân viên cần lấy
         ] : null,
         'ke_hoach' => $keHoach ? [
@@ -139,6 +144,75 @@ return response()->json($congViecData, 200);
         }
     }
 
+    public function get_CV_Thang($thang)
+    {
+        // Lấy thông tin người dùng đã xác thực từ token JWT
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
+        }
+
+        try {
+            // Lấy thông tin nhân viên dựa trên user_id của người dùng đang đăng nhập
+            $userId = $user->nv_id;
+            $nhanVien = NhanVien::find($userId);
+
+            // Kiểm tra nếu không tìm thấy nhân viên
+            if (!$nhanVien) {
+                return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+            }
+
+            // Lấy chức vụ và tên của nhân viên đăng nhập
+            $chucVuNhanVien = $nhanVien->nv_quyen;
+            $quyenThamDinh = $nhanVien->nv_quyenthamdinh;
+            $tenNhanVien = $nhanVien->nv_ten;
+
+            // Khởi tạo query để lấy danh sách kế hoạch và công việc
+            $queryKeHoach = KeHoach::query();
+            $queryCongViec = CongViec::query();
+
+            if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
+                // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
+                $keHoachs = $queryKeHoach->get();
+                $congViecs = $queryCongViec->whereMonth('CV_THGIANBATDAU', $thang)->get();
+            } elseif ($chucVuNhanVien === 'nv' && $quyenThamDinh == 1) {
+                // Hiển thị kế hoạch trừ kế hoạch của giám đốc và hiển thị hết công việc trừ công việc của giám đốc
+                $keHoachs = $queryKeHoach->whereHas('nhanVien', function ($query) {
+                    $query->where('nv_quyen', '!=', 'ld');
+                })->get();
+                $congViecs = $queryCongViec->whereHas('nhanVien', function ($query) {
+                    $query->where('nv_quyen', '!=', 'ld');
+                })->whereMonth('CV_THGIANBATDAU', $thang)->get();
+            } elseif ($chucVuNhanVien === 'nv' && $quyenThamDinh == 0) {
+                // Hiển thị công việc của chính nhân viên đó
+                $congViecs = $queryCongViec->where('nv_id', $userId)->whereMonth('CV_THGIANBATDAU', $thang)->get();
+                $keHoachs = null; // Không hiển thị kế hoạch cho nhân viên
+            } else {
+                // Xử lý trường hợp quyền không hợp lệ (nếu cần thiết)
+                return response()->json(['message' => 'Quyền không hợp lệ'], 403);
+            }
+
+            // Lấy tổng số lượng kế hoạch và công việc
+            $tongLuongKeHoach = isset($keHoachs) ? $keHoachs->count() : 0;
+            $tongLuongCongViec = isset($congViecs) ? $congViecs->count() : 0;
+
+            return response()->json([
+                'ten_nhan_vien' => $tenNhanVien,
+                'chuc_vu_nhan_vien' => $chucVuNhanVien,
+                'quyen_tham_dinh' => $quyenThamDinh,
+                'so_luong_ke_hoach' => $tongLuongKeHoach,
+                'so_luong_cong_viec' => $tongLuongCongViec,
+                'ke_hoachs' => $keHoachs,
+                'cong_viecs' => $congViecs
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi lấy thông tin chức vụ nhân viên: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function add_CongViec(Request $request, $kh_id)
     {
         // Lấy thông tin kế hoạch từ ID
@@ -158,7 +232,6 @@ return response()->json($congViecData, 200);
         $congViec->cv_cv_cha = $request->input('cv_cv_cha');
         $congViec->cv_trongso = $request->input('cv_trongso');
         $congViec->dv_id = $request->input('dv_id');
-        $congViec->kh_id = $request->input('kh_id');
         $congViec->da_id = $request->input('da_id');
         $congViec->n_cv_id = $request->input('n_cv_id');
         $congViec->cv_hanhoanthanh = $request->input('cv_hanhoanthanh');
@@ -443,5 +516,33 @@ return response()->json($congViecData, 200);
     
         return response()->json(['message' => 'Cập nhật trạng thái công việc thành công'], 200);
     }
+
+    public function phanCongCongViecChoNhanVien(Request $request)
+    {
+        $data = $request->input('phancongnhanvien');
+    
+        foreach ($data as $item) {
+            $cv_id = $item['cv_id'];
+            $nv_id_lam = $item['nv_id_lam'];
+    
+            $congViec = CongViec::find($cv_id);
+    
+            if (!$congViec) {
+                return response()->json(['message' => 'Không tìm thấy công việc'], 404);
+            }
+    
+            $nhanVien = NhanVien::find($nv_id_lam);
+    
+            if (!$nhanVien) {
+                return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+            }
+    
+            $congViec->nv_id_lam = $nhanVien->nv_id;
+            $congViec->save();
+        }
+    
+        return response()->json(['message' => 'Phân công công việc cho nhân viên thành công'], 200);
+    }
+
     
 }

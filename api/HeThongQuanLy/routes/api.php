@@ -59,6 +59,7 @@ Route::delete('/delete_CongViec', [CongViecController::class, 'delete_CongViec']
 Route::post('/test_TrangThaiCongViec', [CongViecController::class, 'test_TrangThaiCongViec']);
 Route::post('/add_CV_DotXuat', [CongViecController::class, 'add_CV_DotXuat']);
 Route::get('/get_CV_DotXuat', [CongViecController::class, 'get_CV_DotXuat']);
+Route::post('/phanCongCongViecChoNhanVien', [CongViecController::class, 'phanCongCongViecChoNhanVien']);
 
 //Router lấy danh sách Nhân Viên
 Route::get('/get_ID_NhanVien/{nv_id}', [NhanVienController::class, 'get_ID_NhanVien']);

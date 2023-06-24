@@ -435,7 +435,11 @@ function BaoCaoHangNgay() {
                     </div>
                     <div>
                         {infoUser.nv_quyenthamdinh === '1' ? (
-                            <button className={cx('add-btn')} onClick={handleSaveChinhSuaBaoCao}>
+                            <button
+                                className={cx('add-btn')}
+                                onClick={handleSaveChinhSuaBaoCao}
+                                disabled={chinhSuaBaoCao.length === 0}
+                            >
                                 <FontAwesomeIcon icon={faCheck} /> Thẩm định
                             </button>
                         ) : (
@@ -484,25 +488,7 @@ function BaoCaoHangNgay() {
                                     </th>
                                     <th>Tên công việc</th>
                                     <th>Nội dung công việc</th>
-                                    {infoUser.nv_quyenthamdinh === '1' && (
-                                        <th
-                                            onClick={() =>
-                                                handleSortColumn('nhan_vien?.ten_nhan_vien')
-                                            }
-                                        >
-                                            <span>Nhân viên</span>
-                                            {sortColumn === 'nhan_vien?.ten_nhan_vien' && (
-                                                <FontAwesomeIcon
-                                                    icon={
-                                                        sortDirection === 'asc'
-                                                            ? faArrowUp
-                                                            : faArrowDown
-                                                    }
-                                                    className={cx('icon')}
-                                                />
-                                            )}
-                                        </th>
-                                    )}
+                                    {infoUser.nv_quyenthamdinh === '1' && <th>Người đảm nhiệm</th>}
                                     <th>Giờ bắt đầu</th>
                                     <th>Giờ kết thúc</th>
                                     <th>Số giờ làm (h)</th>
@@ -648,7 +634,7 @@ function BaoCaoHangNgay() {
                                                 </td>
                                                 {infoUser.nv_quyenthamdinh === '1' && (
                                                     <td style={{ textAlign: 'left' }}>
-                                                        {bc.nhan_vien?.ten_nhan_vien}
+                                                        {bc.nhan_vien_lam?.ten_nhan_vien}
                                                     </td>
                                                 )}
                                                 <td>{bc.bchn_giobatdau}</td>

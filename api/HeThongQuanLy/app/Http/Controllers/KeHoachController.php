@@ -66,7 +66,12 @@ class KeHoachController extends Controller
             // Lấy tổng số lượng kế hoạch và công việc
             $tongLuongKeHoach = isset($keHoachs) ? $keHoachs->count() : 0;
             $tongLuongCongViec = isset($congViecs) ? $congViecs->count() : 0;
-
+             // Chuyển đổi định dạng ngày tháng năm của cột kh_thgianbatdau
+             $keHoachs->transform(function ($keHoach) {
+                $keHoach->kh_thgianbatdau = date('d-m-Y', strtotime($keHoach->kh_thgianbatdau));
+                $keHoach->kh_thgianketthuc = date('d-m-Y', strtotime($keHoach->kh_thgianketthuc));
+                return $keHoach;
+            });            
             return response()->json([
                 'ten_nhan_vien' => $tenNhanVien,
                 'chuc_vu_nhan_vien' => $chucVuNhanVien,
@@ -272,7 +277,7 @@ class KeHoachController extends Controller
                     'cv_ten' => $congViec->cv_ten,
                     'cv_trangthai' => $congViec->cv_trangthai,
                     'cv_thgianbatdau' => date('d-m-Y', strtotime($congViec->cv_thgianbatdau)),
-                    'cv_thgianhoanthanh' => $congViec->cv_ten,
+                    'cv_thgianhoanthanh' => date('d-m-Y', strtotime($congViec->cv_thgianhoanthanh)),
                     'cv_tiendo' => $congViec->cv_tiendo,
                     'cv_noidung' => $congViec->cv_noidung,
                     'cv_trongso' => $congViec->cv_trongso,

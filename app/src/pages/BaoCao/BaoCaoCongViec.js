@@ -177,6 +177,7 @@ function BaoCaoCongViec() {
                                     </th>
                                     <th>Nội dung</th>
                                     <th>Người lập</th>
+                                    <th>Người đảm nhiệm</th>
                                     <th>Đơn vị</th>
                                     <th>Tiến độ</th>
                                     <th>Tổng thời gian</th>
@@ -192,7 +193,10 @@ function BaoCaoCongViec() {
                                         <td>{bc.cv_hanhoanthanh}</td>
                                         <td style={{ textAlign: 'left' }}>{bc.cv_noidung}</td>
                                         <td style={{ textAlign: 'left' }}>
-                                            {bc.nhan_vien?.ten_nhan_vien}
+                                            {bc.nguoi_tao?.ten_nguoi_tao}
+                                        </td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            {bc.nhan_vien_lam?.ten_nhan_vien}
                                         </td>
                                         <td style={{ textAlign: 'left' }}>
                                             {bc.don_vi?.ten_don_vi}

@@ -39,5 +39,9 @@ class BaoCaoHangNgay extends Model
     {
         return $this->belongsTo(NhanVien::class, 'nv_id_ngduyet', 'nv_id');
     }
+    public function congViecslam()
+    {
+        return $this->hasMany(CongViec::class, 'nv_id_lam', 'nv_id');
+    }
   
 }
