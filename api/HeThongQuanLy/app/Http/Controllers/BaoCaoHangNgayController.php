@@ -9,48 +9,42 @@ use Illuminate\Http\Request;
 
 class BaoCaoHangNgayController extends Controller
 {
-    public function update_TienDoBaoCaoHangNgay(Request $request, $bchn_id)
-    {
+    public function update_TienDoBaoCaoHangNgay(Request $request)
+{
+    $danhSachCongViec = $request->input('danh_sach_cong_viec_bao_cao');
+
+    foreach ($danhSachCongViec as $congViecData) {
+        $bchn_id = $congViecData['bchn_id'];
         $baoCao = BaoCaoHangNgay::find($bchn_id);
-    
+
         if (!$baoCao) {
             return response()->json(['message' => 'Không tìm thấy báo cáo'], 404);
         }
-    
-        // Lấy thông tin trạng thái từ request
-        $bchn_trangthai = $request->input('bchn_trangthai');
-    
+
+        $bchn_trangthai = $congViecData['bchn_trangthai'];
+
         if ($bchn_trangthai == 1) {
-            // Cập nhật công việc
             $congViec = $baoCao->congViecs;
-            $congViec->cv_tiendo = $baoCao->bchn_tiendo;
-    
-            // Kiểm tra xem tiến độ công việc đã đạt 100% chưa
+            if ($baoCao->bchn_tiendo > $congViec->cv_tiendo) {
+                $congViec->cv_tiendo = $baoCao->bchn_tiendo;
+            }
+            $baoCao->bchn_giothamdinh = $congViecData['bchn_giothamdinh'];
             $congViec->cv_thgianhoanthanh = $baoCao->bchn_tiendo == 100 ? $baoCao->bchn_ngay : null;
             $congViec->save();
         }
-    
-        // Lấy thông tin người duyệt từ người đăng nhập
+
         $nguoiDuyet = auth()->user();
         $baoCao->nv_id_ngduyet = $nguoiDuyet->nv_id;
-    
-        if ($bchn_trangthai == 1) {
-            // Cập nhật thông tin thẩm định
-            $baoCao->bchn_giothamdinh = $request->input('bchn_giothamdinh');
-        } elseif ($bchn_trangthai == 2) {
-            // Không cập nhật cv_tiendo
-        }
-    
-        // Cập nhật trạng thái báo cáo
         $baoCao->bchn_trangthai = $bchn_trangthai;
         $baoCao->save();
-    
-        return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
     }
-    
+
+    return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
+}
+
 
         
-    public function add_CV_BC_HangNgay(Request $request)
+public function add_CV_BC_HangNgay(Request $request)
 {
     // Lấy thông tin người dùng đăng nhập
     $nguoiDung = auth()->user();
@@ -69,15 +63,7 @@ class BaoCaoHangNgayController extends Controller
         $baoCao->bchn_tiendo = $congViecBaoCao['bdhn_tiendo'];
         $baoCao->bchn_noidung = $congViecBaoCao['bchn_noidung'];
         $baoCao->so_gio_lam = $congViecBaoCao['so_gio_lam'];
-        $baoCao->cv_id = $congViecBaoCao['cv_id'];
-        // // Chuyển đổi giờ bắt đầu thành định dạng 'H:i'
-        // $giobatdau = explode(':', $congViecBaoCao['bchn_giobatdau']);
-        // $giobatdau_formatted = str_pad($giobatdau[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($giobatdau[1], 2, '0', STR_PAD_LEFT);
-        
-        // // Chuyển đổi giờ kết thúc thành định dạng 'H:i'
-        // $gioketthuc = explode(':', $congViecBaoCao['bchn_gioketthuc']);
-        // $gioketthuc_formatted = str_pad($gioketthuc[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($gioketthuc[1], 2, '0', STR_PAD_LEFT);
-        
+        $baoCao->cv_id = $congViecBaoCao['cv_id']; 
         $baoCao->bchn_giobatdau = $congViecBaoCao['bchn_giobatdau'];
         $baoCao->bchn_gioketthuc = $congViecBaoCao['bchn_gioketthuc'];
         
@@ -228,7 +214,22 @@ class BaoCaoHangNgayController extends Controller
         return response()->json(['danh_sach_nhan_vien' => $result]);
     }
 
-    
+    public function delete_CV_BC_HangNgay(Request $request)
+    {
+        $selectedIds = $request->input('deletebchn_ids'); 
+
+        foreach ($selectedIds as $bchn_id) {
+            $baoCaos = BaoCaoHangNgay::find($bchn_id);
+
+            if (!$baoCaos) {
+                return response()->json(['message' => 'Không tìm thấy báo cáo'], 404);
+            }
+
+            $baoCaos->delete();
+        }
+
+        return response()->json(['message' => 'Đã xóa báo cáo công việc thành công'], 200);
+    }
     
     
 
