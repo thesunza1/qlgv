@@ -34,9 +34,18 @@ const publicRoutes = [
     { path: 'kehoach/them', component: ThemKeHoach },
     { path: 'kehoach/themcvdx', component: ThemCVDX },
     { path: 'kehoach', component: KeHoachThang },
-    { path: 'kehoach/:kh_id/:kh_ten/:nv_id/:kh_tongthgian/:kh_thgianketthuc/chitiet', component: ChiTietKeHoach },
-    { path: 'kehoach/:kh_id/:kh_ten/:kh_thgianbatdau/:kh_thgianketthuc/:kh_tongthgian/:kh_stt/chinhsua', component: ChinhSuaKH },
-    { path: 'congviec/:cv_id/:cv_ten/:cv_thgianbatdau/:cv_thgianhoanthanh/:dv_id/:nv_id/chinhsua', component: ChinhSuaCV },
+    {
+        path: 'kehoach/:kh_id/:kh_ten/:nv_ten/:kh_tongthgian/:kh_thgianketthuc/:kh_trangthai/chitiet',
+        component: ChiTietKeHoach,
+    },
+    {
+        path: 'kehoach/:kh_id/:kh_ten/:kh_thgianbatdau/:kh_thgianketthuc/:kh_tongthgian/:kh_stt/chinhsua',
+        component: ChinhSuaKH,
+    },
+    {
+        path: 'congviec/:cv_id/:cv_ten/:cv_thgianbatdau/:cv_thgianhoanthanh/:dv_id/:nv_id/chinhsua',
+        component: ChinhSuaCV,
+    },
     { path: 'kehoach/thang', component: KeHoachThang },
     { path: 'congviec/:cv_id/:cv_ten/:cv_thgianhoanthanh/xingiahan', component: XinGiaHan },
     { path: 'congviec/dsxingiahan', component: DSXinGiaHan },

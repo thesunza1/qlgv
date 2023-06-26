@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faPlus,
     faPenToSquare,
     faTrash,
     faAnglesLeft,
@@ -15,6 +14,8 @@ import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './CongViecDX.module.scss';
+import AddTaskModal from './ThemCongViecDX';
+import swal from 'sweetalert';
 
 const cx = classNames.bind(styles);
 
@@ -22,14 +23,13 @@ function CongViecDotXuat() {
     const [dSCongViec, setDSCongViec] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
-    const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
     const PER_PAGE = 5;
 
     useEffect(() => {
         const getListProduct = async () => {
-            const token = localStorage.getItem('Token')
+            const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`);
             setDSCongViec(response.data);
         };
@@ -44,12 +44,6 @@ function CongViecDotXuat() {
             setSortDirection('desc');
         }
     };
-
-    const handleSearchInputChange = (event) => {
-        setSearchText(event.target.value);
-        setCurrentPage(0);
-    };
-
     const sortedCongViec = useMemo(() => {
         let sortedItems = [...dSCongViec];
         sortedItems = sortedItems.sort((a, b) =>
@@ -58,16 +52,21 @@ function CongViecDotXuat() {
         if (sortDirection === 'asc') {
             sortedItems.reverse();
         }
+        sortedItems = sortedItems.sort((a, b) => {
+            const cvTrangThaiOrder = { 0: 0, 1: 1, 2: 2, 3: 3 };
+            const aOrder = cvTrangThaiOrder[a.cv_trangthai] ?? 999;
+            const bOrder = cvTrangThaiOrder[b.cv_trangthai] ?? 999;
+            return aOrder - bOrder;
+        });
+
         return sortedItems;
     }, [dSCongViec, sortColumn, sortDirection]);
 
     const getDisplayCongViec = useCallback(() => {
-        const filteredCongViec = sortedCongViec.filter((cv) =>
-            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
-        );
+        const filteredCongViec = sortedCongViec.filter((cv) => cv.cv_ten.toLowerCase());
         const startIndex = currentPage * PER_PAGE;
         return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedCongViec, searchText, currentPage]);
+    }, [sortedCongViec, currentPage]);
 
     const totalPage = Math.ceil(sortedCongViec.length / PER_PAGE);
 
@@ -76,20 +75,59 @@ function CongViecDotXuat() {
     };
     function trangThai(trangThai) {
         switch (trangThai) {
+            case '0':
+                return <button className={cx('b0')}>Đang Soạn</button>;
             case '1':
-                return "Đang chờ phê duyệt";
+                return <button className={cx('b1')}>Đợi duyệt</button>;
             case '2':
-                return "Đã được duyệt";
+                return <button className={cx('b2')}>Đang thực hiện</button>;
             case '3':
-                return "Đang thực hiện";
-            case '4':
-                return "Đã hoàn thành";
+                return <button className={cx('b3')}>Hoàn thành</button>;
             default:
-                return "Unknown trạng thái";
+                return <button className={cx('b4')}>Quá hạn</button>;
         }
     }
+    const handleXoaCongViec = (cv) => {
+        swal({
+            title: `Bạn chắc chắn muốn xóa kế hoạch ${cv.cv_ten.toUpperCase()} này`,
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(async (willDelete) => {
+            if (willDelete) {
+                try {
+                    const token = localStorage.getItem('Token');
+
+                    const response = await axiosClient.delete('/delete_CongViec', {
+                        data: { deletecv_ids: [cv.cv_id] }, // pass an array of the ID to delete
+                        params: { token: token },
+                    });
+                    if (response.status === 200) {
+                        swal(`Kế hoạch ${cv.cv_ten} đã được xóa thành công!`, { icon: 'success' });
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error(error);
+                    swal(`Lỗi khi xóa kế hoạch ${cv.cv_ten} : ${error.message}`, { icon: 'error' });
+                }
+            } else {
+                return;
+            }
+        });
+    };
 
     const displayedCongViec = getDisplayCongViec();
+    //them cvdx
+    const [showModal, setShowModal] = useState(false);
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -98,18 +136,12 @@ function CongViecDotXuat() {
                     <h2>Công Việc Đột Xuất</h2>
                 </div>
                 <div className={cx('features')}>
-                    {/* <div className={cx('search')}>
-                        <input
-                            type="search"
-                            placeholder="Tìm kiếm công việc"
-                            value={searchText}
-                            onChange={handleSearchInputChange}
-                        />
-                        <FontAwesomeIcon icon={faSearch} />
-                    </div> */}
-                    <Link to="themcvdx" className={cx('add-btn')}>
-                        <FontAwesomeIcon icon={faPlus} /> Thêm
-                    </Link>
+                    <div>
+                        <button onClick={handleOpenModal} className={cx('add-btn')}>
+                            Thêm
+                        </button>
+                        {showModal && <AddTaskModal onClose={handleCloseModal} />}
+                    </div>
                 </div>
                 {displayedCongViec.length > 0 ? (
                     <>
@@ -142,11 +174,17 @@ function CongViecDotXuat() {
                                             )}
                                         </td> */}
                                         <td>{cv.cv_thgianbatdau.split(' ')[0]}</td>
-                                        <td>{cv.cv_thgianhoanthanh ? cv.cv_thgianhoanthanh.split(' ')[0] : '-'}</td>
+                                        <td>
+                                            {cv.cv_hanhoanthanh
+                                                ? cv.cv_hanhoanthanh.split(' ')[0]
+                                                : '-'}
+                                        </td>
                                         <td>{cv.cv_noidung}</td>
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
-                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}>
+                                            <Link
+                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianketthuc}/xingiahan`}
+                                            >
                                                 <Tippy content="Xin gia hạn" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
                                                         <FontAwesomeIcon icon={faEnvelope} />
@@ -160,7 +198,9 @@ function CongViecDotXuat() {
                                                     </button>
                                                 </Tippy>
                                             </Link> */}
-                                            <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_thgianketthuc}/${cv.dv_id}/${cv.nv_id}/chinhsua`}>
+                                            <Link
+                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_hanhoanthanh}/${cv.dv_id}/${cv.nv_id}/chinhsua`}
+                                            >
                                                 <Tippy content="Chỉnh sửa" placement="bottom">
                                                     <button className={cx('handle', 'edit-btn')}>
                                                         <FontAwesomeIcon icon={faPenToSquare} />
@@ -168,7 +208,10 @@ function CongViecDotXuat() {
                                                 </Tippy>
                                             </Link>
                                             <Tippy content="Xóa" placement="bottom">
-                                                <button className={cx('handle', 'delete-btn')}>
+                                                <button
+                                                    onClick={() => handleXoaCongViec(cv)}
+                                                    className={cx('handle', 'delete-btn')}
+                                                >
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
                                             </Tippy>

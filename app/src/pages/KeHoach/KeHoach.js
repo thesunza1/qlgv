@@ -18,6 +18,7 @@ import classNames from 'classnames/bind';
 import styles from './KeHoach.module.scss';
 import CongViecDotXuat from './CongViecDotXuat/CongViecDotXuat';
 import swal from 'sweetalert';
+import ThemKeHoach from './ThemKeHoach/ThemKeHoach';
 const cx = classNames.bind(styles);
 
 function KeHoach() {
@@ -26,31 +27,17 @@ function KeHoach() {
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
-    // const [loading, setLoading] = useState(true);
     const PER_PAGE = 5;
 
     useEffect(() => {
         const getListProduct = async () => {
-            const token = localStorage.getItem('Token')
+            const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
             setDSKeHoach(response.data.ke_hoachs || []);
-            // setLoading(false);
         };
         getListProduct();
     }, []);
-    // const plansWithEmployee = dSKeHoach.filter(plan => plan.nhan_vien !== null);
 
-    // // Map the new array to extract nv_ten property
-    // const employees = useMemo(
-    //     () => dSKeHoach.filter(plan => plan.nhan_vien !== null).map(plan => plan.nhan_vien.nv_ten),
-    //     [dSKeHoach]
-    // );
-    // const unit = useMemo(
-    //     () => dSKeHoach.filter(plan => plan.don_vi !== null).map(plan => plan.don_vi.dv_ten),
-    //     [dSKeHoach]
-    // );
-
-    // Print the array of nv_ten values
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -117,6 +104,16 @@ function KeHoach() {
             }
         });
     };
+    //them ke hoach
+    const [showModal, setShowModal] = useState(false);
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
     const displayedKeHoach = getDisplayKeHoach();
     return (
         <>
@@ -138,10 +135,10 @@ function KeHoach() {
                             />
                             <FontAwesomeIcon icon={faSearch} />
                         </div>
-                        <Link to="them" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm
-                        </Link>
-
+                        <button onClick={handleOpenModal} className={cx('add-btn')}>
+                            Thêm
+                        </button>
+                        {showModal && <ThemKeHoach onClose={handleCloseModal} />}
                     </div>
                     {displayedKeHoach.length > 0 ? (
                         <>
@@ -182,22 +179,36 @@ function KeHoach() {
                                             <td>{kh.nhan_vien ? kh.nhan_vien.nv_ten : '-'}</td>
                                             <td className={cx('center')}>{kh.kh_tongthgian}</td>
                                             <td className={cx('center')}>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.nhan_vien.nv_ten}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/chitiet`}>
-                                                    <Tippy content="Xem chi tiết" placement="bottom">
-                                                        <button className={cx('handle', 'view-btn')}>
+                                                <Link
+                                                    to={`${kh.kh_id}/${kh.kh_ten}/${kh.nhan_vien.nv_ten}/${kh.kh_tongthgian}/${kh.kh_thgianketthuc}/${kh.kh_trangthai}/chitiet`}
+                                                >
+                                                    <Tippy
+                                                        content="Xem chi tiết"
+                                                        placement="bottom"
+                                                    >
+                                                        <button
+                                                            className={cx('handle', 'view-btn')}
+                                                        >
                                                             <FontAwesomeIcon icon={faEye} />
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                <Link to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.kh_tongthgian}/${kh.kh_stt}/chinhsua`}>
+                                                <Link
+                                                    to={`${kh.kh_id}/${kh.kh_ten}/${kh.kh_thgianbatdau}/${kh.kh_thgianketthuc}/${kh.kh_tongthgian}/${kh.kh_stt}/chinhsua`}
+                                                >
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
-                                                        <button className={cx('handle', 'edit-btn')}>
+                                                        <button
+                                                            className={cx('handle', 'edit-btn')}
+                                                        >
                                                             <FontAwesomeIcon icon={faPenToSquare} />
                                                         </button>
                                                     </Tippy>
                                                 </Link>
                                                 <Tippy content="Xóa" placement="bottom">
-                                                    <button className={cx('handle', 'delete-btn')} onClick={() => handleXoaKH(kh)}>
+                                                    <button
+                                                        className={cx('handle', 'delete-btn')}
+                                                        onClick={() => handleXoaKH(kh)}
+                                                    >
                                                         <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                 </Tippy>
@@ -227,7 +238,6 @@ function KeHoach() {
             </div>
             <CongViecDotXuat></CongViecDotXuat>
         </>
-
     );
 }
 

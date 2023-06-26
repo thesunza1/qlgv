@@ -10,8 +10,6 @@ import {
     faAnglesRight,
     faEnvelope,
     faCircleArrowLeft,
-    faSave,
-    faCircleCheck,
     faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
@@ -21,13 +19,13 @@ import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './CongViec.module.scss';
 import swal from 'sweetalert';
-import ThemCongViec from './ThemCongViec';
 
 const cx = classNames.bind(styles);
 
 function CongViec() {
     const navigate = useNavigate();
     const [dSCongViec, setDSCongViec] = useState([]);
+    const [userInfo, setUserInfo] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
@@ -39,12 +37,13 @@ function CongViec() {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CongViec?token=${token}`);
-            setDSCongViec(response.data.cong_viecs);
-            // console.log(dSCongViec)
+            const info = await axiosClient.get(`/user-info?token=${token}`);
+            setDSCongViec(response.data);
+            setUserInfo(info.data.result);
         };
         getListProduct();
     }, []);
-
+    console.log(userInfo.nv_id);
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -59,17 +58,6 @@ function CongViec() {
         setCurrentPage(0);
     };
 
-    // const sortedCongViec = useMemo(() => {
-    //     let sortedItems = [...dSCongViec];
-    //     sortedItems = sortedItems.sort((a, b) =>
-    //         a[sortColumn] > b[sortColumn] ? 1 : b[sortColumn] > a[sortColumn] ? -1 : 0,
-    //     );
-    //     if (sortDirection === 'asc') {
-    //         sortedItems.reverse();
-    //     }
-    //     return sortedItems;
-    // }, [dSCongViec, sortColumn, sortDirection]);
-
     const sortedCongViec = useMemo(() => {
         let sortedItems = [...dSCongViec];
         sortedItems = sortedItems.sort((a, b) =>
@@ -78,23 +66,18 @@ function CongViec() {
         if (sortDirection === 'asc') {
             sortedItems.reverse();
         }
-
-        // move 'Chưa hoàn thành' tasks to the top
         sortedItems = sortedItems.sort((a, b) => {
-            if (a.cv_trangthai === '2' && b.cv_trangthai !== '2') {
-                return -1;
-            } else if (a.cv_trangthai !== '2' && b.cv_trangthai === '2') {
-                return 1;
-            } else {
-                return 0;
-            }
+            const cvTrangThaiOrder = { 0: 0, 1: 1, 2: 2, 3: 3 };
+            const aOrder = cvTrangThaiOrder[a.cv_trangthai] ?? 999;
+            const bOrder = cvTrangThaiOrder[b.cv_trangthai] ?? 999;
+            return aOrder - bOrder;
         });
 
         return sortedItems;
     }, [dSCongViec, sortColumn, sortDirection]);
     const getDisplayCongViec = useCallback(() => {
-        const filteredCongViec = sortedCongViec.filter((cv) =>
-            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
+        const filteredCongViec = sortedCongViec.filter(
+            (cv) => cv.cv_ten && cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
@@ -116,6 +99,7 @@ function CongViec() {
             if (willDelete) {
                 try {
                     const token = localStorage.getItem('Token');
+
                     const response = await axiosClient.delete('/delete_CongViec', {
                         data: { deletecv_ids: [cv.cv_id] }, // pass an array of the ID to delete
                         params: { token: token },
@@ -144,37 +128,33 @@ function CongViec() {
             if (will) {
                 try {
                     const token = localStorage.getItem('Token');
-                    const response = await axiosClient.post(`/duyet_CongViec/${cv.cv_id}`, {
-                        data: { cv_ids: [cv.cv_id] },
-                        params: { token: token },
-                    });
+                    const response = await axiosClient.post(
+                        `/duyet_CongViec/${cv.cv_id}`,
+                        { cv_ids: cv.cv_id },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        },
+                    );
                     if (response.status === 200) {
-                        swal(`Kế hoạch ${cv.cv_ten} đã được duyệt thành công!`, { icon: 'success' });
+                        swal(`Kế hoạch ${cv.cv_ten} đã được duyệt thành công!`, {
+                            icon: 'success',
+                        });
                         window.location.reload();
                     }
                 } catch (error) {
                     console.error(error);
-                    swal(`Lỗi khi duyệt kế hoạch ${cv.cv_ten} : ${error.message}`, { icon: 'error' });
+                    swal(`Lỗi khi duyệt kế hoạch ${cv.cv_ten} : ${error.message}`, {
+                        icon: 'error',
+                    });
                 }
             } else {
                 return;
             }
         });
     };
-    function trangThai(trangThai) {
-        switch (trangThai) {
-            case '0':
-                return <button className={cx('b0')}>Đang Soạn</button>;
-            case '1':
-                return <button className={cx('b1')}>Đợi duyệt</button>;
-            case '2':
-                return <button className={cx('b2')}>Đang thực hiện</button>;
-            case '3':
-                return <button className={cx('b3')}>Hoàn thành</button>;
-            default:
-                return <button className={cx('b4')}>Quá hạn</button>;
-        }
-    }
+
     const displayedCongViec = getDisplayCongViec();
     const [optionList, setOptionList] = useState([]);
     const [optionListDV, setOptionListDV] = useState([]);
@@ -193,36 +173,32 @@ function CongViec() {
 
         fetchData();
     }, []);
-
-    const handleGiaoViec = (cv) => {
-        swal({
-            title: `Bạn chắc chắn muốn xóa công việc này`,
-            text: 'Sau khi xóa, bạn sẽ không thể khôi phục công việc này!',
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-        }).then(async (willDelete) => {
-            if (willDelete) {
-                await axiosClient.delete(`/xoaCongViec1ấdsad`);
-                swal(` đã được xóa`, {
-                    icon: 'success',
-                });
-                window.location.reload();
-            } else {
-                return;
-            }
-        });
-    };
+    function trangThai(trangThai) {
+        switch (trangThai) {
+            case '0':
+                return <button className={cx('b0')}>Đang Soạn</button>;
+            case '1':
+                return <button className={cx('b1')}>Đợi duyệt</button>;
+            case '2':
+                return <button className={cx('b2')}>Đang thực hiện</button>;
+            case '3':
+                return <button className={cx('b3')}>Hoàn thành</button>;
+            default:
+                return <button className={cx('b4')}>Quá hạn</button>;
+        }
+    }
+    //them cv
     const [newCongViec, setNewCongViec] = useState({
-        cv_ten: '',
+        cv_ten: 'Tên công việc',
         kh_id: '',
-        cv_thgianbatdau: '',
-        cv_thgianhoanthanh: '',
-        cv_mucdich: '',
+        cv_thgianbatdau: new Date().toISOString().substr(0, 10),
+        cv_hanhoanthanh: '',
+        cv_noidung: '',
         dv_id: '',
-        nv_id: '',
-        cv_trangthai: '',
+        nv_id: userInfo.nv_id,
+        cv_trangthai: '0',
     });
+
     const handleNewCongViecInputChange = (event) => {
         const { name, value } = event.target;
         setNewCongViec((prevValue) => ({
@@ -233,7 +209,6 @@ function CongViec() {
     const [creatingNewCongViec, setCreatingNewCongViec] = useState(false);
     const handleCreateNewCongViec = async (e) => {
         e.preventDefault();
-
         const {
             cv_ten,
             cv_thgianbatdau,
@@ -279,12 +254,12 @@ function CongViec() {
         setNewCongViec({
             cv_ten: '',
             kh_ten: '',
-            cv_thgianbatdau: '',
-            cv_thgianhoanthanh: '',
-            cv_mucdich: '',
+            cv_thgianbatdau: new Date().toISOString().substr(0, 10),
+            cv_hanhoanthanh: '',
+            cv_noidung: '',
             dv_id: '',
             nv_id: '',
-            cv_trangthai: '',
+            cv_trangthai: '0',
         });
         setCreatingNewCongViec(false);
     };
@@ -292,6 +267,7 @@ function CongViec() {
     const handleAddNewCongViec = () => {
         setCreatingNewCongViec(true);
     };
+    //sua cong viec
 
     return (
         <div className={cx('wrapper')}>
@@ -334,17 +310,19 @@ function CongViec() {
                                     <th onClick={() => handleSortColumn('kh_ten')}>
                                         <span>Tên kế hoạch</span>
                                     </th>
-                                    {/* <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
+                                    <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
                                         Thời gian bắt đầu
-                                    </th> */}
-                                    <th onClick={() => handleSortColumn('cv_thgianhoanthanh')}>
+                                    </th>
+
+                                    <th onClick={() => handleSortColumn('cv_hanhoanthanh')}>
                                         <span>Thời gian hết hạn</span>
                                     </th>
                                     <th>Mục đích hoàn thành</th>
 
                                     <th onClick={() => handleSortColumn('dv_id')}>Đơn vị</th>
-                                    <th onClick={() => handleSortColumn('nv_id')}>Nhân viên</th>
-                                    <th className={cx('center')} onClick={() => handleSortColumn('cv_tiendo')}>Tiến độ</th>
+                                    <th onClick={() => handleSortColumn('nv_id')}>
+                                        Người đảm nhiệm
+                                    </th>
                                     <th onClick={() => handleSortColumn('cv_trangthai')}>
                                         Trạng thái
                                     </th>
@@ -354,17 +332,10 @@ function CongViec() {
                             <tbody>
                                 {creatingNewCongViec && (
                                     <tr>
+                                        <td></td>
                                         <td>
                                             <input
-                                                className={cx('small-input')}
-                                                type="text"
-                                                name="cv_stt"
-                                                value={newCongViec.cv_stt}
-                                                onChange={handleNewCongViecInputChange}
-                                            /></td>
-                                        <td>
-                                            <input
-                                                placeholder='Tên công việc'
+                                                placeholder="Tên công việc"
                                                 type="text"
                                                 name="cv_ten"
                                                 value={newCongViec.cv_ten}
@@ -372,10 +343,7 @@ function CongViec() {
                                             />
                                         </td>
                                         <td>
-                                            {/* 
-                                             */}
                                             <select
-
                                                 name="kh_id"
                                                 value={newCongViec.kh_id}
                                                 onChange={handleNewCongViecInputChange}
@@ -401,17 +369,17 @@ function CongViec() {
                                         <td>
                                             <input
                                                 type="date"
-                                                name="cv_thgianhoanthanh"
-                                                value={newCongViec.cv_thgianhoanthanh}
+                                                name="cv_hanhoanthanh"
+                                                value={newCongViec.cv_hanhoanthanh}
                                                 onChange={handleNewCongViecInputChange}
                                             />
                                         </td>
                                         <td>
                                             <input
-                                                placeholder='Mục đích'
+                                                placeholder="Mục đích"
                                                 type="text"
-                                                name="cv_mucdich"
-                                                value={newCongViec.cv_mucdich}
+                                                name="cv_noidung"
+                                                value={newCongViec.cv_noidung}
                                                 onChange={handleNewCongViecInputChange}
                                             />
                                         </td>
@@ -445,20 +413,21 @@ function CongViec() {
                                                 ))}
                                             </select>
                                         </td>
-                                        <td>
-                                            <input
-                                                className={cx('small-input')}
-                                                placeholder='Trạng thái'
-                                                type="number"
-                                                name="cv_trangthai"
-                                                value={0}
-                                                onChange={handleNewCongViecInputChange}
-                                            />
-                                        </td>
+                                        <td>{trangThai(newCongViec.cv_trangthai)}</td>
 
                                         <td>
-                                            <button className={cx('save-btn')} onClick={handleCreateNewCongViec}>Lưu</button>
-                                            <button className={cx('cancel-btn')} onClick={handleCancelNewCongViec}>Hủy</button>
+                                            <button
+                                                className={cx('save-btn')}
+                                                onClick={handleCreateNewCongViec}
+                                            >
+                                                Lưu
+                                            </button>
+                                            <button
+                                                className={cx('cancel-btn')}
+                                                onClick={handleCancelNewCongViec}
+                                            >
+                                                Hủy
+                                            </button>
                                         </td>
                                     </tr>
                                 )}
@@ -466,79 +435,39 @@ function CongViec() {
                                     <tr key={cv.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
                                         <td>{cv.cv_ten}</td>
-                                        {/* <td>
-                                            {kh.nhan_viens.map((nv) =>
-                                                parseInt(kh.dv_id_dvtruong) === nv.nv_id
-                                                    ? nv.nv_ten
-                                                    : null,
-                                            )}
-                                        </td> */}
-                                        <td>{cv.ke_hoachs?.kh_ten || '-'}</td>
-                                        {/* <td>{cv.cv_thgianbatdau.split(' ')[0]}</td> */}
-                                        <td>
-                                            {cv.cv_thgianhoanthanh
-                                                ? cv.cv_thgianhoanthanh.split(' ')[0]
+
+                                        <td>{cv.ke_hoach?.ten_ke_hoach || '-'}</td>
+                                        <td className={cx('center')}>
+                                            {cv.cv_thgianbatdau
+                                                ? cv.cv_thgianbatdau.split(' ')[0]
                                                 : '-'}
                                         </td>
-                                        <td>Mục đích hoàn thành</td>
+                                        <td className={cx('center')}>
+                                            {cv.cv_hanhoanthanh
+                                                ? cv.cv_hanhoanthanh.split(' ')[0]
+                                                : '-'}
+                                        </td>
+                                        <td>{cv.cv_noidung}</td>
 
-                                        <td>{cv.don_vi.dv_ten}</td>
-                                        {/* <td>
-                                            <select
-                                                pla={cv.don_vi.dv_ten}
-                                                value={cv.don_vi.dv_ten}
-                                                onChange={(e) => {
-                                                    const selectedValue = e.target.value;
-                                                    const updatedCV = { ...cv, don_vi: { dv_ten: selectedValue } };
-                                                    setDSCongViec((prev) =>
-                                                        prev.map((prevCV) =>
-                                                            prevCV.cv_id === cv.cv_id ? updatedCV : prevCV
-                                                        )
-                                                    );
-                                                }}
-                                            >
-                                                {optionListDV.map((item) => (
-                                                    <option key={item.dv_id} value={item.dv_id}>
-                                                        {item.dv_ten}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td> */}
-                                        <td>{cv.nhan_vien.nv_ten}</td>
-                                        <td className={cx('center')}>{cv.cv_tiendo}%</td>
-                                        {/* <td>
-                                            <select
-                                                placeholder={cv.nhan_vien.nv_ten}
-                                                value={cv.nhan_vien.nv_ten}
-                                                onChange={(e) => {
-                                                    const selectedValue = e.target.value;
-                                                    const updatedCV = { ...cv, nhan_vien: { nv_ten: selectedValue } };
-                                                    setDSCongViec((prev) =>
-                                                        prev.map((prevCV) =>
-                                                            prevCV.cv_id === cv.cv_id ? updatedCV : prevCV
-                                                        )
-                                                    );
-                                                }}
-                                            >
-                                                {optionList.map((item) => (
-                                                    <option key={item.nv_id} value={item.nv_id}>
-                                                        {item.nv_ten}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td> */}
+                                        <td>{cv.don_vi.ten_don_vi}</td>
+
+                                        <td>{cv.nhan_vien.ten_nhan_vien}</td>
+
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
-                                            <Tippy content="Duyệt" placement="bottom">
-                                                <button
-                                                    className={cx('handle', 'check-btn')}
-                                                    onClick={() => handleDuyet(cv)}
-                                                >
-                                                    <FontAwesomeIcon icon={faCalendarCheck} />
-                                                </button>
-                                            </Tippy>
+                                            {cv.cv_trangthai === '0' && (
+                                                <Tippy content="Duyệt" placement="bottom">
+                                                    <button
+                                                        className={cx('handle', 'check-btn')}
+                                                        onClick={() => handleDuyet(cv)}
+                                                    >
+                                                        <FontAwesomeIcon icon={faCalendarCheck} />
+                                                    </button>
+                                                </Tippy>
+                                            )}
+
                                             <Link
-                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianhoanthanh}/xingiahan`}
+                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_hanhoanthanh}/xingiahan`}
                                             >
                                                 <Tippy content="Xin gia hạn" placement="bottom">
                                                     <button className={cx('handle', 'view-btn')}>
@@ -546,35 +475,37 @@ function CongViec() {
                                                     </button>
                                                 </Tippy>
                                             </Link>
-                                            {/* <Link to={`${cv.dv_id}/nhanvien`}>
-                                                <Tippy content="Xem chi tiết" placement="bottom">
-                                                    <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faAdd} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link> */}
-                                            <Link
-                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_thgianhoanthanh}/${cv.dv_id}/${cv.nv_id}/chinhsua`}
-                                            >
-                                                <Tippy content="Chỉnh sửa" placement="bottom">
-                                                    <button className={cx('handle', 'edit-btn')}>
-                                                        <FontAwesomeIcon icon={faPenToSquare} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link>
-                                            <Tippy content="Xóa" placement="bottom">
-                                                <button
-                                                    className={cx('handle', 'delete-btn')}
-                                                    onClick={() => handleXoaCongViec(cv)}
-                                                >
-                                                    <FontAwesomeIcon icon={faTrash} />
-                                                </button>
-                                            </Tippy>
-
+                                            {cv.cv_trangthai === '0' && (
+                                                <>
+                                                    <Link
+                                                        to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianbatdau}/${cv.cv_hanhoanthanh}/${cv.dv_id}/${cv.nv_id}/chinhsua`}
+                                                    >
+                                                        <Tippy
+                                                            content="Chỉnh sửa"
+                                                            placement="bottom"
+                                                        >
+                                                            <button
+                                                                className={cx('handle', 'edit-btn')}
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={faPenToSquare}
+                                                                />
+                                                            </button>
+                                                        </Tippy>
+                                                    </Link>
+                                                    <Tippy content="Xóa" placement="bottom">
+                                                        <button
+                                                            className={cx('handle', 'delete-btn')}
+                                                            onClick={() => handleXoaCongViec(cv)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    </Tippy>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
-
                             </tbody>
                         </table>
                         {sortedCongViec.length > PER_PAGE && (

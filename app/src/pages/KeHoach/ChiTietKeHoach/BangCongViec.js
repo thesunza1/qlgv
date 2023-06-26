@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faPlus,
     faEye,
     faPenToSquare,
     faTrash,
@@ -16,6 +15,7 @@ import ReactPaginate from 'react-paginate';
 import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './BangCongViec.module.scss';
+import ThemCV from './ThemCV';
 
 const cx = classNames.bind(styles);
 
@@ -23,7 +23,7 @@ function BangCongViec({ kh_id }) {
     const [dSCongViec, setDSCongViec] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
     const [sortDirection, setSortDirection] = useState('');
-    const [searchText, setSearchText] = useState('');
+
     const [currentPage, setCurrentPage] = useState(0);
     const PER_PAGE = 5;
     useEffect(() => {
@@ -33,10 +33,9 @@ function BangCongViec({ kh_id }) {
                 kh_id: kh_id,
             });
             setDSCongViec(response.data.danh_sach_cong_viec);
-            console.log(dSCongViec)
         };
         getListProduct();
-    }, [kh_id]);
+    }, [dSCongViec, kh_id]);
 
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -47,11 +46,6 @@ function BangCongViec({ kh_id }) {
         }
     };
 
-    const handleSearchInputChange = (event) => {
-        setSearchText(event.target.value);
-        setCurrentPage(0);
-    };
-
     const sortedCongViec = useMemo(() => {
         let sortedItems = [...dSCongViec];
         sortedItems = sortedItems.sort((a, b) =>
@@ -60,16 +54,21 @@ function BangCongViec({ kh_id }) {
         if (sortDirection === 'asc') {
             sortedItems.reverse();
         }
+        sortedItems = sortedItems.sort((a, b) => {
+            const cvTrangThaiOrder = { 0: 0, 1: 1, 2: 2, 3: 3 };
+            const aOrder = cvTrangThaiOrder[a.cv_trangthai] ?? 999;
+            const bOrder = cvTrangThaiOrder[b.cv_trangthai] ?? 999;
+            return aOrder - bOrder;
+        });
+
         return sortedItems;
     }, [dSCongViec, sortColumn, sortDirection]);
 
     const getDisplayCongViec = useCallback(() => {
-        const filteredCongViec = sortedCongViec.filter((cv) =>
-            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
-        );
+        const filteredCongViec = sortedCongViec.filter((cv) => cv.cv_ten.toLowerCase());
         const startIndex = currentPage * PER_PAGE;
         return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedCongViec, searchText, currentPage]);
+    }, [sortedCongViec, currentPage]);
 
     const totalPage = Math.ceil(sortedCongViec.length / PER_PAGE);
 
@@ -80,34 +79,36 @@ function BangCongViec({ kh_id }) {
     const displayedCongViec = getDisplayCongViec();
     function trangThai(trangThai) {
         switch (trangThai) {
+            case '0':
+                return <button className={cx('b0')}>Đang Soạn</button>;
             case '1':
-                return "Đang chờ phê duyệt";
+                return <button className={cx('b1')}>Đợi duyệt</button>;
             case '2':
-                return "Đã được duyệt";
+                return <button className={cx('b2')}>Đang thực hiện</button>;
             case '3':
-                return "Đang thực hiện";
-            case '4':
-                return "Đã hoàn thành";
+                return <button className={cx('b3')}>Hoàn thành</button>;
             default:
-                return "Unknown trạng thái";
+                return <button className={cx('b4')}>Quá hạn</button>;
         }
     }
+    //thêm công việc modal
+    const [showModal, setShowModal] = useState(false);
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
                 <div className={cx('features')}>
-                    {/* <div className={cx('search')}>
-                        <input
-                            type="search"
-                            placeholder="Tìm kiếm công việc"
-                            value={searchText}
-                            onChange={handleSearchInputChange}
-                        />
-                        <FontAwesomeIcon icon={faSearch} />
-                    </div> */}
-                    <Link to="them" className={cx('add-btn')}>
-                        <FontAwesomeIcon icon={faPlus} /> Thêm
-                    </Link>
+                    <button onClick={handleOpenModal} className={cx('add-btn')}>
+                        Thêm
+                    </button>
+                    {showModal && <ThemCV onClose={handleCloseModal} kh_id={kh_id} />}
                 </div>
                 {displayedCongViec.length > 0 ? (
                     <>
@@ -143,8 +144,8 @@ function BangCongViec({ kh_id }) {
                                         <td>{cv.cv_thgianbatdau}</td>
                                         <td>{cv.cv_hanhoanthanh}</td>
 
-                                        <td>{cv.don_vi ? cv.don_vi.ten_don_vi : "-"}</td>
-                                        <td>{cv.nhan_vien ? cv.nhan_vien.ten_nhan_vien : "-"}</td>
+                                        <td>{cv.don_vi ? cv.don_vi.ten_don_vi : '-'}</td>
+                                        <td>{cv.nhan_vien ? cv.nhan_vien.ten_nhan_vien : '-'}</td>
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td>
                                             <Link to={`${cv.dv_id}/nhanvien`}>

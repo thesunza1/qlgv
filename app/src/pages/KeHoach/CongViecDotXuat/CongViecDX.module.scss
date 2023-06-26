@@ -91,6 +91,40 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
+
+    button {
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: 700;
+    }
+}
+
+.b2 {
+    background-color: #4270e4;
+    color: white;
+    width: 130px;
+}
+
+.b1 {
+    background-color: #d0e595;
+    width: 130px;
+    color: white;
+}
+
+.b3 {
+    background-color: #00e165;
+    color: white;
+    width: 130px;
+}
+
+.b4 {
+    background-color: #d3594c;
+    color: white;
+    width: 130px;
+}
+
+.b0 {
+    width: 130px;
 }
 
 .handle {

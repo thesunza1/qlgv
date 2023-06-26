@@ -4,14 +4,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
-import styles from "./CSKeHoach.module.scss";
+import styles from './CSKeHoach.module.scss';
 import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
 function ChinhSuaKH() {
     const navigate = useNavigate();
-    const { kh_id, kh_ten, kh_stt, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } = useParams();
+    const {
+        kh_id,
+        kh_ten,
+        kh_stt,
+        kh_thgianbatdau,
+        kh_thgianketthuc,
+        kh_loaikehoach,
+        kh_tongthgian,
+    } = useParams();
 
     const [chinhSuaKH, setChinhSuaKH] = useState({
         kh_ten: '',
@@ -44,16 +52,20 @@ function ChinhSuaKH() {
     const handleChinhSuaKH = async (e) => {
         e.preventDefault();
 
-        const { kh_ten, kh_stt, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } = chinhSuaKH;
-        console.log(chinhSuaKH)
-        const response = await axiosClient.put(`/update_KeHoach/${kh_id}?token=${localStorage.getItem('Token')}`, {
-            kh_stt,
-            kh_ten,
-            kh_thgianbatdau,
-            kh_thgianketthuc,
-            kh_loaikehoach,
-            kh_tongthgian,
-        });
+        const { kh_ten, kh_stt, kh_thgianbatdau, kh_thgianketthuc, kh_loaikehoach, kh_tongthgian } =
+            chinhSuaKH;
+        console.log(chinhSuaKH);
+        const response = await axiosClient.put(
+            `/update_KeHoach/${kh_id}?token=${localStorage.getItem('Token')}`,
+            {
+                kh_stt,
+                kh_ten,
+                kh_thgianbatdau,
+                kh_thgianketthuc,
+                kh_loaikehoach,
+                kh_tongthgian,
+            },
+        );
         if (response.status === 200) {
             navigate('/qlcv/kehoach');
             cogoToast.success(`Chỉnh sửa kế hoạch ${kh_ten.toUpperCase()} thành công`, {
@@ -65,20 +77,6 @@ function ChinhSuaKH() {
     const handleCancel = () => {
         navigate('/qlcv/kehoach');
     };
-    // const [startDateValues, startTimeValues] = chinhSuaKH.kh_thgianbatdau.split(' ');
-    // const [endDateValues, endTimeValues] = chinhSuaKH.kh_thgianketthuc.split(' ');
-    const [optionList, setOptionList] = useState([]);
-    const [optionListDV, setOptionListDV] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            const resSoNhanVien = await axiosClient.get(`/get_NhanVien`);
-            const resDonVi = await axiosClient.get(`/get_DonVi`);
-            setOptionList(resSoNhanVien.data.nhanViens);
-            setOptionListDV(resDonVi.data.don_vis);
-        };
-
-        fetchData()
-    }, []);
     return (
         <div className={cx('wrapper')}>
             <h2>
@@ -114,7 +112,11 @@ function ChinhSuaKH() {
                         <input
                             type="date"
                             name="kh_thgianbatdau"
-                            value={chinhSuaKH.kh_thgianbatdau ? chinhSuaKH.kh_thgianbatdau.split(' ')[0] : '2023-01-01'}
+                            value={
+                                chinhSuaKH.kh_thgianbatdau
+                                    ? chinhSuaKH.kh_thgianbatdau.split(' ')[0]
+                                    : '2023-01-01'
+                            }
                             onChange={handleChange}
                         />
                     </div>
@@ -123,7 +125,11 @@ function ChinhSuaKH() {
                         <input
                             type="date"
                             name="kh_thgianketthuc"
-                            value={chinhSuaKH.kh_thgianketthuc ? chinhSuaKH.kh_thgianketthuc.split(' ')[0] : '2023-01-01'}
+                            value={
+                                chinhSuaKH.kh_thgianketthuc
+                                    ? chinhSuaKH.kh_thgianketthuc.split(' ')[0]
+                                    : '2023-01-01'
+                            }
                             onChange={handleChange}
                         />
                     </div>
@@ -145,11 +151,11 @@ function ChinhSuaKH() {
                                 value={themKeHoach.kh_loaikehoach}
                                 onChange={handleChange}
                             /> */}
-                        <select name='kh_loaikehoach' onChange={handleChange}>
+                        <select name="kh_loaikehoach" onChange={handleChange}>
                             <option>-- Chọn loại kế hoạch --</option>
-                            <option value='Kế Hoạch Theo Tháng'>Tháng</option>
-                            <option value='Kế Hoạch Theo Quý'>Quý</option>
-                            <option value='Kế Hoạch Theo Năm'>Năm</option>
+                            <option value="Kế Hoạch Theo Tháng">Tháng</option>
+                            <option value="Kế Hoạch Theo Quý">Quý</option>
+                            <option value="Kế Hoạch Theo Năm">Năm</option>
                         </select>
                     </div>
                 </form>
