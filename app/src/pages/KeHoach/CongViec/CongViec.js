@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
@@ -11,6 +11,8 @@ import {
     faEnvelope,
     faCircleArrowLeft,
     faCalendarCheck,
+    faSave,
+    faCircleMinus,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -19,11 +21,10 @@ import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './CongViec.module.scss';
 import swal from 'sweetalert';
-
+import cogoToast from 'cogo-toast';
 const cx = classNames.bind(styles);
 
 function CongViec() {
-    const navigate = useNavigate();
     const [dSCongViec, setDSCongViec] = useState([]);
     const [userInfo, setUserInfo] = useState([]);
     const [sortColumn, setSortColumn] = useState('');
@@ -43,7 +44,6 @@ function CongViec() {
         };
         getListProduct();
     }, []);
-    console.log(userInfo.nv_id);
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -52,7 +52,6 @@ function CongViec() {
             setSortDirection('desc');
         }
     };
-
     const handleSearchInputChange = (event) => {
         setSearchText(event.target.value);
         setCurrentPage(0);
@@ -188,84 +187,87 @@ function CongViec() {
         }
     }
     //them cv
-    const [newCongViec, setNewCongViec] = useState({
-        cv_ten: 'Tên công việc',
-        kh_id: '',
-        cv_thgianbatdau: new Date().toISOString().substr(0, 10),
-        cv_hanhoanthanh: '',
-        cv_noidung: '',
-        dv_id: '',
-        nv_id: userInfo.nv_id,
-        cv_trangthai: '0',
-    });
+    const [newRows, setNewRows] = useState([]);
 
-    const handleNewCongViecInputChange = (event) => {
+    const handleNewInputChange = (event, index) => {
         const { name, value } = event.target;
-        setNewCongViec((prevValue) => ({
-            ...prevValue,
-            [name]: value,
-        }));
+        setNewRows((prevRows) =>
+            prevRows.map((row, i) => (i === index ? { ...row, [name]: value } : row)),
+        );
     };
-    const [creatingNewCongViec, setCreatingNewCongViec] = useState(false);
-    const handleCreateNewCongViec = async (e) => {
+
+    const handleAddNewRow = () => {
+        const newRow = {
+            cv_ten: '',
+            cv_noidung: '',
+            cv_thgianbatdau: '' || new Date().toISOString().substr(0, 10),
+            cv_hanhoanthanh: '',
+            nv_id_lam: '',
+            dv_id: '',
+            kh_id: '',
+            cv_cv_cha: '1',
+            cv_trongso: '1',
+            da_id: '1',
+            n_cv_id: '1',
+            lcv_id: '3',
+        };
+        setNewRows((prevRows) => [...prevRows, newRow]);
+    };
+
+    const handleCancelNewRows = (index) => {
+        setNewRows((prevRows) => prevRows.filter((_, i) => i !== index));
+    };
+
+    const handleThemCongViec = async (e) => {
+        alert('hi');
+
         e.preventDefault();
-        const {
-            cv_ten,
-            cv_thgianbatdau,
-            cv_trangthai,
-            cv_noidung,
-            cv_cv_cha,
-            cv_trongso,
-            dv_id,
-            kh_id,
-            da_id,
-            n_cv_id,
-            cv_hanhoanthanh,
-            cv_tgthuchien,
-        } = newCongViec;
-        console.log(newCongViec);
+        const kh_id = document.getElementById('kh_id_input').value;
+        const cong_viec = [];
+        console.log(kh_id);
+        for (let cv of newRows) {
+            const {
+                cv_ten,
+                cv_noidung,
+                cv_thgianbatdau,
+                cv_hanhoanthanh,
+                nv_id_lam,
+                dv_id,
+                kh_id,
+                cv_cv_cha,
+                cv_trongso,
+                da_id,
+                n_cv_id,
+                lcv_id,
+            } = cv;
+
+            cong_viec.push({
+                cv_ten,
+                cv_noidung,
+                cv_thgianbatdau,
+                cv_hanhoanthanh,
+                nv_id_lam,
+                dv_id,
+                kh_id,
+                cv_cv_cha,
+                cv_trongso,
+                da_id,
+                n_cv_id,
+                lcv_id,
+            });
+        }
         const token = localStorage.getItem('Token');
+
         const response = await axiosClient.post(`/add_CongViec/${kh_id}?token=${token}`, {
-            cv_ten,
-            cv_thgianbatdau,
-            cv_trangthai,
-            cv_noidung,
-            cv_cv_cha,
-            cv_trongso,
-            dv_id,
-            kh_id,
-            da_id,
-            n_cv_id,
-            cv_hanhoanthanh,
-            cv_tgthuchien,
+            cong_viec,
         });
 
         if (response.status === 200) {
-            navigate('/qlcv/kehoach');
-            swal(`Thêm công việc ${cv_ten.toUpperCase()} mới thành công`, {
+            window.location.reload();
+            cogoToast.success('Công việc đã được thêm', {
                 position: 'top-right',
             });
-        } else {
-            alert('Có lỗi xảy ra, vui lòng thử lại sau.');
         }
-    };
-
-    const handleCancelNewCongViec = () => {
-        setNewCongViec({
-            cv_ten: '',
-            kh_ten: '',
-            cv_thgianbatdau: new Date().toISOString().substr(0, 10),
-            cv_hanhoanthanh: '',
-            cv_noidung: '',
-            dv_id: '',
-            nv_id: '',
-            cv_trangthai: '0',
-        });
-        setCreatingNewCongViec(false);
-    };
-
-    const handleAddNewCongViec = () => {
-        setCreatingNewCongViec(true);
     };
     //sua cong viec
 
@@ -294,9 +296,16 @@ function CongViec() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <button className={cx('add-btn')} onClick={handleAddNewCongViec}>
-                        <FontAwesomeIcon icon={faPlus} /> Thêm
-                    </button>
+                    {userInfo.nv_quyen === 'ld' && (
+                        <div className={cx('btn-group')}>
+                            <button className={cx('add-btn')} onClick={handleAddNewRow}>
+                                <FontAwesomeIcon icon={faPlus} /> Thêm hàng
+                            </button>
+                            <button className={cx('save-btn')}>
+                                <FontAwesomeIcon icon={faSave} onClick={handleThemCongViec} /> Lưu
+                            </button>
+                        </div>
+                    )}
                 </div>
                 {displayedCongViec.length > 0 ? (
                     <>
@@ -330,107 +339,110 @@ function CongViec() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {creatingNewCongViec && (
-                                    <tr>
-                                        <td></td>
+                                {newRows.map((newRow, index) => (
+                                    <tr key={index}>
+                                        <td className={cx('center')}>{index + 1}</td>
                                         <td>
                                             <input
-                                                placeholder="Tên công việc"
                                                 type="text"
                                                 name="cv_ten"
-                                                value={newCongViec.cv_ten}
-                                                onChange={handleNewCongViecInputChange}
+                                                value={newRow.cv_ten}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             />
                                         </td>
                                         <td>
                                             <select
+                                                type="text"
                                                 name="kh_id"
-                                                value={newCongViec.kh_id}
-                                                onChange={handleNewCongViecInputChange}
+                                                id="kh_id_input"
+                                                value={newRow.kh_id}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             >
-                                                <option>--Chọn kế hoạch--</option>
-                                                {optionListKH.map((item) => (
-                                                    <>
-                                                        <option key={item.kh_id} value={item.kh_id}>
-                                                            {item.kh_ten}
-                                                        </option>
-                                                    </>
+                                                <option value="" disabled>
+                                                    -- Chọn kế hoạch --
+                                                </option>
+                                                {optionListKH.map((kh) => (
+                                                    <option key={kh.kh_id} value={kh.kh_id}>
+                                                        {kh.kh_ten}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </td>
+
                                         <td>
                                             <input
                                                 type="date"
                                                 name="cv_thgianbatdau"
-                                                value={newCongViec.cv_thgianbatdau}
-                                                onChange={handleNewCongViecInputChange}
+                                                value={
+                                                    newRow.cv_thgianbatdau ||
+                                                    new Date().toISOString().substr(0, 10)
+                                                }
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             />
                                         </td>
                                         <td>
                                             <input
                                                 type="date"
                                                 name="cv_hanhoanthanh"
-                                                value={newCongViec.cv_hanhoanthanh}
-                                                onChange={handleNewCongViecInputChange}
+                                                value={newRow.cv_hanhoanthanh}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             />
                                         </td>
                                         <td>
-                                            <input
-                                                placeholder="Mục đích"
-                                                type="text"
+                                            <textarea
                                                 name="cv_noidung"
-                                                value={newCongViec.cv_noidung}
-                                                onChange={handleNewCongViecInputChange}
+                                                value={newRow.cv_noidung}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             />
                                         </td>
+
                                         <td>
                                             <select
+                                                type="text"
                                                 name="dv_id"
-                                                value={newCongViec.dv_id}
-                                                onChange={handleNewCongViecInputChange}
+                                                value={newRow.dv_id}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             >
-                                                <option>--Chọn đơn vị--</option>
-                                                {optionListDV.map((item) => (
-                                                    <>
-                                                        <option key={item.dv_id} value={item.dv_id}>
-                                                            {item.dv_ten}
-                                                        </option>
-                                                    </>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select
-                                                name="nv_id"
-                                                value={newCongViec.nv_id}
-                                                onChange={handleNewCongViecInputChange}
-                                            >
-                                                <option>--Chọn nhân viên--</option>
-                                                {optionList.map((item) => (
-                                                    <option key={item.nv_id} value={item.nv_id}>
-                                                        {item.nv_ten}
+                                                <option value="" disabled>
+                                                    -- Chọn đơn vị --
+                                                </option>
+                                                {optionListDV.map((dv) => (
+                                                    <option key={dv.dv_id} value={dv.dv_id}>
+                                                        {dv.dv_ten}
                                                     </option>
                                                 ))}
                                             </select>
                                         </td>
-                                        <td>{trangThai(newCongViec.cv_trangthai)}</td>
-
                                         <td>
-                                            <button
-                                                className={cx('save-btn')}
-                                                onClick={handleCreateNewCongViec}
+                                            <select
+                                                type="text"
+                                                name="nv_id_lam"
+                                                value={newRow.nv_id_lam}
+                                                onChange={(e) => handleNewInputChange(e, index)}
                                             >
-                                                Lưu
-                                            </button>
-                                            <button
-                                                className={cx('cancel-btn')}
-                                                onClick={handleCancelNewCongViec}
-                                            >
-                                                Hủy
-                                            </button>
+                                                <option value="" disabled>
+                                                    -- Chọn nhân viên --
+                                                </option>
+                                                {optionList.map((nv) => (
+                                                    <option key={nv.nv_id} value={nv.nv_id}>
+                                                        {nv.nv_ten}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td>{trangThai('0')}</td>
+                                        <td>
+                                            <Tippy content="Hủy" placement="bottom">
+                                                <button
+                                                    className={cx('handle', 'cancle-btn')}
+                                                    onClick={() => handleCancelNewRows(index)}
+                                                >
+                                                    <FontAwesomeIcon icon={faCircleMinus} />
+                                                </button>
+                                            </Tippy>
                                         </td>
                                     </tr>
-                                )}
+                                ))}
                                 {displayedCongViec.map((cv, index) => (
                                     <tr key={cv.cv_id}>
                                         <td>{index + 1 + currentPage * PER_PAGE}</td>
@@ -451,11 +463,12 @@ function CongViec() {
 
                                         <td>{cv.don_vi.ten_don_vi}</td>
 
-                                        <td>{cv.nhan_vien.ten_nhan_vien}</td>
+                                        <td>{cv.nhan_vien_lam?.ten_nhan_vien || '--'}</td>
 
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
-                                            {cv.cv_trangthai === '0' && (
+                                            {(cv.cv_trangthai === '0' ||
+                                                cv.cv_trangthai === '1') && (
                                                 <Tippy content="Duyệt" placement="bottom">
                                                     <button
                                                         className={cx('handle', 'check-btn')}
@@ -465,16 +478,22 @@ function CongViec() {
                                                     </button>
                                                 </Tippy>
                                             )}
+                                            {(cv.cv_trangthai === '0' ||
+                                                cv.cv_trangthai === '1' ||
+                                                cv.cv_trangthai === '2') && (
+                                                <Link
+                                                    to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_hanhoanthanh}/xingiahan`}
+                                                >
+                                                    <Tippy content="Xin gia hạn" placement="bottom">
+                                                        <button
+                                                            className={cx('handle', 'view-btn')}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEnvelope} />
+                                                        </button>
+                                                    </Tippy>
+                                                </Link>
+                                            )}
 
-                                            <Link
-                                                to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_hanhoanthanh}/xingiahan`}
-                                            >
-                                                <Tippy content="Xin gia hạn" placement="bottom">
-                                                    <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faEnvelope} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link>
                                             {cv.cv_trangthai === '0' && (
                                                 <>
                                                     <Link

@@ -47,7 +47,15 @@
         &:hover {
             outline: 1.5px solid #0087E1;
         }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+
+        }
     }
+
+
 
     .add-btn {
         margin-right: 10px;

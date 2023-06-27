@@ -31,7 +31,7 @@ function CongViecDotXuat() {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`);
-            setDSCongViec(response.data);
+            setDSCongViec(response.data.danh_sach_cv_dot_xuat);
         };
         getListProduct();
     }, []);
@@ -156,7 +156,9 @@ function CongViecDotXuat() {
                                     <th onClick={() => handleSortColumn('cv_thgianketthuc')}>
                                         <span>Thời gian hết hạn</span>
                                     </th>
-                                    <th>Nội dung</th>
+                                    <th>Mục đích</th>
+                                    <th>Đơn vị</th>
+                                    <th>Người đảm nhận</th>
                                     <th>Trạng thái</th>
                                     <th className={cx('center')}>Xử lý</th>
                                 </tr>
@@ -179,7 +181,10 @@ function CongViecDotXuat() {
                                                 ? cv.cv_hanhoanthanh.split(' ')[0]
                                                 : '-'}
                                         </td>
+
                                         <td>{cv.cv_noidung}</td>
+                                        <td>{cv.don_vi.dv_ten}</td>
+                                        <td>{cv.nv_id_lam || '-'}</td>
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
                                             <Link
