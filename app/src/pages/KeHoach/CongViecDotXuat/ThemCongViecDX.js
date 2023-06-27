@@ -13,16 +13,18 @@ function AddTaskModal({ onClose }) {
         kh_id: 1,
         cong_viec: [
             {
-                cv_ten: '',
+                cv_ten: 'Tên công việc',
                 cv_thgianbatdau: new Date().toISOString().substr(0, 10),
-                cv_noidung: '',
-                cv_cv_cha: '',
-                cv_trongso: '',
+                cv_noidung: 'Nội dung',
+                cv_cv_cha: 1,
+                cv_trongso: 1,
                 dv_id: '',
-                da_id: '',
-                n_cv_id: '',
+                da_id: 1,
+                n_cv_id: 1,
                 cv_hanhoanthanh: '',
-                cv_tgthuchien: '',
+                cv_tgthuchien: 300,
+                lcv_id: 1,
+                nv_id_lam: '',
             },
         ],
     });
@@ -64,10 +66,13 @@ function AddTaskModal({ onClose }) {
         onClose();
     };
     const [optionListDV, setOptionListDV] = useState([]);
+    const [optionListNV, setOptionListNV] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
             const resDonVi = await axiosClient.get(`/get_DonVi`);
+            const resNhanVien = await axiosClient.get(`/get_NhanVien`);
             setOptionListDV(resDonVi.data.don_vis);
+            setOptionListNV(resNhanVien.data.nhanViens);
         };
 
         fetchData();
@@ -165,13 +170,22 @@ function AddTaskModal({ onClose }) {
                             />
                         </div>
                         <div className={cx('form-item')}>
-                            <label>Nhân viên</label>
-                            <input
+                            <label>Người đảm nhận</label>
+                            <select
                                 type="text"
-                                name="n_cv_id"
-                                value={taskData.cong_viec[0].n_cv_id}
+                                name="nv_id_lam"
+                                value={taskData.cong_viec[0].nv_id_lam}
                                 onChange={(event) => handleInputChange(event, 0)}
-                            />
+                            >
+                                <option>--Chọn Nhân viên--</option>
+                                {optionListNV.map((item) => (
+                                    <>
+                                        <option key={item.nv_id} value={item.nv_id}>
+                                            {item.nv_ten}
+                                        </option>
+                                    </>
+                                ))}
+                            </select>
                         </div>
                         <div className={cx('form-item')}>
                             <label>Thời gian thực hiện</label>

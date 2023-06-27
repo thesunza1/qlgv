@@ -219,12 +219,11 @@ function CongViec() {
     };
 
     const handleThemCongViec = async (e) => {
-        alert('hi');
-
         e.preventDefault();
-        const kh_id = document.getElementById('kh_id_input').value;
+        const kh_ids = newRows.map((row) => row.kh_id);
         const cong_viec = [];
-        console.log(kh_id);
+        console.log(kh_ids);
+        console.log(kh_ids[1]);
         for (let cv of newRows) {
             const {
                 cv_ten,
@@ -258,15 +257,17 @@ function CongViec() {
         }
         const token = localStorage.getItem('Token');
 
-        const response = await axiosClient.post(`/add_CongViec/${kh_id}?token=${token}`, {
-            cong_viec,
-        });
-
-        if (response.status === 200) {
-            window.location.reload();
-            cogoToast.success('Công việc đã được thêm', {
-                position: 'top-right',
+        for (const kh_id of kh_ids) {
+            const response = await axiosClient.post(`/add_CongViec/${kh_id}?token=${token}`, {
+                cong_viec,
             });
+
+            if (response.status === 200) {
+                cogoToast.success(`Công việc đã được thêm cho khách hàng ${kh_id}`, {
+                    position: 'top-right',
+                });
+                window.location.reload();
+            }
         }
     };
     //sua cong viec

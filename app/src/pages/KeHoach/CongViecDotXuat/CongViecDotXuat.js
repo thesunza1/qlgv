@@ -184,7 +184,7 @@ function CongViecDotXuat() {
 
                                         <td>{cv.cv_noidung}</td>
                                         <td>{cv.don_vi.dv_ten}</td>
-                                        <td>{cv.nv_id_lam || '-'}</td>
+                                        <td>{cv.nhan_vien_lam?.nv_ten || '-'}</td>
                                         <td>{trangThai(cv.cv_trangthai)}</td>
                                         <td className={cx('center')}>
                                             <Link
