@@ -13,6 +13,7 @@ import {
     faCalendarCheck,
     faSave,
     faCircleMinus,
+    faListCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -33,17 +34,23 @@ function CongViec() {
     const [currentPage, setCurrentPage] = useState(0);
 
     const PER_PAGE = 10;
-
+    useEffect(() => {
+        const getInfo = async () => {
+            const token = localStorage.getItem('Token');
+            const info = await axiosClient.get(`/user-info?token=${token}`);
+            setUserInfo(info.data.result);
+        };
+        getInfo();
+    }, []);
     useEffect(() => {
         const getListProduct = async () => {
             const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CongViec?token=${token}`);
-            const info = await axiosClient.get(`/user-info?token=${token}`);
             setDSCongViec(response.data);
-            setUserInfo(info.data.result);
         };
         getListProduct();
     }, []);
+
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -285,8 +292,8 @@ function CongViec() {
                     </h2>
                 </div>
                 <div className={cx('features')}>
-                    <Link to="dsxingiahan" className={cx('add-btn')}>
-                        <FontAwesomeIcon icon={faPlus} /> Danh sách xin gia hạn
+                    <Link to="dsxingiahan" className={cx('list-btn')}>
+                        <FontAwesomeIcon icon={faListCheck} /> Danh sách xin gia hạn
                     </Link>
                     <div className={cx('search')}>
                         <input
@@ -320,20 +327,29 @@ function CongViec() {
                                     <th onClick={() => handleSortColumn('kh_ten')}>
                                         <span>Tên kế hoạch</span>
                                     </th>
-                                    <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
+                                    <th
+                                        className={cx('center')}
+                                        onClick={() => handleSortColumn('cv_thgianbatdau')}
+                                    >
                                         Thời gian bắt đầu
                                     </th>
 
-                                    <th onClick={() => handleSortColumn('cv_hanhoanthanh')}>
+                                    <th
+                                        className={cx('center')}
+                                        onClick={() => handleSortColumn('cv_hanhoanthanh')}
+                                    >
                                         <span>Thời gian hết hạn</span>
                                     </th>
-                                    <th>Mục đích hoàn thành</th>
+                                    <th>Mục đích</th>
 
                                     <th onClick={() => handleSortColumn('dv_id')}>Đơn vị</th>
                                     <th onClick={() => handleSortColumn('nv_id')}>
                                         Người đảm nhiệm
                                     </th>
-                                    <th onClick={() => handleSortColumn('cv_trangthai')}>
+                                    <th
+                                        className={cx('center')}
+                                        onClick={() => handleSortColumn('cv_trangthai')}
+                                    >
                                         Trạng thái
                                     </th>
                                     <th className={cx('center')}>Xử lý</th>

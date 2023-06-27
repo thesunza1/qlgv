@@ -8,7 +8,13 @@
         .back-icon {
             margin-right: 30px;
             font-size: 2.5rem;
-            color: #0d7d3c;
+            color: #4CAF50;
+            border: 2px solid white;
+            border-radius: 50%;
+
+            &:hover {
+                border: 2px solid #4CAF50;
+            }
         }
     }
 }
@@ -57,18 +63,51 @@
 
 
 
+    .save-btn {
+        margin-right: 10px;
+        padding: 6px 8px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50;
+
+        &:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+    }
+
+
     .add-btn {
         margin-right: 10px;
         padding: 6px 8px;
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
-        color: #e2e2e2;
-        background: linear-gradient(#27ae60, #1e8449);
+        color: black;
+        background-color: white;
+        border: 2px solid #008CBA;
 
         &:hover {
-            background: linear-gradient(#15b357, #0d7d3c);
-            outline: 1.5px solid #0087E1;
+            background-color: #008CBA;
+            color: white;
+        }
+    }
+
+    .list-btn {
+        margin-right: 10px;
+        padding: 6px 8px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background-color: white;
+        color: black;
+        border: 2px solid #3d3838;
+
+        &:hover {
+            background-color: #e7e7e7;
         }
     }
 }
