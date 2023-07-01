@@ -9,26 +9,44 @@ import BangCongViec from './BangCongViec';
 const cx = classNames.bind(styles);
 
 function ChiTietKeHoach() {
-    const { kh_id, kh_ten, nv_ten, kh_thgianketthuc, kh_tongthgian, kh_trangthai } = useParams();
-    const [ChiTietKeHoach, setChiTietKeHoach] = useState({
+    const { kh_id, kh_ten, nv_id, kh_thgianbatdau, kh_thgianketthuc, kh_trangthai } = useParams();
+
+    const [chiTietKeHoach, setChiTietKeHoach] = useState({
         kh_id: '',
         kh_ten: '',
-        nv_ten: '',
+        nv_id: '',
         kh_thgianketthuc: '',
         kh_tongthgian: '',
-        kh_trangthai: '//',
     });
 
     useEffect(() => {
         setChiTietKeHoach({
             kh_id,
             kh_ten,
-            nv_ten,
+            nv_id,
+            kh_thgianbatdau,
             kh_thgianketthuc,
-            kh_tongthgian,
             kh_trangthai,
         });
-    }, [kh_id, kh_ten, nv_ten, kh_thgianketthuc, kh_tongthgian, kh_trangthai]);
+    }, [kh_id, kh_ten, nv_id, kh_thgianbatdau, kh_thgianketthuc, kh_trangthai]);
+
+    function trangThai(trangThai) {
+        switch (trangThai) {
+            case '0':
+                return <button className={cx('b0')}>Đang Soạn</button>;
+            case '1':
+                return <button className={cx('b1')}>Chờ duyệt</button>;
+            case '2':
+                return <button className={cx('b2')}>Đang thực hiện</button>;
+            case '3':
+                return <button className={cx('b3')}>Hoàn thành</button>;
+            case '4':
+                return <button className={cx('b4')}>Quá hạn</button>;
+            default:
+                return <button className={cx('b5')}>Từ chối</button>;
+        }
+    }
+
     return (
         <div className={cx('wrapper')}>
             <h2>
@@ -38,54 +56,41 @@ function ChiTietKeHoach() {
                 Chi tiết kế hoạch
             </h2>
             <div className={cx('inner')}>
-                <form className={cx('form-group')} style={{ maxWidth: '600px', margin: '0 auto' }}>
-                    <div className={cx('item-group')}>
+                <form className={cx('form-group')}>
+                    <div>
                         <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Tên kế hoạch:
+                            <label>
+                                Tên kế hoạch: <span>{chiTietKeHoach.kh_ten}</span>
                             </label>
-                            <div>{ChiTietKeHoach.kh_ten}</div>
                         </div>
                         <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Mức độ hoàn thành:
+                            <label>
+                                Người lập kế hoạch: <span>{chiTietKeHoach.nv_id}</span>
                             </label>
-                            <div>{ChiTietKeHoach.kh_ten}</div>
-                        </div>
-                        <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Người chịu trách nhiệm:
-                            </label>
-                            <div>{ChiTietKeHoach.nv_ten}</div>
                         </div>
                     </div>
-                    <div className={cx('item-group')}>
+                    <div>
                         <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Tổng thời gian hiện tại:
+                            <label>
+                                Thời gian bắt đầu: <span>{chiTietKeHoach.kh_thgianbatdau}</span>
                             </label>
-                            <div>{ChiTietKeHoach.kh_tongthgian}</div>
                         </div>
                         <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Thời gian hoàn thành dự kiến:
+                            <label>
+                                Hạn hoàn thành: <span>{chiTietKeHoach.kh_thgianketthuc}</span>
                             </label>
-                            <div>{ChiTietKeHoach.kh_thgianketthuc.split(' ')[0]}</div>
                         </div>
+                    </div>
+                    <div>
                         <div className={cx('form-item')}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                                Trạng thái:
+                            <label>
+                                Trạng thái: <span>{trangThai(chiTietKeHoach.kh_trangthai)}</span>
                             </label>
-                            {ChiTietKeHoach.kh_trangthai !== 'null' ? (
-                                <div style={{ color: 'green' }}>{ChiTietKeHoach.kh_trangthai}</div>
-                            ) : (
-                                <div style={{ color: 'red' }}>Chưa có</div>
-                            )}
                         </div>
                     </div>
                 </form>
             </div>
-            <BangCongViec kh_id={ChiTietKeHoach.kh_id} />
+            <BangCongViec />
         </div>
     );
 }
