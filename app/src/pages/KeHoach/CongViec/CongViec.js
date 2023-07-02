@@ -326,15 +326,26 @@ function BangCongViec() {
         const congviec = [];
 
         for (let bc of chinhSuaCongViec) {
-            const { cv_ten, cv_noidung, cv_id, dv_id, nv_id_lam } = bc;
+            const {
+                cv_ten,
+                cv_noidung,
+                cv_id,
+                dv_id,
+                nv_id_lam,
+                cv_thgianbatdau,
+                cv_hanhoanthanh,
+            } = bc;
             congviec.push({
                 cv_ten,
                 cv_noidung,
                 cv_id,
                 dv_id,
                 nv_id_lam,
+                cv_thgianbatdau,
+                cv_hanhoanthanh,
             });
         }
+        console.log(congviec);
 
         const token = localStorage.getItem('Token');
 
@@ -349,6 +360,10 @@ function BangCongViec() {
             });
         }
     };
+    function convertDateFormat(dateString) {
+        const parts = dateString.split('-');
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
 
     // Từ chối công việc
     const handleTuChoiCongViec = async (cvID) => {
@@ -577,8 +592,46 @@ function BangCongViec() {
                                                         />
                                                     )}
                                                 </td>
-                                                <td>{cv.cv_thgianbatdau}</td>
-                                                <td>{cv.cv_hanhoanthanh}</td>
+                                                <td>
+                                                    {infoUser.nv_quyen !== 'ld' ? (
+                                                        cv.cv_thgianbatdau
+                                                    ) : (
+                                                        <input
+                                                            type="date"
+                                                            name="cv_thgianbatdau"
+                                                            value={convertDateFormat(
+                                                                cv.cv_thgianbatdau,
+                                                            )}
+                                                            onChange={(e) =>
+                                                                handleEditInputChange(
+                                                                    e,
+                                                                    cv.cv_id,
+                                                                    'cv_thgianbatdau',
+                                                                )
+                                                            }
+                                                        />
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {infoUser.nv_quyen !== 'ld' ? (
+                                                        cv.cv_hanhoanthanh
+                                                    ) : (
+                                                        <input
+                                                            type="date"
+                                                            name="cv_hanhoanthanh"
+                                                            value={convertDateFormat(
+                                                                cv.cv_hanhoanthanh,
+                                                            )}
+                                                            onChange={(e) =>
+                                                                handleEditInputChange(
+                                                                    e,
+                                                                    cv.cv_id,
+                                                                    'cv_hanhoanthanh',
+                                                                )
+                                                            }
+                                                        />
+                                                    )}
+                                                </td>
                                                 <td>
                                                     <select
                                                         name="nv_id_lam"

@@ -146,35 +146,26 @@
         font-size: 1.4rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-        textarea {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        input {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        .small-input {
-            width: 120px;
-            width: 50px;
-        }
-
+        input,
+        textarea,
         select {
+            width: 150px;
+            height: 40px;
+            font-size: 1.4rem;
             text-align: center;
-            // border: none;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
             outline: none;
-            width: 120px;
-            height: 30px;
-        }
 
+            &:hover {
+                outline: 1px solid rgba(0, 0, 0, 0.3);
+            }
+        }
+    }
+
+    td {
+        font-size: 1.4rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     td:first-child {
@@ -231,20 +222,13 @@
 }
 
 .save-btn {
-    background-color: rgb(200, 231, 238);
-    margin: 5px;
+    font-size: 2.0rem;
+    color: #0d7d3c;
 }
 
-.save-btn:hover {
-    background-color: rgb(137, 174, 140);
-    color: white;
-    margin: 5px;
-}
 
-.chuaht-btn {
-    background-color: #afafaf;
-    color: white;
-    width: 130px;
+.refuse {
+    color: #f30a0a;
 }
 
 .check-btn {
@@ -279,22 +263,28 @@ select {
     color: var(--primary);
 }
 
-.pagination {
+.paginate {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
     margin: 20px;
     padding-bottom: 20px;
 
-    li {
-        margin-right: 5px;
+    .pagination {
+        display: flex;
 
-        a {
-            padding: 3px 8px;
-            font-size: 1.4rem;
-            color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            cursor: pointer;
+        li {
+            margin-right: 5px;
+
+            a {
+                padding: 3px 8px;
+                font-size: 1.4rem;
+                color: var(text-black);
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                cursor: pointer;
+            }
         }
     }
 }
