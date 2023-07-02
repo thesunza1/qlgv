@@ -27,6 +27,7 @@ class CongViec extends Model
         'nv_id',
         'cv_hanhoanthanh',
         'cv_tgthuchien',
+        'nv_id_lam',
     ];
     public function nhanVien()
     {

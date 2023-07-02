@@ -30,13 +30,20 @@ class BaoCaoHangNgayController extends Controller
                 $congViec->cv_tiendo = $baoCao->bchn_tiendo;
             }
                     // Cập nhật trạng thái công việc
-        if ($congViec->cv_tiendo == 100) {
-            $congViec->cv_trangthai = 3; // Trạng thái đã hoàn thành
-        }
-        // Kiểm tra và cập nhật trạng thái công việc nếu cv_hanhoanthanh nhỏ hơn cv_thgianhoanthanh
-        if ($congViec->cv_hanhoanthanh !== null && $congViec->cv_hanhoanthanh < $congViec->cv_thgianhoanthanh) {
-            $congViec->cv_trangthai = 4; // Trạng thái trễ hạn
-        }
+                    if ($congViec->cv_tiendo == 100) {
+                        if ( $congViec->cv_hanhoanthanh > $baoCao->bchn_ngay) {
+                            $congViec->cv_trangthai = 3; // Trạng thái đã hoàn thành
+                        } else {
+                            $congViec->cv_trangthai = 4; // Trạng thái đang thực hiện
+                        }
+                    } else {
+                        if ( $congViec->cv_hanhoanthanh < $baoCao->bchn_ngay) {
+                            $congViec->cv_trangthai = 4; // Trạng thái trễ hạn
+                        } else {
+                            $congViec->cv_trangthai = 2; // Trạng thái đang thực hiện
+                        }
+                    }
+                    
             $baoCao->bchn_giothamdinh = $congViecData['bchn_giothamdinh'];
             $congViec->cv_thgianhoanthanh = $baoCao->bchn_tiendo == 100 ? $baoCao->bchn_ngay : null;
             $congViec->save();
@@ -57,8 +64,6 @@ class BaoCaoHangNgayController extends Controller
         $congViec->save();
     return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
 }
-
-
         
     public function add_CV_BC_HangNgay(Request $request)
 {

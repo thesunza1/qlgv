@@ -52,7 +52,7 @@ Route::post('/get_DV_NhanVien', [DonViController::class, 'get_DV_NhanVien']);
 Route::post('/add_CongViec/{kh_id}/', [CongViecController::class, 'add_CongViec']);
 Route::get('/get_CongViec', [CongViecController::class, 'get_CongViec']);
 Route::get('/dsCongViecXinGiaHan', [CongViecController::class, 'dsCongViecXinGiaHan']);
-Route::post('/duyet_CongViec/{cv_ids}', [CongViecController::class, 'duyet_CongViec']);
+Route::post('/duyet_CongViec', [CongViecController::class, 'duyet_CongViec']);
 Route::post('/duyetdsCongViecXinGiaHan/{hg_id}', [CongViecController::class, 'duyetdsCongViecXinGiaHan']);
 Route::post('/xuly_CongViec', [CongViecController::class, 'xuly_CongViec']);
 Route::delete('/delete_CongViec', [CongViecController::class, 'delete_CongViec']);
@@ -60,6 +60,7 @@ Route::post('/test_TrangThaiCongViec', [CongViecController::class, 'test_TrangTh
 Route::post('/add_CV_DotXuat', [CongViecController::class, 'add_CV_DotXuat']);
 Route::get('/get_CV_DotXuat', [CongViecController::class, 'get_CV_DotXuat']);
 Route::post('/phanCongCongViecChoNhanVien', [CongViecController::class, 'phanCongCongViecChoNhanVien']);
+Route::put('/update_CongViec', [CongViecController::class, 'update_CongViec']);
 
 //Router lấy danh sách Nhân Viên
 Route::get('/get_ID_NhanVien/{nv_id}', [NhanVienController::class, 'get_ID_NhanVien']);
@@ -77,5 +78,7 @@ Route::put('/capNhatTrangThaiCongViec', [CongViecController::class, 'capNhatTran
 Route::delete('/delete_CV_BC_HangNgay', [BaoCaoHangNgayController::class, 'delete_CV_BC_HangNgay']);
 // /Rputer Kế Hoạch
 Route::post('/get_KeHoach_CongViec', [KeHoachController::class, 'get_KeHoach_CongViec']);
-
+Route::put('/update_KeHoach', [KeHoachController::class, 'update_KeHoach']);
+Route::post('/nop_KeHoach', [KeHoachController::class, 'nop_KeHoach']);
+Route::post('/duyet_KeHoach', [KeHoachController::class, 'duyet_KeHoach']);
 });

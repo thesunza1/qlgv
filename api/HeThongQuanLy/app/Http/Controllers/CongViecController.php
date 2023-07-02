@@ -135,14 +135,14 @@ foreach ($congViecs as $congViec) {
 }
 
 // Trả về dữ liệu công việc
-return response()->json($congViecData, 200);
+    return response()->json($congViecData, 200);
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi khi lấy thông tin chức vụ nhân viên: ' . $e->getMessage()], 500);
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Lỗi khi lấy thông tin chức vụ nhân viên: ' . $e->getMessage()], 500);
+            }
         }
-    }
 
     public function get_CV_Thang($thang)
     {
@@ -169,8 +169,8 @@ return response()->json($congViecData, 200);
             $tenNhanVien = $nhanVien->nv_ten;
 
             // Khởi tạo query để lấy danh sách kế hoạch và công việc
-            $queryKeHoach = KeHoach::query();
-            $queryCongViec = CongViec::query();
+            $queryKeHoach = KeHoach::query()->with('nhanVien', 'donVi');
+            $queryCongViec = CongViec::query()->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs', 'nhanVienLam');
 
             if ($chucVuNhanVien === 'ld' && $quyenThamDinh == 1) {
                 // Hiển thị toàn bộ bảng kế hoạch và danh sách công việc của giám đốc
@@ -193,19 +193,106 @@ return response()->json($congViecData, 200);
                 return response()->json(['message' => 'Quyền không hợp lệ'], 403);
             }
 
-            // Lấy tổng số lượng kế hoạch và công việc
-            $tongLuongKeHoach = isset($keHoachs) ? $keHoachs->count() : 0;
-            $tongLuongCongViec = isset($congViecs) ? $congViecs->count() : 0;
+                  // Lấy tổng số lượng kế hoạch và công việc
+        $tongLuongKeHoach = isset($keHoachs) ? $keHoachs->count() : 0;
+        $tongLuongCongViec = isset($congViecs) ? $congViecs->count() : 0;
 
-            return response()->json([
-                'ten_nhan_vien' => $tenNhanVien,
-                'chuc_vu_nhan_vien' => $chucVuNhanVien,
-                'quyen_tham_dinh' => $quyenThamDinh,
-                'so_luong_ke_hoach' => $tongLuongKeHoach,
-                'so_luong_cong_viec' => $tongLuongCongViec,
-                'ke_hoachs' => $keHoachs,
-                'cong_viecs' => $congViecs
-            ]);
+        // Chuyển đổi định dạng ngày tháng năm của cột kh_thgianbatdau
+        $keHoachs->transform(function ($keHoach) {
+            $keHoach->kh_thgianbatdau = date('d-m-Y', strtotime($keHoach->kh_thgianbatdau));
+            $keHoach->kh_thgianketthuc = date('d-m-Y', strtotime($keHoach->kh_thgianketthuc));
+            return $keHoach;
+        });
+
+        $data = [];
+
+        foreach ($keHoachs as $keHoach) {
+            $keHoachData = [
+                'ten_ke_hoach' => $keHoach->kh_ten,
+                'cong_viecs' => []
+            ];
+        
+            foreach ($congViecs as $congViec) {
+                // Lấy thông tin nhân viên
+                $nhanVien = $congViec->nhanVien()->first();
+                // Lấy thông tin kế hoạch
+                $keHoach = $congViec->keHoachs()->first();
+                // Lấy thông tin đơn vị
+                $donVi = $congViec->donVi()->first();
+                // Lấy thông tin nhóm công việc
+                $nhomCongViec = $congViec->nhomCongViecs()->first();
+                // Lấy thông tin dự án
+                $duAn = $congViec->duAns()->first();
+                // Lấy thông tin công việc cha
+                $congViecCha = $congViec->cv_cv_cha()->first();
+                // Lấy thông tin loại công việc
+                $loaiCongViec = $congViec->loaiCongViecs()->first();
+                // Lấy nhân viên làm
+                $nhanVienLam = $congViec->nhanVienLam()->first();
+        
+                // Tạo một mảng chứa thông tin của công việc
+                $congViecItem = [
+                    'cv_id' => $congViec->cv_id,
+                    'cv_ten' => $congViec->cv_ten,
+                    'cv_trangthai' => $congViec->cv_trangthai,
+                    'cv_thgianbatdau' => $congViec->cv_thgianbatdau ? date('d-m-Y', strtotime($congViec->cv_thgianbatdau)) : null,
+                    'cv_thgianhoanthanh' => $congViec->cv_thgianhoanthanh ? date('d-m-Y', strtotime($congViec->cv_thgianhoanthanh)) : null,
+                    'cv_tiendo' => $congViec->cv_tiendo,
+                    'cv_noidung' => $congViec->cv_noidung,
+                    'cv_cv_cha' => $congViec->cv_cv_cha,
+                    'cv_trongso' => $congViec->cv_trongso,
+                    'dv_id' => $congViec->dv_id,
+                    'kh_id' => $congViec->kh_id,
+                    'da_id' => $congViec->da_id,
+                    'n_cv_id' => $congViec->n_cv_id,
+                    'nv_id' => $congViec->nv_id,
+                    'cv_hanhoanthanh' => $congViec->cv_hanhoanthanh ? date('d-m-Y', strtotime($congViec->cv_hanhoanthanh)) : null,
+                    'cv_tgthuchien' => $congViec->cv_tgthuchien,
+                    'nguoi_tao' => $nhanVien ? [
+                        'ten_nguoi_tao' => $nhanVien->nv_ten,
+                        // Thêm các thông tin khác của nhân viên cần lấy
+                    ] : null,
+                    'nhan_vien_lam' => $nhanVienLam ? [
+                        'ten_nhan_vien' => $nhanVienLam->nv_ten,
+                        // Thêm các thông tin khác của nhân viên cần lấy
+                    ] : null,
+                    'don_vi' => $donVi ? [
+                        'ten_don_vi' => $donVi->dv_ten,
+                        // Thêm các thông tin khác của đơn vị cần lấy
+                    ] : null,
+                    'nhom_cong_viec' => $nhomCongViec ? [
+                        'ten_nhom_cong_viec' => $nhomCongViec->ncv_ten,
+                        // Thêm các thông tin khác của nhóm công việc cần lấy
+                    ] : null,
+                    'du_an' => $duAn ? [
+                        'ten_du_an' => $duAn->da_ten,
+                        // Thêm các thông tin khác của dự án cần lấy
+                    ] : null,
+                    'cong_viec_cha' => $congViecCha ? [
+                        'ten_cong_viec_cha' => $congViecCha->cv_ten,
+                        // Thêm các thông tin khác của công việc cha cần lấy
+                    ] : null,
+                    'loai_cong_viec' => $loaiCongViec ? [
+                        'ten_loai_cong_viec' => $loaiCongViec->lcv_ten,
+                        // Thêm các thông tin khác của loại công việc cần lấy
+                    ] : null,
+                ];
+        
+                $keHoachData['cong_viecs'][] = $congViecItem;
+            }
+        
+            $data[] = $keHoachData;
+        }
+        
+
+        return response()->json([
+            'ten_nhan_vien' => $tenNhanVien,
+            'chuc_vu_nhan_vien' => $chucVuNhanVien,
+            'quyen_tham_dinh' => $quyenThamDinh,
+            'tong_luong_ke_hoach' => $tongLuongKeHoach,
+            'tong_luong_cong_viec' => $tongLuongCongViec,
+            'ke_hoachs' => $data
+        ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
         } catch (\Exception $e) {
@@ -214,68 +301,81 @@ return response()->json($congViecData, 200);
     }
 
     public function add_CongViec(Request $request, $kh_id)
-    {
-        // Lấy thông tin kế hoạch từ ID
-        $keHoach = KeHoach::find($kh_id);
-        
-        if (!$keHoach) {
-            return response()->json(['message' => 'Không tìm thấy kế hoạch'], 404);
-        }
-        
-        // Tạo công việc mới
+{
+    $keHoach = KeHoach::find($kh_id);
+    $maxCvId = CongViec::max('cv_id');
+    if (!$keHoach) {
+        return response()->json(['message' => 'Không tìm thấy kế hoạch'], 404);
+    }
+    $congViecData = $request->input('cong_viec');
+    
+    foreach ($congViecData as $cvData) {
         $congViec = new CongViec();
         $congViec->kh_id = $keHoach->kh_id;
-        $congViec->cv_ten = $request->input('cv_ten');
-        $congViec->cv_thgianbatdau = $request->input('cv_thgianbatdau');
-        $congViec->cv_trangthai = $request->input('cv_trangthai');
-        $congViec->cv_noidung = $request->input('cv_noidung');
-        $congViec->cv_cv_cha = $request->input('cv_cv_cha');
-        $congViec->cv_trongso = $request->input('cv_trongso');
-        $congViec->dv_id = $request->input('dv_id');
-        $congViec->da_id = $request->input('da_id');
-        $congViec->n_cv_id = $request->input('n_cv_id');
-        $congViec->cv_hanhoanthanh = $request->input('cv_hanhoanthanh');
-        $congViec->cv_tgthuchien = $request->input('cv_tgthuchien');
-        $congViec->nv_id = auth()->user()->nv_id; // Lấy nv_id của người dùng hiện tại
-        // ...Thêm các thuộc tính khác của công việc
+        $congViec->cv_id = $maxCvId + 1;
+        $congViec->cv_ten = $cvData['cv_ten'];
+        $congViec->cv_thgianbatdau = $cvData['cv_thgianbatdau'];
+        $congViec->cv_noidung = $cvData['cv_noidung'];
+        $congViec->cv_cv_cha = $cvData['cv_cv_cha'];
+        $congViec->cv_trongso = $cvData['cv_trongso'];
+        $congViec->dv_id = $cvData['dv_id'];
+        $congViec->da_id = $cvData['da_id'];
+        $congViec->n_cv_id = $cvData['n_cv_id'];
+        $congViec->lcv_id = $cvData['lcv_id'];
+        $congViec->cv_hanhoanthanh = $cvData['cv_hanhoanthanh'];
+        $congViec->nv_id = auth()->user()->nv_id;
         
+        // Kiểm tra sự tồn tại của 'nv_id_lam'
+        if (isset($cvData['nv_id_lam'])) {
+            $congViec->nv_id_lam = $cvData['nv_id_lam'];
+        }
+    
         // Lưu công việc vào cơ sở dữ liệu
         $congViec->save();
-        
-        return response()->json(['message' => 'Thêm công việc thành công'], 200);
+    
+        $maxCvId++; // Tăng giá trị "CV_ID" lên cho công việc tiếp theo
     }
+    
+    return response()->json(['message' => 'Thêm công việc thành công'], 200);
+}
+    
 
     public function get_CV_DotXuat()
-    {
-        $kh_id = 1; // ID của kế hoạch đột xuất
+{
+    $kh_id = 1; // ID của kế hoạch đột xuất
 
-        $congViec = CongViec::where('kh_id', $kh_id)->get();
+    $congViec = CongViec::where('kh_id', $kh_id)->get();
 
-        return response()->json($congViec, 200);
-    }
+   // Chuyển định dạng cột cv_thgianbatdau thành dd-mm-yyyy
+   $congViec = $congViec->map(function ($cv) {
+    $cv->cv_thgianbatdau = $cv->cv_thgianbatdau ? date('d-m-Y', strtotime($cv->cv_thgianbatdau)) : null;
+    $cv->cv_thgianhoanthanh = $cv->cv_thgianhoanthanh ? date('d-m-Y', strtotime($cv->cv_thgianhoanthanh)) : null;
+    $cv->cv_hanhoanthanh = $cv->cv_hanhoanthanh ? date('d-m-Y', strtotime($cv->cv_hanhoanthanh)) : null;
+    return $cv;
+});
+
+    return response()->json($congViec, 200);
+}
 
 
     public function add_CV_DotXuat(Request $request)
     {
-        $kh_id = $request->input('kh_id', 1); // Giá trị mặc định là 5 nếu không có giá trị kh_id trong request
-
-        // Lấy thông tin kế hoạch từ ID
+        $kh_id = $request->input('kh_id', 1);
         $keHoach = KeHoach::find($kh_id);
-
+    
         if (!$keHoach) {
             return response()->json(['message' => 'Không tìm thấy kế hoạch'], 404);
         }
-
-        $congViecData = $request->input('cong_viec'); // Mảng chứa thông tin các công việc
-
-        // Lưu các công việc
+    
+        $congViecData = $request->input('cong_viec');
+        $maxCvId = CongViec::max('cv_id');
+    
         foreach ($congViecData as $cvData) {
-            // Tạo công việc mới
             $congViec = new CongViec();
             $congViec->kh_id = $keHoach->kh_id;
+            $congViec->cv_id = $maxCvId + 1;
             $congViec->cv_ten = $cvData['cv_ten'];
             $congViec->cv_thgianbatdau = $cvData['cv_thgianbatdau'];
-            $congViec->cv_trangthai = $cvData['cv_trangthai'];
             $congViec->cv_noidung = $cvData['cv_noidung'];
             $congViec->cv_cv_cha = $cvData['cv_cv_cha'];
             $congViec->cv_trongso = $cvData['cv_trongso'];
@@ -284,38 +384,86 @@ return response()->json($congViecData, 200);
             $congViec->da_id = $cvData['da_id'];
             $congViec->n_cv_id = $cvData['n_cv_id'];
             $congViec->cv_hanhoanthanh = $cvData['cv_hanhoanthanh'];
-            $congViec->cv_tgthuchien = $cvData['cv_tgthuchien'];
-            $congViec->nv_id = auth()->user()->nv_id; // Lấy nv_id của người dùng hiện tại
+            $congViec->nv_id = auth()->user()->nv_id;
+    
             // ...Thêm các thuộc tính khác của công việc
-
-            // Lưu công việc vào cơ sở dữ liệu
+    
             $congViec->save();
+    
+            $maxCvId++;
         }
+    
         return response()->json(['message' => 'Thêm công việc đột xuất thành công'], 200);
     }
-
-
-    public function duyet_CongViec(Request $request, $cv_ids)
+    
+    public function duyet_CongViec(Request $request)
     {
-        $selectedIds = explode(',', $cv_ids); // Chuyển đổi chuỗi thành mảng các ID công việc đã chọn
-    
-        foreach ($selectedIds as $cv_id) {
-            $congViec = CongViec::find($cv_id);
-    
-            if (!$congViec) {
-                return response()->json(['message' => 'Không tìm thấy công việc'], 404);
+        $requestData = $request->json()->all();
+        $status = []; // Mảng lưu trữ các trạng thái của công việc
+
+        // Kiểm tra quyền thẩm định của người dùng
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
+        }
+
+        if ($user->nv_quyenthamdinh !== "1" && $user->nv_quyen !== "ld") {
+            return response()->json(['message' => 'Người dùng không có quyền thẩm định'], 403);
+        }
+
+        foreach ($requestData as $item) {
+            $cv_ids = $item['cv_ids'];
+            $cv_trangthai = $item['cv_trangthai'];
+
+            $selectedIds = [];
+
+            if (is_array($cv_ids)) {
+                $selectedIds = $cv_ids;
+            } else {
+                $selectedIds[] = $cv_ids;
             }
-    
-            // Kiểm tra quyền thẩm định của người dùng
-            $user = auth()->user();
-            if ($user && $user->nv_quyenthamdinh === "1") {
+
+            foreach ($selectedIds as $cv_id) {
+                $congViec = CongViec::find($cv_id);
+
+                if (!$congViec) {
+                    return response()->json(['message' => 'Không tìm thấy công việc'], 404);
+                }
+
                 // Duyệt công việc và cập nhật trạng thái
-                $congViec->cv_trangthai = 2; // Đặt giá trị tương ứng với trạng thái "duyet"
+                $congViec->cv_trangthai = $cv_trangthai; // Lấy giá trị trạng thái từ request
                 $congViec->save();
+                $status[$cv_id] = ($cv_trangthai == 5) ? 'từ chối' : 'duyệt';
+
+                // Lấy kh_id từ công việc
+                $kh_id = $congViec->kh_id;
+
+                // Tìm kế hoạch có kh_id tương ứng và cập nhật trạng thái
+                $keHoach = KeHoach::find($kh_id);
+                if ($keHoach) {
+                    if ($cv_trangthai != 5) { // Kiểm tra không phải từ chối
+                        $keHoach->kh_trangthai = 2; // 2: Đã duyệt
+                        $keHoach->save();
+                    } else {
+                        // Kiểm tra nếu công việc là công việc cuối cùng bị từ chối của kế hoạch
+                        $isLastRejected = true;
+                        $congViecList = CongViec::where('kh_id', $kh_id)->get();
+                        foreach ($congViecList as $cv) {
+                            if ($cv->cv_id != $cv_id && $cv->cv_trangthai != 5) {
+                                $isLastRejected = false;
+                                break;
+                            }
+                        }
+                        if ($isLastRejected) {
+                            $keHoach->kh_trangthai = 3; // 3: Từ chối
+                            $keHoach->save();
+                        }
+                    }
+                }
             }
         }
-    
-        return response()->json(['message' => 'Duyệt công việc thành công'], 200);
+
+        return response()->json(['status' => $status], 200);
     }
 
     public function dsCongViecXinGiaHan()
@@ -543,6 +691,77 @@ return response()->json($congViecData, 200);
     
         return response()->json(['message' => 'Phân công công việc cho nhân viên thành công'], 200);
     }
+
+    public function update_CongViec(Request $request)
+{
+    // Kiểm tra và xác thực người dùng
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
+    }
+
+    try {
+            $congViecData = $request->input('congviec', []);
+            $status = []; // Mảng lưu trữ các trạng thái của công việc
+    
+            foreach ($congViecData as $cvData) {
+            $cv_id = $cvData['cv_id'];
+    
+            // Tìm công việc cần sửa
+            $congViec = CongViec::find($cv_id);
+    
+            if (!$congViec) {
+                return response()->json(['message' => 'Không tìm thấy công việc với ID: ' . $cv_id], 404);
+            }
+
+            // Cập nhật thông tin công việc
+            if (isset($cvData['cv_ten'])) {
+                $congViec->cv_ten = $cvData['cv_ten'];
+            }
+
+            if (isset($cvData['cv_stt'])) {
+                $congViec->cv_stt = $cvData['cv_stt'];
+            }
+
+            if (isset($cvData['cv_thgianbatdau'])) {
+                $congViec->cv_thgianbatdau = $cvData['cv_thgianbatdau'];
+            }
+
+            if (isset($cvData['cv_thgianhoanthanh'])) {
+                $congViec->cv_thgianhoanthanh = $cvData['cv_thgianhoanthanh'];
+            }
+
+            if (isset($cvData['cv_tiendo'])) {
+                $congViec->cv_tiendo = $cvData['cv_tiendo'];
+            }
+
+            if (isset($cvData['cv_noidung'])) {
+                $congViec->cv_noidung = $cvData['cv_noidung'];
+            }
+
+            if (isset($cvData['cv_cv_cha'])) {
+                $congViec->cv_cv_cha = $cvData['cv_cv_cha'];
+            }
+
+            if (isset($cvData['cv_trongso'])) {
+                $congViec->cv_trongso = $cvData['cv_trongso'];
+            }
+
+            if (isset($cvData['nv_id_lam'])) {
+                $congViec->nv_id_lam = $cvData['nv_id_lam'];
+            }
+
+            if (isset($cvData['dv_id'])) {
+                $congViec->dv_id = $cvData['dv_id'];
+            }
+
+            $congViec->save();
+        }
+        return response()->json(['message' => 'Cập nhật kế hoạch thành công'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Lỗi khi cập nhật công việc: ' . $e->getMessage()], 500);
+    }
+}
 
     
 }

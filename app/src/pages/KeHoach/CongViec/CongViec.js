@@ -329,7 +329,12 @@ function CongViec() {
 
                                     <th onClick={() => handleSortColumn('dv_id')}>Đơn vị</th>
                                     <th onClick={() => handleSortColumn('nv_id')}>Nhân viên</th>
-                                    <th className={cx('center')} onClick={() => handleSortColumn('cv_tiendo')}>Tiến độ</th>
+                                    <th
+                                        className={cx('center')}
+                                        onClick={() => handleSortColumn('cv_tiendo')}
+                                    >
+                                        Tiến độ
+                                    </th>
                                     <th onClick={() => handleSortColumn('cv_trangthai')}>
                                         Trạng thái
                                     </th>
@@ -445,7 +450,6 @@ function CongViec() {
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
                                             </Tippy>
-
                                         </td>
                                     </tr>
                                 ))}
@@ -458,10 +462,11 @@ function CongViec() {
                                                 name="cv_stt"
                                                 value={sortedCongViec.length + 1}
                                                 onChange={handleNewCongViecInputChange}
-                                            /></td>
+                                            />
+                                        </td>
                                         <td>
                                             <input
-                                                placeholder='Tên công việc'
+                                                placeholder="Tên công việc"
                                                 type="text"
                                                 name="cv_ten"
                                                 value={newCongViec.cv_ten}
@@ -469,10 +474,9 @@ function CongViec() {
                                             />
                                         </td>
                                         <td>
-                                            {/* 
+                                            {/*
                                              */}
                                             <select
-
                                                 name="kh_id"
                                                 value={newCongViec.kh_id}
                                                 onChange={handleNewCongViecInputChange}
@@ -505,7 +509,7 @@ function CongViec() {
                                         </td>
                                         <td>
                                             <input
-                                                placeholder='Mục đích'
+                                                placeholder="Mục đích"
                                                 type="text"
                                                 name="cv_mucdich"
                                                 value={newCongViec.cv_mucdich}
@@ -545,17 +549,27 @@ function CongViec() {
                                         <td>
                                             <input
                                                 className={cx('small-input')}
-                                                placeholder='Trạng thái'
+                                                placeholder="Trạng thái"
                                                 type="number"
                                                 name="cv_trangthai"
-                                                value='0'
+                                                value="0"
                                                 onChange={handleNewCongViecInputChange}
                                             />
                                         </td>
 
                                         <td>
-                                            <button className={cx('save-btn')} onClick={handleCreateNewCongViec}>Lưu</button>
-                                            <button className={cx('cancel-btn')} onClick={handleCancelNewCongViec}>Hủy</button>
+                                            <button
+                                                className={cx('save-btn')}
+                                                onClick={handleCreateNewCongViec}
+                                            >
+                                                Lưu
+                                            </button>
+                                            <button
+                                                className={cx('cancel-btn')}
+                                                onClick={handleCancelNewCongViec}
+                                            >
+                                                Hủy
+                                            </button>
                                         </td>
                                     </tr>
                                 )}
