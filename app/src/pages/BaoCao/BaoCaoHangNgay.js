@@ -827,7 +827,7 @@ function BaoCaoHangNgay() {
                                                                 />
                                                             </td>
                                                         )}
-                                                    <td>
+                                                    <td colSpan="2">
                                                         {bc.bchn_trangthai === '0' && (
                                                             <>
                                                                 {infoUser.nv_quyenthamdinh ===

@@ -321,25 +321,47 @@ class KeHoachController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
         }
-
+        
         try {
             $userId = $user->nv_id;
+            $nhanVien = NhanVien::find($userId);
+        
+            // Kiểm tra nếu không tìm thấy nhân viên
+            if (!$nhanVien) {
+                return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
+            }
+        
+            // Lấy chức vụ và tên của nhân viên đăng nhập
+            $nv_quyen = $nhanVien->nv_quyen;
+            $nv_quyenthamdinh = $nhanVien->nv_quyenthamdinh;
+           
             $keHoachId = $request->input('kh_id'); // Lấy ID kế hoạch từ request
-
+        
             // Lấy thông tin kế hoạch dựa trên keHoachId
             $keHoach = KeHoach::withCount('congViecs')->find($keHoachId);
-
+        
             if (!$keHoach) {
                 return response()->json(['message' => 'Không tìm thấy kế hoạch'], 404);
             }
-
-            // Lấy danh sách công việc dựa trên các tham số CV_ID, CV_CVCha và keHoachId của người dùng đang đăng nhập
-            $danhSachCongViec = CongViec::where('nv_id', $userId)
-                ->whereHas('keHoachs', function ($query) use ($keHoachId) {
+        
+            $danhSachCongViec = CongViec::whereHas('keHoachs', function ($query) use ($keHoachId) {
                     $query->where('kh_id', $keHoachId);
                 })
-                ->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs', 'nhanVienLam')
-                ->get();
+                ->with('nhanVien', 'keHoachs', 'duAns', 'nhomCongViecs', 'donVi', 'cv_cv_cha', 'loaiCongViecs', 'nhanVienLam');
+        
+            if ($nv_quyen === 'ld' && $nv_quyenthamdinh == 1) {
+                // Hiển thị công việc có trạng thái là 1
+                $danhSachCongViec = $danhSachCongViec->whereNotIn('cv_trangthai', [0])->get();
+            } elseif ($nv_quyen === 'nv' && $nv_quyenthamdinh == 1) {
+                // Hiển thị tất cả công việc
+                $danhSachCongViec = $danhSachCongViec->get();
+                // Không cần thêm điều kiện
+            } else {
+                // Không có quyền truy cập
+                return response()->json(['message' => 'Bạn không có quyền truy cập', 'nv_quyen' => $nv_quyen, 'nv_quyenthamdinh' => $nv_quyenthamdinh], 403);
+            }
+        
+           
 
             // Tạo một mảng chứa thông tin các công việc
             $congViecData = [];
@@ -357,8 +379,7 @@ class KeHoachController extends Controller
                 $congViecCha = null;
 
                 if ($cv_cv_cha) {
-                    // Nếu tồn tại giá trị cv_cv_cha, truy xuất công việc cha dựa trên cv_id
-                    $congViecCha = CongViec::find($cv_cv_cha);
+                    // Nếu tồn tại giá trị cv_cv_cha, truy xuất công việc cha dựa trên cv_id$congViecCha = CongViec::find($cv_cv_cha);
                 }
 
                 // Tạo một mảng chứa thông tin của công việc
@@ -374,46 +395,46 @@ class KeHoachController extends Controller
                     'cv_hanhoanthanh' => date('d-m-Y', strtotime($congViec->cv_hanhoanthanh)),
                     'cv_tgthuchien' => $congViec->cv_tgthuchien,
                     // Thêm các thông tin khác của công việc cần lấy
-                    'nhan_vien' => $nhanVien ? ['ten_nhan_vien' => $nhanVien->nv_ten,
-                    // Thêm các thông tin khác của nhân viên cần lấy
-                ] : null,
-                'ke_hoach' => $keHoachs ? [
-                    'ten_ke_hoach' => $keHoachs->kh_ten,
-                    'tong_cong_viec' => $keHoach->cong_viecs_count,
-                    // Thêm các thông tin khác của keHoachs cần lấy
-                ] : null,
-                'du_an' => $duAns ? [
-                    'ten_du_an' => $duAns->da_ten,
-                    // Thêm các thông tin khác của duAns cần lấy
-                ] : null,
-                'nhom_cong_viec' => $nhomCongViecs ? [
-                    'ten_nhom_cong_viec' => $nhomCongViecs->n_cv_ten,
-                    // Thêm các thông tin khác của nhomCongViecs cần lấy
-                ] : null,
-                'cong_viec_cha' => $congViecCha ? [
-                    'ten_cong_viec_cha' => $congViecCha->cv_ten,
-                    // Thêm các thông tin khác của công việc cha cần lấy
-                ] : null,
-                'don_vi' => $donVi ? [
-                    'ten_don_vi' => $donVi->dv_ten,
-                    // Thêm các thông tin khác của donVi cần lấy
-                ] : null,
-                'nhan_vien_lam' => $nhanVienLam ? [
-                    'ten_nhan_vien' => $nhanVienLam->nv_ten,
-                    'don_vi' => $nhanVienLam->donVi ? $nhanVienLam->donVi->dv_ten : null,
-                    // Thêm các thông tin khác của nhân viên cần lấy
-                ] : null,
-                
-            ];
+                    'nhan_vien' => $nhanVien ? [
+                        'ten_nhan_vien' => $nhanVien->nv_ten,
+                        // Thêm các thông tin khác của nhân viên cần lấy
+                    ] : null,
+                    'ke_hoach' => $keHoachs ? [
+                        'ten_ke_hoach' => $keHoachs->kh_ten,
+                        'tong_cong_viec' => $keHoach->cong_viecs_count,
+                        // Thêm các thông tin khác của keHoachs cần lấy
+                    ] : null,
+                    'du_an' => $duAns ? [
+                        'ten_du_an' => $duAns->da_ten,
+                        // Thêm các thông tin khác của duAns cần lấy
+                    ] : null,
+                    'nhom_cong_viec' => $nhomCongViecs ? [
+                        'ten_nhom_cong_viec' => $nhomCongViecs->n_cv_ten,
+                        // Thêm các thông tin khác của nhomCongViecs cần lấy
+                    ] : null,
+                    'cong_viec_cha' => $congViecCha ? [
+                        'ten_cong_viec_cha' => $congViecCha->cv_ten,
+                        // Thêm các thông tin khác của công việc cha cần lấy
+                    ] : null,
+                    'don_vi' => $donVi ? [
+                        'ten_don_vi' => $donVi->dv_ten,
+                        // Thêm các thông tin khác của donVi cần lấy
+                    ] : null,
+                    'nhan_vien_lam' => $nhanVienLam ? [
+                        'ten_nhan_vien' => $nhanVienLam->nv_ten,
+                        'don_vi' => $nhanVienLam->donVi ? $nhanVienLam->donVi->dv_ten : null,
+                        // Thêm các thông tin khác của nhân viên cần lấy
+                    ] : null,
+                    
+                ];
 
-            // Thêm công việc vào mảng chứa thông tin
-            $congViecData[] = $congViecItem;
-        }
+                // Thêm công việc vào mảng chứa thông tin
+                $congViecData[] = $congViecItem;
+            }
 
-        // Trả về dữ liệu JSON
-        return response()->json([
-            'ke_hoach' => [
-                'ten_ke_hoach' => $keHoach->kh_ten,
+            // Trả về dữ liệu JSON
+            return response()->json([
+                'ke_hoach' => ['ten_ke_hoach' => $keHoach->kh_ten,
                 'tong_cong_viec' => $keHoach->cong_viecs_count,
             ],
             'danh_sach_cong_viec' => $congViecData,
