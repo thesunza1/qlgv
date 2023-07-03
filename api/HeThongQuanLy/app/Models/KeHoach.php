@@ -14,6 +14,12 @@ class KeHoach extends Model
     
     protected $fillable = [
         'kh_ten',
+        'kh_stt',
+        'kh_loaikehoach',
+        'kh_thgianbatdau',
+        'kh_thgianketthuc',
+        'kh_tongthgian',
+        'kh_trangthai',
        
     ];
     public function nhanVien(){

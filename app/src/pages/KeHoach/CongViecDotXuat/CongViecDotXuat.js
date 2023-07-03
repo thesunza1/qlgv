@@ -36,13 +36,12 @@ function BangCongViec() {
     const [infoUser, setInfoUser] = useState([]);
 
     const PER_PAGE = 10;
-
+    const getListCongViec = async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`, {});
+        setListCongViec(response.data.danh_sach_cv_dot_xuat);
+    };
     useEffect(() => {
-        const getListCongViec = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`, {});
-            setListCongViec(response.data.danh_sach_cv_dot_xuat);
-        };
         getListCongViec();
     }, []);
 
@@ -54,7 +53,16 @@ function BangCongViec() {
             })),
         );
     }, [listCongViec]);
-
+    const loadCongViec = async () => {
+        await getListCongViec();
+        setDSCongViec(
+            listCongViec.map((cv) => ({
+                ...cv,
+                isEdit: false,
+            })),
+        );
+        await getDisplayCongViec();
+    };
     useEffect(() => {
         const getInfoUser = async () => {
             const token = localStorage.getItem('Token');
@@ -223,7 +231,7 @@ function BangCongViec() {
             cogoToast.success(`Công việc đột xuất đã được thêm`, {
                 position: 'top-right',
             });
-            window.location.reload();
+            loadCongViec();
         }
     };
 
@@ -244,7 +252,7 @@ function BangCongViec() {
                 swal(`${cv.cv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
+                loadCongViec();
             } else {
                 return;
             }
@@ -332,7 +340,7 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            loadCongViec();
             cogoToast.success(`Công việc đã được cập nhật`, {
                 position: 'top-right',
             });

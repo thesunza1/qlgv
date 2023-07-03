@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faSearch,
     faAnglesLeft,
     faAnglesRight,
     faEnvelope,
     faList,
+    faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -15,7 +15,7 @@ import axiosClient from '~/api/axiosClient';
 import classNames from 'classnames/bind';
 import styles from './KeHoachThang.module.scss';
 import CongViecDotXuat from '../CongViecDotXuat/CongViecDotXuat';
-
+import 'moment/locale/vi';
 const cx = classNames.bind(styles);
 
 function KeHoachThang() {
@@ -25,17 +25,27 @@ function KeHoachThang() {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
+    const [filterName, setFilterName] = useState('');
+    const [filterState, setFilterState] = useState('');
+    const [filterDateStart, setFilterDateStart] = useState('');
+    const [dSNhanVien, setDSNhanVien] = useState([]);
     const PER_PAGE = 15;
-
+    const getListProduct = async () => {
+        var now = new Date();
+        let month = now.getMonth();
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CV_Thang/${month}/?token=${token}`);
+        setDSKeHoach(response.data.cong_viecs);
+    };
     useEffect(() => {
-        const getListProduct = async () => {
-            var now = new Date();
-            let month = now.getMonth();
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CV_Thang/${month + 1}/?token=${token}`);
-            setDSKeHoach(response.data.cong_viecs);
-        };
         getListProduct();
+    }, []);
+    useEffect(() => {
+        const getListNhanVien = async () => {
+            const response = await axiosClient.get('/get_NhanVien');
+            setDSNhanVien(response.data.nhanViens);
+        };
+        getListNhanVien();
     }, []);
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
@@ -49,6 +59,20 @@ function KeHoachThang() {
     const handleSearchInputChange = (event) => {
         setSearchText(event.target.value);
         setCurrentPage(0);
+    };
+    const handleFilterName = (event) => {
+        setFilterName(event.target.value);
+    };
+
+    const handleFilterState = (event) => {
+        setFilterState(event.target.value);
+    };
+
+    const handleReset = () => {
+        setSearchText('');
+        setFilterName('');
+        setFilterState('');
+        setFilterDateStart('');
     };
 
     const sortedKeHoach = useMemo(() => {
@@ -70,12 +94,17 @@ function KeHoachThang() {
     }, [dSKeHoach, sortColumn, sortDirection]);
 
     const getDisplayKeHoach = useCallback(() => {
-        const filteredKeHoach = sortedKeHoach.filter((cv) =>
-            cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
+        const filteredCongViec = sortedKeHoach.filter(
+            (cv) =>
+                cv.cv_ten &&
+                cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()) &&
+                (filterName === '' || cv.nv_id.toString() === filterName) &&
+                (filterState === '' || cv.cv_trangthai === filterState) &&
+                (filterDateStart === '' || cv.cv_thgianbatdau === filterDateStart),
         );
         const startIndex = currentPage * PER_PAGE;
-        return filteredKeHoach.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedKeHoach, searchText, currentPage]);
+        return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
+    }, [sortedKeHoach, currentPage, searchText, filterName, filterState, filterDateStart]);
 
     const totalPage = Math.ceil(sortedKeHoach.length / PER_PAGE);
 
@@ -104,24 +133,60 @@ function KeHoachThang() {
     return (
         <>
             <div className={cx('wrapper')}>
-                <div className={cx('inner')}>
-                    <div className={cx('title')}>
-                        <h2>Công việc trong tháng {month + 1}</h2>
-                    </div>
-                    <div className={cx('features')}>
+                <div className={cx('title')}>
+                    <div className={cx('list')}>
                         <Link to="/qlcv/congviec" className={cx('list-btn')}>
                             <FontAwesomeIcon icon={faList} /> Danh sách công việc
                         </Link>
-                        <div className={cx('search')}>
+                    </div>
+                    <h2>Công việc trong tháng {month + 1}</h2>
+                </div>
+                <div className={cx('features')}>
+                    <div className={cx('filter')}>
+                        <div className={cx('filter-item')}>
                             <input
                                 type="search"
-                                placeholder="Tìm kiếm công việc"
+                                required
                                 value={searchText}
                                 onChange={handleSearchInputChange}
                             />
-                            <FontAwesomeIcon icon={faSearch} />
+                            <div className={cx('label')}>Tên công việc</div>
+                        </div>
+                        <div className={cx('filter-item')}>
+                            <select value={filterName} onChange={handleFilterName}>
+                                <option value="">Tất cả</option>
+                                {dSNhanVien.map((nv) => (
+                                    <option key={nv.nv_id} value={nv.nv_ten}>
+                                        {nv.nv_ten}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className={cx('label', 'name')}>Người lập</div>
+                        </div>
+                        <div className={cx('filter-item')}>
+                            <input type="date" required />
+                            <div className={cx('label', 'date-end')}>Hạn hoàn thành</div>
+                        </div>
+                        <div className={cx('filter-item')}>
+                            <select value={filterState} onChange={handleFilterState}>
+                                <option value="">Tất cả</option>
+                                <option value="0">Đang soạn</option>
+                                <option value="1">Chờ duyệt</option>
+                                <option value="2">Đang thực hiện</option>
+                                <option value="3">Hoàn thành</option>
+                                <option value="4">Quá hạn</option>
+                                <option value="5">Từ chối</option>
+                            </select>
+                            <div className={cx('label', 'name')}>Trạng thái</div>
                         </div>
                     </div>
+                    <div className={cx('handle-features')}>
+                        <button className={cx('reset-btn')} onClick={handleReset}>
+                            <FontAwesomeIcon icon={faRotateRight} /> Reset
+                        </button>
+                    </div>
+                </div>
+                <div className={cx('inner')}>
                     {displayedKeHoach.length > 0 ? (
                         <>
                             <table className={cx('table')}>
@@ -139,7 +204,7 @@ function KeHoachThang() {
                                         </th>
                                         <th
                                             className={cx('center')}
-                                            onClick={() => handleSortColumn('cv_thgianhoanthanh')}
+                                            onClick={() => handleSortColumn('cv_hanhoanthanh')}
                                         >
                                             <span>Ngày hết hạn</span>
                                         </th>
@@ -162,8 +227,8 @@ function KeHoachThang() {
                                                     : '-'}
                                             </td>
                                             <td className={cx('center')}>
-                                                {cv.cv_thgianhoanthanh
-                                                    ? cv.cv_thgianhoanthanh.split(' ')[0]
+                                                {cv.cv_hanhoanthanh
+                                                    ? cv.cv_hanhoanthanh.split(' ')[0]
                                                     : '-'}
                                             </td>
                                             <td>{cv.cv_noidung ? cv.cv_noidung : '-'}</td>
@@ -187,27 +252,6 @@ function KeHoachThang() {
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                {/* <Link to={`${cv.cv_id}/nhanvien`}>
-                                                    <Tippy content="Xem chi tiết" placement="bottom">
-                                                        <button className={cx('handle', 'view-btn')}>
-                                                            <FontAwesomeIcon icon={faAdd} />
-                                                        </button>
-                                                    </Tippy>
-                                                </Link> */}
-                                                {/* <Link to={`chinhsua`}>
-                                                    <Tippy content="Chỉnh sửa" placement="bottom">
-                                                        <button
-                                                            className={cx('handle', 'edit-btn')}
-                                                        >
-                                                            <FontAwesomeIcon icon={faPenToSquare} />
-                                                        </button>
-                                                    </Tippy>
-                                                </Link>
-                                                <Tippy content="Xóa" placement="bottom">
-                                                    <button className={cx('handle', 'delete-btn')}>
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </button>
-                                                </Tippy> */}
                                             </td>
                                         </tr>
                                     ))}

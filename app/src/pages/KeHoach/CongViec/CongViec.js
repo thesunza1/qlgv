@@ -14,7 +14,9 @@ import {
     faXmarkCircle,
     faCircleArrowLeft,
     faListCheck,
-    faSearch,
+    faRotateRight,
+    faCheckCircle,
+    faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -25,6 +27,8 @@ import styles from './CongViec.module.scss';
 import cogoToast from 'cogo-toast';
 import swal from 'sweetalert';
 import { Link } from 'react-router-dom';
+import Moment from 'moment';
+import 'moment/locale/vi';
 
 const cx = classNames.bind(styles);
 
@@ -41,17 +45,21 @@ function BangCongViec() {
     const [infoUser, setInfoUser] = useState([]);
     const [searchText, setSearchText] = useState('');
 
+    const [filterName, setFilterName] = useState('');
+    const [filterKH, setFilterKH] = useState('');
+    const [filterState, setFilterState] = useState('');
+    const [filterDateStart, setFilterDateStart] = useState('');
+
     const PER_PAGE = 10;
 
     useEffect(() => {
-        const getListCongViec = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CongViec?token=${token}`, {});
-            setListCongViec(response.data);
-        };
         getListCongViec();
     }, []);
-
+    const getListCongViec = async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CongViec?token=${token}`, {});
+        setListCongViec(response.data);
+    };
     useEffect(() => {
         setDSCongViec(
             listCongViec.map((cv) => ({
@@ -60,6 +68,16 @@ function BangCongViec() {
             })),
         );
     }, [listCongViec]);
+    const loadCongViec = async () => {
+        await getListCongViec();
+        setDSCongViec(
+            listCongViec.map((cv) => ({
+                ...cv,
+                isEdit: false,
+            })),
+        );
+        await getDisplayCongViec();
+    };
 
     useEffect(() => {
         const getInfoUser = async () => {
@@ -107,8 +125,6 @@ function BangCongViec() {
                 return <button className={cx('b3')}>Hoàn thành</button>;
             case '4':
                 return <button className={cx('b4')}>Quá hạn</button>;
-            case '5':
-                return <button className={cx('b4')}>Từ chối</button>;
             default:
                 return <button className={cx('b5')}>Từ chối</button>;
         }
@@ -144,13 +160,64 @@ function BangCongViec() {
         setSearchText(event.target.value);
         setCurrentPage(0);
     };
+    const handleFilterName = (event) => {
+        setFilterName(event.target.value);
+    };
+
+    const handleFilterKH = (event) => {
+        setFilterKH(event.target.value);
+    };
+    const handleFilterState = (event) => {
+        setFilterState(event.target.value);
+    };
+
+    const handleFilterDateStart = (event) => {
+        const selectedDate = event.target.value;
+
+        if (selectedDate) {
+            const filteredData = displayedCongViec.filter((item) => {
+                const itemDate = Moment(item.kh_thgianbatdau, 'DD-MM-YYYY');
+                const selectedDateObj = Moment(selectedDate, 'YYYY-MM-DD');
+
+                return itemDate.isSameOrAfter(selectedDateObj);
+            });
+
+            setFilterDateStart(selectedDate);
+            setDisplayedCongViec(filteredData);
+        } else {
+            setFilterDateStart('');
+            setDisplayedCongViec('');
+        }
+    };
+
+    const handleReset = () => {
+        setSearchText('');
+        setFilterName('');
+        setFilterState('');
+        setFilterDateStart('');
+    };
     const getDisplayCongViec = useCallback(() => {
         const filteredCongViec = sortedCongViec.filter(
-            (cv) => cv.cv_ten && cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()),
+            (cv) =>
+                cv.cv_ten &&
+                cv.cv_ten.toLowerCase().includes(searchText.toLowerCase()) &&
+                (filterName === '' || cv.nv_id.toString() === filterName) &&
+                (filterState === '' || cv.cv_trangthai === filterState) &&
+                (filterDateStart === '' || cv.cv_thgianbatdau === filterDateStart) &&
+                (filterKH === '' || cv.kh_id === filterKH),
         );
         const startIndex = currentPage * PER_PAGE;
         return filteredCongViec.slice(startIndex, startIndex + PER_PAGE) || [];
-    }, [sortedCongViec, searchText, currentPage]);
+    }, [
+        sortedCongViec,
+
+        currentPage,
+        searchText,
+        filterName,
+        filterState,
+        filterDateStart,
+        filterKH,
+    ]);
 
     useEffect(() => {
         const updatedDisplayedCongViec = getDisplayCongViec();
@@ -162,7 +229,6 @@ function BangCongViec() {
     const handlePageClick = ({ selected: selectedPage }) => {
         setCurrentPage(selectedPage);
     };
-
     // Thêm công việc
     const [newRows, setNewRows] = useState([]);
 
@@ -240,10 +306,11 @@ function BangCongViec() {
             });
 
             if (response.status === 200) {
+                await loadCongViec();
                 cogoToast.success(`Công việc đã được thêm cho khách hàng ${kh_id}`, {
                     position: 'top-right',
                 });
-                window.location.reload();
+                handleCancelNewRows();
             }
         }
     };
@@ -265,7 +332,7 @@ function BangCongViec() {
                 swal(`${cv.cv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
+                await loadCongViec();
             } else {
                 return;
             }
@@ -345,7 +412,6 @@ function BangCongViec() {
                 cv_hanhoanthanh,
             });
         }
-        console.log(congviec);
 
         const token = localStorage.getItem('Token');
 
@@ -354,12 +420,13 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadCongViec();
             cogoToast.success(`Công việc đã được cập nhật`, {
                 position: 'top-right',
             });
         }
     };
+
     function convertDateFormat(dateString) {
         const parts = dateString.split('-');
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -375,8 +442,25 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadCongViec();
             cogoToast.success(`Công việc đã từ chối`, {
+                position: 'top-right',
+            });
+        }
+    };
+
+    // Duyệt công việc
+    const handleDuyetCongViec = async (cvID) => {
+        const token = localStorage.getItem('Token');
+        const data = [{ cv_ids: cvID, cv_trangthai: '2' }];
+
+        const response = await axiosClient.post('/duyet_CongViec', data, {
+            params: { token: token },
+        });
+
+        if (response.status === 200) {
+            await loadCongViec();
+            cogoToast.success(`Công việc đã được duyệt`, {
                 position: 'top-right',
             });
         }
@@ -391,40 +475,99 @@ function BangCongViec() {
 
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('inner')}>
-                <div className={cx('title')}>
-                    <h2>
-                        {' '}
-                        <Link to="/qlcv/kehoach">
-                            <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
-                        </Link>
-                        Công Việc
-                    </h2>
-                </div>
-                <div className={cx('features')}>
+            <div className={cx('title')}>
+                <div className={cx('list')}>
                     <Link to="dsxingiahan" className={cx('list-btn')}>
                         <FontAwesomeIcon icon={faListCheck} /> Danh sách xin gia hạn
                     </Link>
-                    <div className={cx('search')}>
+                </div>
+
+                <h2>
+                    <Link to="/qlcv/kehoach">
+                        <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
+                    </Link>
+                    Công Việc
+                </h2>
+            </div>
+            <div className={cx('features')}>
+                <div className={cx('filter')}>
+                    <div className={cx('filter-item')}>
                         <input
                             type="search"
-                            placeholder="Tìm kiếm công việc"
+                            required
                             value={searchText}
                             onChange={handleSearchInputChange}
                         />
-                        <FontAwesomeIcon icon={faSearch} />
+                        <div className={cx('label')}>Tên công việc</div>
                     </div>
-                    {infoUser.nv_quyen === 'ld' && (
-                        <div className={cx('btn-group')}>
+                    <div className={cx('filter-item')}>
+                        <select value={filterKH} onChange={handleFilterKH}>
+                            <option value=""> Tất cả </option>
+                            {dSKeHoach.map((kh) => (
+                                <option key={kh.kh_id} value={kh.kh_id}>
+                                    {kh.kh_ten}
+                                </option>
+                            ))}
+                        </select>
+                        <div className={cx('label')}>Tên kế hoạch</div>
+                    </div>
+                    <div className={cx('filter-item')}>
+                        <select value={filterName} onChange={handleFilterName}>
+                            <option value="">Tất cả</option>
+                            {dSNhanVien.map((nv) => (
+                                <option key={nv.nv_id} value={nv.nv_ten}>
+                                    {nv.nv_ten}
+                                </option>
+                            ))}
+                        </select>
+                        <div className={cx('label', 'name')}>Người lập</div>
+                    </div>
+                    <div className={cx('filter-item')}>
+                        <input
+                            type="date"
+                            required
+                            value={filterDateStart}
+                            onChange={handleFilterDateStart}
+                        />
+                        <div className={cx('label', 'date-start')}>Thời gian bắt đầu</div>
+                    </div>
+                    <div className={cx('filter-item')}>
+                        <input type="date" required />
+                        <div className={cx('label', 'date-end')}>Hạn hoàn thành</div>
+                    </div>
+                    <div className={cx('filter-item')}>
+                        <select value={filterState} onChange={handleFilterState}>
+                            <option value="">Tất cả</option>
+                            <option value="0">Đang soạn</option>
+                            <option value="1">Chờ duyệt</option>
+                            <option value="2">Đang thực hiện</option>
+                            <option value="3">Hoàn thành</option>
+                            <option value="4">Quá hạn</option>
+                            <option value="5">Từ chối</option>
+                        </select>
+                        <div className={cx('label', 'name')}>Trạng thái</div>
+                    </div>
+                </div>
+                <div className={cx('handle-features')}>
+                    <button className={cx('reset-btn')} onClick={handleReset}>
+                        <FontAwesomeIcon icon={faRotateRight} /> Reset
+                    </button>
+                    <div>
+                        {infoUser.nv_quyen !== 'ld' && (
                             <button className={cx('add-btn')} onClick={handleAddNewRow}>
                                 <FontAwesomeIcon icon={faPlus} /> Thêm hàng
                             </button>
+                        )}
+
+                        {newRows.length > 0 && (
                             <button className={cx('save-btn')} onClick={handleThemCongViec}>
                                 <FontAwesomeIcon icon={faSave} /> Lưu
                             </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
+            </div>
+            <div className={cx('inner')}>
                 <table className={cx('table')}>
                     <thead>
                         <tr>
@@ -737,6 +880,53 @@ function BangCongViec() {
                                                                 </button>
                                                             </Tippy>
                                                         )}
+                                                    {infoUser.nv_quyen === 'ld' &&
+                                                        cv.cv_trangthai === '1' && (
+                                                            <Tippy
+                                                                content="Duyệt công việc"
+                                                                placement="bottom"
+                                                            >
+                                                                <button
+                                                                    className={cx(
+                                                                        'handle',
+                                                                        'apply',
+                                                                    )}
+                                                                    onClick={() =>
+                                                                        handleDuyetCongViec(
+                                                                            cv.cv_id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <FontAwesomeIcon
+                                                                        icon={faCheckCircle}
+                                                                    />
+                                                                </button>
+                                                            </Tippy>
+                                                        )}
+                                                    {(cv.cv_trangthai === '0' ||
+                                                        cv.cv_trangthai === '1' ||
+                                                        cv.cv_trangthai === '2') && (
+                                                        <Link
+                                                            to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_hanhoanthanh}/xingiahan`}
+                                                        >
+                                                            <Tippy
+                                                                content="Xin gia hạn"
+                                                                placement="bottom"
+                                                            >
+                                                                <button
+                                                                    className={cx(
+                                                                        'handle',
+                                                                        'view-btn',
+                                                                    )}
+                                                                >
+                                                                    <FontAwesomeIcon
+                                                                        icon={faEnvelope}
+                                                                    />
+                                                                </button>
+                                                            </Tippy>
+                                                        </Link>
+                                                    )}
+
                                                     {(cv.cv_trangthai === '0' ||
                                                         cv.cv_trangthai === '1' ||
                                                         cv.cv_trangthai === '2') && (
