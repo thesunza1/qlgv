@@ -13,10 +13,10 @@
             font-size: 1.5rem;
             font-weight: 500;
             border-radius: 3px;
-            background: linear-gradient(#c9c9c9, #c2c2c2);
+            background: linear-gradient(#d9d9d9, #dadada);
     
             &:hover {
-                background: linear-gradient(#d9d9d9, #dadada);
+                background: linear-gradient(#c6c6c6, #c7c7c7);
                 outline: 1.5px solid #0087E1;
             }
     
@@ -157,11 +157,10 @@
     
     .add-btn {
         margin-right: 10px;
-        padding: 6px 8px;
-        font-size: 1.5rem;
-        font-weight: 500;
-        border-radius: 3px;
-        color: #e2e2e2;
+        padding: 7px;
+        font-size: 1.4rem;
+        border-radius: 5px;
+        color: #e3e3e3;
         background: linear-gradient(#27ae60, #1e8449);
         cursor: pointer;
     
@@ -402,7 +401,7 @@ button {
 }
 
 .b1 {
-    background-color: #d0e595;
+    background-color: #9ab64f;
     width: 130px;
     color: white;
 }

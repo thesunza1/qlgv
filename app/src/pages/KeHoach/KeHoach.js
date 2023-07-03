@@ -55,14 +55,13 @@ function KeHoach() {
     const PER_PAGE = 10;
 
     useEffect(() => {
-        const getListProduct = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
-            setListKeHoach(response.data.ke_hoachs || []);
-        };
         getListProduct();
     }, []);
-
+    const getListProduct = async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
+        setListKeHoach(response.data.ke_hoachs || []);
+    };
     useEffect(() => {
         setDSKeHoach(
             listKeHoach.map((cv) => ({
@@ -273,6 +272,17 @@ function KeHoach() {
         return expandedRows.includes(rowId);
     };
 
+    const loadKeHoach = async () => {
+        await getListProduct();
+        setDSKeHoach(
+            listKeHoach.map((cv) => ({
+                ...cv,
+                isEdit: false,
+            })),
+        );
+        await getDisplayKeHoach();
+    };
+
     // Duyệt kế hoạch
     const handleNopKeHoach = async (khID) => {
         const token = localStorage.getItem('Token');
@@ -283,7 +293,7 @@ function KeHoach() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadKeHoach();
             cogoToast.success(`Kế hoạch đã được nộp`, {
                 position: 'top-right',
             });
@@ -367,7 +377,7 @@ function KeHoach() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadKeHoach();
             cogoToast.success('Kế hoạch đã được thêm', {
                 position: 'top-right',
             });
