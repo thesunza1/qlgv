@@ -19,6 +19,8 @@ import axiosClient from '~/api/axiosClient';
 import swal from 'sweetalert';
 import classNames from 'classnames/bind';
 import styles from './DonVi.module.scss';
+import ThemDonVi from './ThemDonVi';
+import ChinhSuaDonVi from './ChinhSuaDonVi';
 
 const cx = classNames.bind(styles);
 
@@ -28,16 +30,32 @@ function DonVi() {
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
+    const [infoUser, setInfoUser] = useState([]);
 
-    const PER_PAGE = 7;
+    const PER_PAGE = 8;
+
+    const getListDonVi = async () => {
+        const response = await axiosClient.get('/get_DonVi');
+        setDSDonVi(response.data.don_vis);
+    };
 
     useEffect(() => {
-        const getListProduct = async () => {
-            const response = await axiosClient.get('/get_DonVi');
-            setDSDonVi(response.data.don_vis);
-        };
-        getListProduct();
+        getListDonVi();
     }, []);
+
+    useEffect(() => {
+        const getInfoUser = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/user-info?token=${token}`);
+            setInfoUser(response.data.result);
+        };
+        getInfoUser();
+    }, []);
+
+    const loadDonVi = async () => {
+        await getListDonVi();
+        await getDisplayDonVi();
+    };
 
     const handleXoaDonVi = (dv) => {
         swal({
@@ -52,10 +70,10 @@ function DonVi() {
                 await axiosClient.delete('/delete_DonVi', {
                     data: { deletedv_ids },
                 });
+                await loadDonVi();
                 swal(`${dv.dv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
             } else {
                 return;
             }
@@ -110,10 +128,51 @@ function DonVi() {
             : dSDonVi.length;
     const total = dSDonVi.length;
 
+    // Thêm đơn vị
+    const [isOpenAdd, setIsOpenAdd] = useState(false);
+
+    const togglePopupAdd = () => {
+        setIsOpenAdd(!isOpenAdd);
+    };
+
+    // Chỉnh sửa đơn vị
+    const [donViID, setDonViID] = useState(null);
+    const [isOpenEdit, setIsOpenEdit] = useState(false);
+
+    const togglePopupEdit = (dvID) => {
+        setDonViID(dvID);
+        setIsOpenEdit(!isOpenEdit);
+    };
+
     return (
-        <div className={cx('wrapper')}>
-            <h2>Danh sách đơn vị</h2>
-            <div className={cx('inner')}>
+        <div>
+            <div>
+                {isOpenAdd && (
+                    <div className={cx('popup')}>
+                        <div className={cx('popup-content')}>
+                            <ThemDonVi
+                                togglePopupAdd={togglePopupAdd}
+                                setIsOpenAdd={setIsOpenAdd}
+                                loadDonVi={loadDonVi}
+                            />
+                        </div>
+                    </div>
+                )}
+                {isOpenEdit && (
+                    <div className={cx('popup')}>
+                        <div className={cx('popup-content')}>
+                            <ChinhSuaDonVi
+                                togglePopupEdit={togglePopupEdit}
+                                setIsOpenEdit={setIsOpenEdit}
+                                loadDonVi={loadDonVi}
+                                donViID={donViID}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div className={cx('wrapper')}>
+                <h2>Danh sách đơn vị</h2>
                 <div className={cx('features')}>
                     <div className={cx('search')}>
                         <input
@@ -124,113 +183,137 @@ function DonVi() {
                         />
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
-                    <Link to="them" className={cx('add-btn')}>
-                        <FontAwesomeIcon icon={faPlus} /> Thêm
-                    </Link>
+                    {infoUser.nv_quyen === 'ld' && (
+                        <button className={cx('add-btn')} onClick={togglePopupAdd}>
+                            <FontAwesomeIcon icon={faPlus} /> Thêm
+                        </button>
+                    )}
                 </div>
-                {displayedDonVi.length > 0 ? (
-                    <>
-                        <table className={cx('table')}>
-                            <thead>
-                                <tr>
-                                    <th>STT</th>
-                                    <th onClick={() => handleSortColumn('dv_ten')}>
-                                        <span>Tên đơn vị</span>
-                                        {sortColumn === 'dv_ten' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
-                                    <th onClick={() => handleSortColumn('dv_id_dvtruong')}>
-                                        <span>Đơn vị trưởng</span>
-                                        {sortColumn === 'dv_id_dvtruong' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
-                                    <th onClick={() => handleSortColumn('dv_dvcha')}>
-                                        <span>Đơn vị cha</span>
-                                        {sortColumn === 'dv_dvcha' && (
-                                            <FontAwesomeIcon
-                                                icon={
-                                                    sortDirection === 'asc'
-                                                        ? faArrowUp
-                                                        : faArrowDown
-                                                }
-                                                className={cx('icon')}
-                                            />
-                                        )}
-                                    </th>
-                                    <th>Xử lý</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {displayedDonVi.map((dv, index) => (
-                                    <tr key={dv.dv_id}>
-                                        <td>{index + 1 + currentPage * PER_PAGE}</td>
-                                        <td>{dv.dv_ten}</td>
-                                        <td>{dv.dv_id_dvtruong?.nv_ten}</td>
-                                        <td>{dv.dv_dvcha?.dv_ten}</td>
-                                        <td>
-                                            <Link to={`${dv.dv_id}/nhanvien`}>
-                                                <Tippy content="Xem chi tiết" placement="bottom">
-                                                    <button className={cx('handle', 'view-btn')}>
-                                                        <FontAwesomeIcon icon={faEye} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link>
-                                            <Link to={`${dv.dv_id}/chinhsua`}>
-                                                <Tippy content="Chỉnh sửa" placement="bottom">
-                                                    <button className={cx('handle', 'edit-btn')}>
-                                                        <FontAwesomeIcon icon={faPenToSquare} />
-                                                    </button>
-                                                </Tippy>
-                                            </Link>
-                                            <Tippy content="Xóa" placement="bottom">
-                                                <button
-                                                    className={cx('handle', 'delete-btn')}
-                                                    onClick={() => handleXoaDonVi(dv)}
-                                                >
-                                                    <FontAwesomeIcon icon={faTrash} />
-                                                </button>
-                                            </Tippy>
-                                        </td>
+                <div className={cx('inner')}>
+                    {displayedDonVi.length > 0 ? (
+                        <>
+                            <table className={cx('table')}>
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th onClick={() => handleSortColumn('dv_ten')}>
+                                            <span>Tên đơn vị</span>
+                                            {sortColumn === 'dv_ten' && (
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        sortDirection === 'asc'
+                                                            ? faArrowUp
+                                                            : faArrowDown
+                                                    }
+                                                    className={cx('icon')}
+                                                />
+                                            )}
+                                        </th>
+                                        <th onClick={() => handleSortColumn('dv_id_dvtruong')}>
+                                            <span>Đơn vị trưởng</span>
+                                            {sortColumn === 'dv_id_dvtruong' && (
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        sortDirection === 'asc'
+                                                            ? faArrowUp
+                                                            : faArrowDown
+                                                    }
+                                                    className={cx('icon')}
+                                                />
+                                            )}
+                                        </th>
+                                        <th onClick={() => handleSortColumn('dv_dvcha')}>
+                                            <span>Đơn vị cha</span>
+                                            {sortColumn === 'dv_dvcha' && (
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        sortDirection === 'asc'
+                                                            ? faArrowUp
+                                                            : faArrowDown
+                                                    }
+                                                    className={cx('icon')}
+                                                />
+                                            )}
+                                        </th>
+                                        <th>Xử lý</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {sortedDonVi.length > PER_PAGE && (
-                            <div className={cx('paginate')}>
-                                {startIndex}-{endIndex} của {total}
-                                <ReactPaginate
-                                    previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
-                                    nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
-                                    breakLabel={'...'}
-                                    pageCount={totalPage}
-                                    marginPagesDisplayed={1}
-                                    pageRangeDisplayed={2}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={cx('pagination')}
-                                    activeClassName={cx('active')}
-                                />
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <p className={cx('no-result')}>Không có kết quả tìm kiếm</p>
-                )}
+                                </thead>
+                                <tbody>
+                                    {displayedDonVi.map((dv, index) => (
+                                        <tr key={dv.dv_id}>
+                                            <td>{index + 1 + currentPage * PER_PAGE}</td>
+                                            <td>{dv.dv_ten}</td>
+                                            <td>{dv.dv_id_dvtruong?.nv_ten}</td>
+                                            <td>{dv.dv_dvcha?.dv_ten}</td>
+                                            <td>
+                                                <Link to={`${dv.dv_id}/${dv.dv_ten}/nhanvien`}>
+                                                    <Tippy
+                                                        content="Xem chi tiết"
+                                                        placement="bottom"
+                                                    >
+                                                        <button
+                                                            className={cx('handle', 'view-btn')}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEye} />
+                                                        </button>
+                                                    </Tippy>
+                                                </Link>
+                                                {infoUser.nv_quyen === 'ld' && (
+                                                    <>
+                                                        <Tippy
+                                                            content="Chỉnh sửa"
+                                                            placement="bottom"
+                                                        >
+                                                            <button
+                                                                className={cx('handle', 'edit-btn')}
+                                                                onClick={() =>
+                                                                    togglePopupEdit(dv.dv_id)
+                                                                }
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={faPenToSquare}
+                                                                />
+                                                            </button>
+                                                        </Tippy>
+                                                        <Tippy content="Xóa" placement="bottom">
+                                                            <button
+                                                                className={cx(
+                                                                    'handle',
+                                                                    'delete-btn',
+                                                                )}
+                                                                onClick={() => handleXoaDonVi(dv)}
+                                                            >
+                                                                <FontAwesomeIcon icon={faTrash} />
+                                                            </button>
+                                                        </Tippy>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {sortedDonVi.length > PER_PAGE && (
+                                <div className={cx('paginate')}>
+                                    {startIndex}-{endIndex} của {total}
+                                    <ReactPaginate
+                                        previousLabel={<FontAwesomeIcon icon={faAnglesLeft} />}
+                                        nextLabel={<FontAwesomeIcon icon={faAnglesRight} />}
+                                        breakLabel={'...'}
+                                        pageCount={totalPage}
+                                        marginPagesDisplayed={1}
+                                        pageRangeDisplayed={2}
+                                        onPageChange={handlePageClick}
+                                        containerClassName={cx('pagination')}
+                                        activeClassName={cx('active')}
+                                    />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className={cx('no-result')}>Không có kết quả tìm kiếm</p>
+                    )}
+                </div>
             </div>
         </div>
     );

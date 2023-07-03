@@ -6,50 +6,70 @@ use App\Models\BaoCaoHangNgay;
 use App\Models\DonVi;
 use App\Models\CongViec;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BaoCaoHangNgayController extends Controller
 {
+<<<<<<< HEAD
   //BaoCaoHangNgayController
     public function update_TienDoBaoCaoHangNgay(Request $request, $bchn_id)
     {
+=======
+    public function update_TienDoBaoCaoHangNgay(Request $request)
+{
+    $danhSachCongViec = $request->input('danh_sach_cong_viec_bao_cao');
+
+    foreach ($danhSachCongViec as $congViecData) {
+        $bchn_id = $congViecData['bchn_id'];
+>>>>>>> dev
         $baoCao = BaoCaoHangNgay::find($bchn_id);
-    
+
         if (!$baoCao) {
             return response()->json(['message' => 'Không tìm thấy báo cáo'], 404);
         }
-    
-        // Lấy thông tin trạng thái từ request
-        $bchn_trangthai = $request->input('bchn_trangthai');
-    
+
+        $bchn_trangthai = $congViecData['bchn_trangthai'];
+
         if ($bchn_trangthai == 1) {
-            // Cập nhật công việc
             $congViec = $baoCao->congViecs;
-            $congViec->cv_tiendo = $baoCao->bchn_tiendo;
-    
-            // Kiểm tra xem tiến độ công việc đã đạt 100% chưa
+            if ($baoCao->bchn_tiendo > $congViec->cv_tiendo) {
+                $congViec->cv_tiendo = $baoCao->bchn_tiendo;
+            }
+                    // Cập nhật trạng thái công việc
+                    if ($congViec->cv_tiendo == 100) {
+                        if ( $congViec->cv_hanhoanthanh > $baoCao->bchn_ngay) {
+                            $congViec->cv_trangthai = 3; // Trạng thái đã hoàn thành
+                        } else {
+                            $congViec->cv_trangthai = 4; // Trạng thái đang thực hiện
+                        }
+                    } else {
+                        if ( $congViec->cv_hanhoanthanh < $baoCao->bchn_ngay) {
+                            $congViec->cv_trangthai = 4; // Trạng thái trễ hạn
+                        } else {
+                            $congViec->cv_trangthai = 2; // Trạng thái đang thực hiện
+                        }
+                    }
+                    
+            $baoCao->bchn_giothamdinh = $congViecData['bchn_giothamdinh'];
             $congViec->cv_thgianhoanthanh = $baoCao->bchn_tiendo == 100 ? $baoCao->bchn_ngay : null;
             $congViec->save();
         }
-    
-        // Lấy thông tin người duyệt từ người đăng nhập
+        
         $nguoiDuyet = auth()->user();
         $baoCao->nv_id_ngduyet = $nguoiDuyet->nv_id;
-    
-        if ($bchn_trangthai == 1) {
-            // Cập nhật thông tin thẩm định
-            $baoCao->bchn_giothamdinh = $request->input('bchn_giothamdinh');
-        } elseif ($bchn_trangthai == 2) {
-            // Không cập nhật cv_tiendo
-        }
-    
-        // Cập nhật trạng thái báo cáo
         $baoCao->bchn_trangthai = $bchn_trangthai;
         $baoCao->save();
-    
-        return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
     }
-    
-
+        // Tính tổng giá trị cột bchn_giothamdinh cho công việc
+        $tongGioThamDinh = DB::table('baocaohangngay')
+        ->where('cv_id', $congViec->cv_id)
+        ->sum('bchn_giothamdinh');
+        DB::table('congviec')
+        ->where('cv_id', $congViec->cv_id)
+        ->update(['cv_tgthuchien' => $tongGioThamDinh]);
+        $congViec->save();
+    return response()->json(['message' => 'Cập nhật báo cáo hàng ngày thành công'], 200);
+}
         
     public function add_CV_BC_HangNgay(Request $request)
 {
@@ -79,8 +99,8 @@ class BaoCaoHangNgayController extends Controller
         $gioketthuc = explode(':', $congViecBaoCao['bchn_gioketthuc']);
         $gioketthuc_formatted = str_pad($gioketthuc[0], 2, '0', STR_PAD_LEFT) . ':' . str_pad($gioketthuc[1], 2, '0', STR_PAD_LEFT);
         
-        $baoCao->bchn_giobatdau = $giobatdau_formatted;
-        $baoCao->bchn_gioketthuc = $gioketthuc_formatted;
+        $baoCao->bchn_giobatdau = $congViecBaoCao['bchn_giobatdau'];
+        $baoCao->bchn_gioketthuc = $congViecBaoCao['bchn_gioketthuc'];
         
 
         // Tăng giá trị BCHN_ID theo chỉ số vòng lặp
@@ -95,7 +115,7 @@ class BaoCaoHangNgayController extends Controller
         // Lấy thông tin công việc từ yêu cầu
         $cv_id = $congViecBaoCao['cv_id'];
         $congViec = CongViec::where('cv_id', $cv_id)
-                            ->where('nv_id', $nguoiDung->nv_id)
+                            ->where('nv_id_lam', $nguoiDung->nv_id)
                             ->first();
 
         if (!$congViec) {
@@ -230,4 +250,32 @@ class BaoCaoHangNgayController extends Controller
         return response()->json(['danh_sach_nhan_vien' => $result]);
     }
 
+<<<<<<< HEAD
+=======
+    public function delete_CV_BC_HangNgay(Request $request)
+    {
+        $selectedIds = $request->input('deletebchn_ids'); 
+    
+        foreach ($selectedIds as $bchn_id) {
+            $baoCao = BaoCaoHangNgay::find($bchn_id);
+    
+            if (!$baoCao) {
+                return response()->json(['message' => 'Không tìm thấy báo cáo'], 404);
+            }
+    
+            $congViec = $baoCao->congViecs;
+            $congViec->cv_tiendo = BaoCaoHangNgay::where('cv_id', $congViec->cv_id)
+                                                ->where('bchn_trangthai', 1)
+                                                ->max('bchn_tiendo');
+            $congViec->save();
+    
+            $baoCao->delete();
+        }
+    
+        return response()->json(['message' => 'Đã xóa báo cáo công việc thành công'], 200);
+    }
+    
+    
+
+>>>>>>> dev
 }

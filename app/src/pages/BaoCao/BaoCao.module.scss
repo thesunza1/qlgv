@@ -20,6 +20,15 @@
     }
 }
 
+.features {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin: 15px 0;
+    background: #fff;
+    gap: 30px;
+}
+
 .month {
     display: flex;
     justify-content: flex-start;
@@ -50,60 +59,125 @@
         }
     }
 }
-  
-.inner {
-    width: 100%;
-    height: auto;
-    margin: 10px 0;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+
+.filter {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 250px;
+
+    .filter-item {
+        position: relative;
+
+        input,
+        select {
+            position: absolute;
+            width: 200px;
+            height: 35px;
+            padding: 0 10px;
+            font-size: 1.4rem;
+            font-weight: 500;
+            border-radius: 5px;
+            border: 1px solid #afafaf;
+            background: transparent;
+            outline: none;
+            transition: 0.1s ease;
+            z-index: 1111;
+        }
+        
+        .label {
+            position: absolute;
+            padding-top: 5px;
+            font-size: 1.4rem;
+            margin: 0 10px;
+            background-color: #ffffff;
+            transition: 0.2s ergb(173, 24, 24)
+        }
+
+        .label {
+            width: 95px;
+        }
+
+        .name {
+            width: 75px;
+        }
+
+        .name-respon {
+            width: 125px;
+        }
+
+        .name-dv {
+            width: 55px;
+        }
+
+        .date-start {
+            position: absolute;
+            width: 120px;
+            padding: 0 5px;
+            transform: translate(-5px, -12px) scale(0.88);
+            z-index: 1111;
+        }
+
+        .date-end {
+            position: absolute;
+            width: 110px;
+            padding: 0 5px;
+            transform: translate(-5px, -12px) scale(0.88);
+            z-index: 1111;
+        }
+        
+        input:focus,
+        input:valid,
+        select:focus,
+        select:valid {
+            outline: 1.5px solid #0087E1;
+        }
+        
+        input:focus + .label,
+        input:valid + .label,
+        select:focus + .label,
+        select:valid + .label {
+            padding: 0 5px;
+            transform: translate(-5px, -12px) scale(0.88);
+            z-index: 1111;
+        }
+    }
 }
 
-.features {
+.handle-features {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    margin-top: 20px;
 
-    .search {
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        border: 1px solid #afafaf;
-        border-radius: 4px;
+    .reset-btn {
+        padding: 7px;
+        color: #fff;
+        background:rgb(108, 155, 37);
         cursor: pointer;
-
-
-        input {
-            width: 200px;
-            height: 35px;
-            border: none;
-            outline: none;
-            padding-right: 10px;
-        }
-
+    
         &:hover {
-            outline: 1.5px solid #0087E1;
+            outline: 1.5px solid rgb(110, 181, 3);
         }
     }
-
+    
     .add-btn {
         margin-right: 10px;
-        padding: 7px;
+        padding: 6px 8px;
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
         color: #e2e2e2;
         background: linear-gradient(#27ae60, #1e8449);
         cursor: pointer;
-
+    
         &:hover {
             background: linear-gradient(#15b357, #0d7d3c);
             outline: 1.5px solid #0087E1;
         }
     }
 
+    .cancel-btn,
     .save-btn {
         padding: 7px;
         font-size: 1.5rem;
@@ -117,6 +191,20 @@
             outline: 1.5px solid #0087E1;
         }
     }
+
+    .cancel-btn {
+        margin-right: 5px;
+        background: rgb(227, 227, 227);
+    }
+}
+  
+.inner {
+    width: 100%;
+    height: auto;
+    margin: 10px 0;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
 }
 
 .table {
@@ -198,6 +286,19 @@
     color: #2400FF;
 }
 
+.delete-btn {
+    color: var(--primary);
+}
+
+.save-btn {
+    color: #0d7d3c;
+}
+
+.cancle-btn {
+    font-size: 2.0rem;
+    color: rgb(137, 137, 137);
+}
+
 .paginate {
     display: flex;
     justify-content: flex-end;
@@ -229,7 +330,15 @@
     background: #0087E1;
 }
 
+.no-result-bchn {
+    td {
+        font-size: 1.8rem;
+        padding: 40px 20px;
+    }
+}
+
 .no-result {
+    font-size: 1.8rem;
     padding: 40px 20px;
 }
 

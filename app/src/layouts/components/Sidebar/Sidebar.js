@@ -64,7 +64,7 @@ const Sidebar = () => {
             <div className={cx('container')} style={{ width: isOpen ? '230px' : '70px' }}>
                 <div className={cx('top_section')}>
                     <h2 className={cx('logo')} style={{ display: isOpen ? 'block' : 'none' }}>
-                        VNPT HG
+                        VNPT HGI
                     </h2>
                     <div className={cx('bars')} style={{ marginLeft: isOpen ? '50px' : '0px' }}>
                         <FontAwesomeIcon icon={faBars} onClick={toggle} />

@@ -27,6 +27,7 @@ class CongViec extends Model
         'nv_id',
         'cv_hanhoanthanh',
         'cv_tgthuchien',
+        'nv_id_lam',
     ];
     public function nhanVien()
     {
@@ -72,5 +73,10 @@ class CongViec extends Model
     {
         return $this->belongsTo(LoaiCongViec::class, 'lcv_id', 'lcv_id');
     }
+    public function nhanVienLam()
+    {
+        return $this->belongsTo(NhanVien::class, 'nv_id_lam', 'nv_id');
+    }
+
 
 }

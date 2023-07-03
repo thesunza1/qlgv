@@ -165,3 +165,51 @@
 .no-result {
     padding: 40px 20px;
 }
+
+.b2 {
+    background-color: #4270e4;
+    color: white;
+    width: 130px;
+}
+
+.b1 {
+    background-color: #d0e595;
+    width: 130px;
+    color: white;
+}
+
+.b3 {background-color: #00e165;
+    color: white;
+    width: 130px;
+}
+
+.b4 {
+    background-color: #d3594c;
+    color: white;
+    width: 130px;
+}
+
+.b0 {
+    width: 130px;
+}
+
+.b5 {
+    background-color: #f16363;
+    color: white;
+    width: 130px;
+}
+
+.list-btn {
+    margin-right: 10px;
+    padding: 6px 8px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    border-radius: 3px;
+    background-color: white;
+    color: black;
+    border: 2px solid #3d3838;
+
+    &:hover {
+        background-color: #e7e7e7;
+    }
+}

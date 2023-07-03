@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
 import styles from '../ThemDonVi/ThemDonVi.module.scss';
@@ -9,10 +6,7 @@ import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
-function ChinhSuaDonVi() {
-    const navigate = useNavigate();
-    const { dv_id } = useParams();
-
+function ChinhSuaDonVi({ togglePopupEdit, setIsOpenEdit, loadDonVi, donViID }) {
     const [dSDonViTruong, setDSDonViTruong] = useState([]);
     const [dSDonViCha, setDSDonViCha] = useState([]);
 
@@ -25,7 +19,7 @@ function ChinhSuaDonVi() {
     useEffect(() => {
         const getData = async () => {
             try {
-                const responseDonViID = await axiosClient.get(`/get_ID_DonVi/${dv_id}`);
+                const responseDonViID = await axiosClient.get(`/get_ID_DonVi/${donViID}`);
                 setChinhSuaDonVi(responseDonViID.data.don_vi);
 
                 const responseDonViTruong = await axiosClient.get('/get_NhanVien');
@@ -38,7 +32,7 @@ function ChinhSuaDonVi() {
             }
         };
         getData();
-    }, [dv_id]);
+    }, [donViID]);
 
     function handleChange(event) {
         setChinhSuaDonVi({
@@ -52,32 +46,24 @@ function ChinhSuaDonVi() {
 
         const { dv_ten, dv_id_dvtruong, dv_dvcha } = chinhSuaDonVi;
 
-        const response = await axiosClient.put(`/update_DonVi/${dv_id}`, {
+        const response = await axiosClient.put(`/update_DonVi/${donViID}`, {
             dv_ten,
             dv_id_dvtruong,
             dv_dvcha,
         });
 
         if (response.status === 200) {
-            navigate('/qlcv/donvi');
+            await loadDonVi();
+            setIsOpenEdit(false);
             cogoToast.success(`Đơn vị ${dv_ten.toUpperCase()} đã được cập nhật`, {
                 position: 'top-right',
             });
         }
     };
 
-    const handleCancel = () => {
-        navigate('/qlcv/donvi');
-    };
-
     return (
         <div className={cx('wrapper')}>
-            <h2>
-                <Link to="/qlcv/donvi">
-                    <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
-                </Link>
-                Chỉnh sửa đơn vị
-            </h2>
+            <h2>Chỉnh sửa đơn vị</h2>
             <div className={cx('inner')}>
                 <form className={cx('form-group')}>
                     <div className={cx('form-item')}>
@@ -96,9 +82,7 @@ function ChinhSuaDonVi() {
                             value={chinhSuaDonVi.dv_id_dvtruong?.nv_id}
                             onChange={handleChange}
                         >
-                            <option value="" disabled>
-                                -- Chọn đơn vị trưởng --
-                            </option>
+                            <option value="">-- Chọn đơn vị trưởng --</option>
                             {dSDonViTruong.map((dvTruong) => (
                                 <option key={dvTruong.nv_id} value={dvTruong.nv_id}>
                                     {dvTruong.nv_ten}
@@ -113,9 +97,7 @@ function ChinhSuaDonVi() {
                             value={chinhSuaDonVi.dv_dvcha?.dv_id}
                             onChange={handleChange}
                         >
-                            <option value="" disabled>
-                                -- Chọn đơn vị cha --
-                            </option>
+                            <option value="">-- Chọn đơn vị cha --</option>
                             {dSDonViCha.map((dvCha) => (
                                 <option key={dvCha.dv_id} value={dvCha.dv_id}>
                                     {dvCha.dv_ten}
@@ -129,7 +111,7 @@ function ChinhSuaDonVi() {
                 </form>
                 <div className={cx('handle')}>
                     <button onClick={handleChinhSuaDonVi}>Cập nhật</button>
-                    <button onClick={handleCancel}>Hủy</button>
+                    <button onClick={togglePopupEdit}>Hủy</button>
                 </div>
             </div>
         </div>

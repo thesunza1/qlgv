@@ -27,6 +27,21 @@
     align-items: center;
     padding: 10px 20px;
 
+    .save-btn {
+        margin-right: 10px;
+        padding: 6px 8px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50;
+
+        &:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+    }
 
 
     .add-btn {
@@ -35,12 +50,13 @@
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
-        color: #e2e2e2;
-        background: linear-gradient(#27ae60, #1e8449);
+        color: black;
+        background-color: white;
+        border: 2px solid #008CBA;
 
         &:hover {
-            background: linear-gradient(#15b357, #0d7d3c);
-            outline: 1.5px solid #0087E1;
+            background-color: #008CBA;
+            color: white;
         }
     }
 }
@@ -91,6 +107,40 @@
     tbody tr:hover {
         background-color: #abccf130;
     }
+
+    button {
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: 700;
+    }
+}
+
+.b2 {
+    background-color: #4270e4;
+    color: white;
+    width: 130px;
+}
+
+.b1 {
+    background-color: #d0e595;
+    width: 130px;
+    color: white;
+}
+
+.b3 {
+    background-color: #00e165;
+    color: white;
+    width: 130px;
+}
+
+.b4 {
+    background-color: #d3594c;
+    color: white;
+    width: 130px;
+}
+
+.b0 {
+    width: 130px;
 }
 
 .handle {
@@ -130,8 +180,7 @@
             padding: 3px 8px;
             font-size: 1.4rem;
             color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
+            border: 1px solid #ccc;border-radius: 2px;
             cursor: pointer;
         }
     }
@@ -144,4 +193,32 @@
 
 .no-result {
     padding: 40px 20px;
+}
+
+input {
+    width: 100%;
+    height: 35px;
+    padding: 0 10px;
+    font-size: 1.4rem;
+    border-radius: 3px;
+    border: 1px solid #8e8e8e;
+    outline: none;
+
+    &:focus {
+        outline: 1px solid #333;
+    }
+}
+
+select {
+    width: 100%;
+    height: 35px;
+    padding: 0 10px;
+    font-size: 1.4rem;
+    border-radius: 3px;
+    border: 1px solid #8e8e8e;
+    outline: none;
+
+    &:focus {
+        outline: 1px solid #333;
+    }
 }

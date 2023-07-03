@@ -30,7 +30,13 @@ function Header() {
             <div className={cx('content')}>
                 <div>
                     <h3>{infoUser.nv_ten} </h3>
-                    <p>{infoUser.nv_quyen === 'ld' ? 'Lãnh đạo' : 'Nhân viên'}</p>
+                    <p>
+                        {infoUser.nv_quyen === 'ld'
+                            ? 'Lãnh đạo'
+                            : infoUser.nv_quyen === 'nv' && infoUser.nv_quyenthamdinh === '1'
+                            ? `Trưởng phòng / ${infoUser.don_vi?.dv_ten}`
+                            : `Nhân viên / ${infoUser.don_vi?.dv_ten}`}
+                    </p>
                 </div>
                 <Link>
                     <FontAwesomeIcon className={cx('bell-icon')} icon={faBell} />
