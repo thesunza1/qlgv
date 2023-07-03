@@ -3,14 +3,10 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faSearch,
-    faPlus,
-
-    faPenToSquare,
-    faTrash,
     faAnglesLeft,
     faAnglesRight,
-
     faEnvelope,
+    faList,
 } from '@fortawesome/free-solid-svg-icons';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -29,19 +25,18 @@ function KeHoachThang() {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
 
-    const PER_PAGE = 5;
+    const PER_PAGE = 15;
 
     useEffect(() => {
         const getListProduct = async () => {
             var now = new Date();
             let month = now.getMonth();
-            const token = localStorage.getItem('Token')
+            const token = localStorage.getItem('Token');
             const response = await axiosClient.get(`/get_CV_Thang/${month + 1}/?token=${token}`);
             setDSKeHoach(response.data.cong_viecs);
         };
         getListProduct();
     }, []);
-
     const handleSortColumn = (key) => {
         if (sortColumn === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -64,6 +59,13 @@ function KeHoachThang() {
         if (sortDirection === 'asc') {
             sortedItems.reverse();
         }
+        sortedItems = sortedItems.sort((a, b) => {
+            const cvTrangThaiOrder = { 0: 0, 1: 1, 2: 3, 3: 4, 4: 2 };
+            const aOrder = cvTrangThaiOrder[a.cv_trangthai] ?? 999;
+            const bOrder = cvTrangThaiOrder[b.cv_trangthai] ?? 999;
+            return aOrder - bOrder;
+        });
+
         return sortedItems;
     }, [dSKeHoach, sortColumn, sortDirection]);
 
@@ -82,23 +84,24 @@ function KeHoachThang() {
     };
     function trangThai(trangThai) {
         switch (trangThai) {
+            case '0':
+                return <button className={cx('b0')}>Đang Soạn</button>;
             case '1':
-                return "Đã hoàn thành";
+                return <button className={cx('b1')}>Đợi duyệt</button>;
             case '2':
-                return "Đã được duyệt";
+                return <button className={cx('b2')}>Đang thực hiện</button>;
             case '3':
-                return "Đang thực hiện";
+                return <button className={cx('b3')}>Hoàn thành</button>;
             case '4':
-                return "";
+                return <button className={cx('b4')}>Quá hạn</button>;
             default:
-                return "Chưa hoàn thành";
+                return <button className={cx('b5')}>Từ chối</button>;
         }
     }
     const displayedKeHoach = getDisplayKeHoach();
     var now = new Date();
     let month = now.getMonth();
     return (
-
         <>
             <div className={cx('wrapper')}>
                 <div className={cx('inner')}>
@@ -106,8 +109,8 @@ function KeHoachThang() {
                         <h2>Công việc trong tháng {month + 1}</h2>
                     </div>
                     <div className={cx('features')}>
-                        <Link to="them" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm
+                        <Link to="/qlcv/congviec" className={cx('list-btn')}>
+                            <FontAwesomeIcon icon={faList} /> Danh sách công việc
                         </Link>
                         <div className={cx('search')}>
                             <input
@@ -118,10 +121,6 @@ function KeHoachThang() {
                             />
                             <FontAwesomeIcon icon={faSearch} />
                         </div>
-
-                        <Link to="/qlcv/congviec" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Danh sách công việc
-                        </Link>
                     </div>
                     {displayedKeHoach.length > 0 ? (
                         <>
@@ -132,14 +131,23 @@ function KeHoachThang() {
                                         <th onClick={() => handleSortColumn('cv_ten')}>
                                             <span>Tên công việc</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('cv_thgianbatdau')}>
+                                        <th
+                                            className={cx('center')}
+                                            onClick={() => handleSortColumn('cv_thgianbatdau')}
+                                        >
                                             <span>Ngày bắt đầu</span>
                                         </th>
-                                        <th onClick={() => handleSortColumn('cv_thgianhoanthanh')}>
+                                        <th
+                                            className={cx('center')}
+                                            onClick={() => handleSortColumn('cv_thgianhoanthanh')}
+                                        >
                                             <span>Ngày hết hạn</span>
                                         </th>
+
                                         <th>Nội dung</th>
-                                        <th>Trạng thái</th>
+                                        <th className={cx('center')}>Đơn vị</th>
+                                        <th className={cx('center')}>Người đảm nhiệm</th>
+                                        <th className={cx('center')}>Trạng thái</th>
                                         <th className={cx('center')}>Xử lý</th>
                                     </tr>
                                 </thead>
@@ -148,21 +156,33 @@ function KeHoachThang() {
                                         <tr key={cv.cv_id}>
                                             <td>{index + 1 + currentPage * PER_PAGE}</td>
                                             <td>{cv.cv_ten}</td>
-                                            {/* <td>
-                                            {kh.nhan_viens.map((nv) =>
-                                                parseInt(kh.dv_id_dvtruong) === nv.nv_id
-                                                    ? nv.nv_ten
-                                                    : null,
-                                            )}
-                                        </td> */}
-                                            <td>{cv.cv_thgianbatdau ? cv.cv_thgianbatdau.split(' ')[0] : '-'}</td>
-                                            <td>{cv.cv_thgianhoanthanh ? cv.cv_thgianhoanthanh.split(' ')[0] : '-'}</td>
-                                            <td>{cv.cv_noidung ? cv.cv_noidung : '-'}</td>
-                                            <td>{trangThai(cv.cv_trangthai)}</td>
                                             <td className={cx('center')}>
-                                                <Link to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianhoanthanh}/xingiahan`}>
+                                                {cv.cv_thgianbatdau
+                                                    ? cv.cv_thgianbatdau.split(' ')[0]
+                                                    : '-'}
+                                            </td>
+                                            <td className={cx('center')}>
+                                                {cv.cv_thgianhoanthanh
+                                                    ? cv.cv_thgianhoanthanh.split(' ')[0]
+                                                    : '-'}
+                                            </td>
+                                            <td>{cv.cv_noidung ? cv.cv_noidung : '-'}</td>
+                                            <td className={cx('center')}>
+                                                {cv.don_vi?.ten_don_vi}
+                                            </td>
+                                            <td>{cv.nhan_vien_lam?.ten_nhan_vien}</td>
+
+                                            <td className={cx('center')}>
+                                                {trangThai(cv.cv_trangthai)}
+                                            </td>
+                                            <td className={cx('center')}>
+                                                <Link
+                                                    to={`/qlcv/congviec/${cv.cv_id}/${cv.cv_ten}/${cv.cv_thgianhoanthanh}/xingiahan`}
+                                                >
                                                     <Tippy content="Xin gia hạn" placement="bottom">
-                                                        <button className={cx('handle', 'view-btn')}>
+                                                        <button
+                                                            className={cx('handle', 'view-btn')}
+                                                        >
                                                             <FontAwesomeIcon icon={faEnvelope} />
                                                         </button>
                                                     </Tippy>
@@ -174,9 +194,11 @@ function KeHoachThang() {
                                                         </button>
                                                     </Tippy>
                                                 </Link> */}
-                                                <Link to={`chinhsua`}>
+                                                {/* <Link to={`chinhsua`}>
                                                     <Tippy content="Chỉnh sửa" placement="bottom">
-                                                        <button className={cx('handle', 'edit-btn')}>
+                                                        <button
+                                                            className={cx('handle', 'edit-btn')}
+                                                        >
                                                             <FontAwesomeIcon icon={faPenToSquare} />
                                                         </button>
                                                     </Tippy>
@@ -185,7 +207,7 @@ function KeHoachThang() {
                                                     <button className={cx('handle', 'delete-btn')}>
                                                         <FontAwesomeIcon icon={faTrash} />
                                                     </button>
-                                                </Tippy>
+                                                </Tippy> */}
                                             </td>
                                         </tr>
                                     ))}
@@ -212,7 +234,6 @@ function KeHoachThang() {
             </div>
             <CongViecDotXuat></CongViecDotXuat>
         </>
-
     );
 }
 

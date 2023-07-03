@@ -13,7 +13,6 @@ import BaoCaoHangNgay from '~/pages/BaoCao/BaoCaoHangNgay';
 import CongViec from '~/pages/KeHoach/CongViec/CongViec';
 import XinGiaHan from '~/pages/KeHoach/XinGiaHan/XinGiaHan';
 import KeHoachThang from '~/pages/KeHoach/KeHoachThang/KeHoachThang';
-import ThemCongViec from '~/pages/KeHoach/CongViec/ThemCongViec';
 import ChiTietKeHoach from '~/pages/KeHoach/ChiTietKeHoach/ChiTietKeHoach';
 import DSXinGiaHan from '~/pages/KeHoach/DSXinGiaHan/dsXinGiaHan';
 
@@ -39,7 +38,6 @@ const publicRoutes = [
     { path: 'congviec/:cv_id/:cv_ten/:cv_thgianketthuc/xingiahan', component: XinGiaHan },
     { path: 'congviec/dsxingiahan', component: DSXinGiaHan },
     { path: 'congviec', component: CongViec },
-    { path: 'congviec/them', component: ThemCongViec },
 
     { path: 'baocao', component: BaoCaoHangNgay },
 ];

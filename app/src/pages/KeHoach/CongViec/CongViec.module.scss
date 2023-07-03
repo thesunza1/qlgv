@@ -8,7 +8,13 @@
         .back-icon {
             margin-right: 30px;
             font-size: 2.5rem;
-            color: #0d7d3c;
+            color: #4CAF50;
+            border: 2px solid white;
+            border-radius: 50%;
+
+            &:hover {
+                border: 2px solid #4CAF50;
+            }
         }
     }
 }
@@ -47,7 +53,32 @@
         &:hover {
             outline: 1.5px solid #0087E1;
         }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+
+        }
     }
+
+
+
+    .save-btn {
+        margin-right: 10px;
+        padding: 6px 8px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50;
+
+        &:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+    }
+
 
     .add-btn {
         margin-right: 10px;
@@ -55,16 +86,35 @@
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
-        color: #e2e2e2;
-        background: linear-gradient(#27ae60, #1e8449);
+        color: black;
+        background-color: white;
+        border: 2px solid #008CBA;
 
         &:hover {
-            background: linear-gradient(#15b357, #0d7d3c);
-            outline: 1.5px solid #0087E1;
+            background-color: #008CBA;
+            color: white;
+        }
+    }
+
+    .list-btn {
+        margin-right: 10px;
+        padding: 6px 8px;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border-radius: 3px;
+        background-color: white;
+        color: black;
+        border: 2px solid #3d3838;
+
+        &:hover {
+            background-color: #e7e7e7;
         }
     }
 }
 
+.apply {
+    color: #0d7d3c;
+}
 
 .table {
     width: 100%;
@@ -99,35 +149,26 @@
         font-size: 1.4rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-        textarea {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        input {
-            text-align: center;
-            // border: none;
-            outline: none;
-            width: 120px;
-            height: 30px;
-        }
-
-        .small-input {
-            width: 120px;
-            width: 50px;
-        }
-
+        input,
+        textarea,
         select {
+            width: 150px;
+            height: 40px;
+            font-size: 1.4rem;
             text-align: center;
-            // border: none;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
             outline: none;
-            width: 120px;
-            height: 30px;
-        }
 
+            &:hover {
+                outline: 1px solid rgba(0, 0, 0, 0.3);
+            }
+        }
+    }
+
+    td {
+        font-size: 1.4rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     td:first-child {
@@ -146,31 +187,51 @@
         padding: 5px;
         border-radius: 5px;
         font-weight: 700;
-
-
     }
 }
 
-.done-btn {
+.b2 {
+    background-color: #4270e4;
+    color: white;
+    width: 130px;
+}
+
+.b1 {
+    background-color: #d0e595;
+    width: 130px;
+    color: white;
+}
+
+.b3 {
     background-color: #00e165;
     color: white;
     width: 130px;
 }
 
-.out-date-btn {
-    background-color: #cd1e1e;
+.b4 {
+    background-color: #d3594c;
+    color: white;
+    width: 130px;
+}
+
+.b0 {
+    width: 130px;
+}
+
+.b5 {
+    background-color: #f16363;
     color: white;
     width: 130px;
 }
 
 .save-btn {
+    font-size: 2.0rem;
     color: #0d7d3c;
 }
 
-.chuaht-btn {
-    background-color: #afafaf;
-    color: white;
-    width: 130px;
+
+.refuse {
+    color: #f30a0a;
 }
 
 .check-btn {
@@ -205,22 +266,28 @@ select {
     color: var(--primary);
 }
 
-.pagination {
+.paginate {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
     margin: 20px;
     padding-bottom: 20px;
 
-    li {
-        margin-right: 5px;
+    .pagination {
+        display: flex;
 
-        a {
-            padding: 3px 8px;
-            font-size: 1.4rem;
-            color: var(text-black);
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            cursor: pointer;
+        li {
+            margin-right: 5px;
+
+            a {
+                padding: 3px 8px;
+                font-size: 1.4rem;
+                color: var(text-black);
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                cursor: pointer;
+            }
         }
     }
 }

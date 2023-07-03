@@ -229,20 +229,19 @@ function BaoCaoHangNgay() {
         return total + Number(bc.so_gio_lam);
     }, 0);
 
-    // eslint-disable-next-line no-unused-vars
-    const [startHour, setStartHour] = useState('07:00');
-    // eslint-disable-next-line no-unused-vars
-    const [endHour, setEndHour] = useState(moment().format('HH:mm'));
+    // Tính giờ
+    const [startHour] = useState('07:00');
+    const [endHour] = useState(moment().format('HH:mm'));
     const [totalHours, setTotalHours] = useState('');
 
     useEffect(() => {
-        const start = moment(`${startHour}:00`, 'HH:mm');
-        const end = moment(`${endHour}:00`, 'HH:mm');
+        const start = moment(`${startHour}:00`, 'HH:mm:ss');
+        const end = moment(`${endHour}:00`, 'HH:mm:ss');
         const formattedHours = moment
             .utc(moment.duration(end.diff(start)).asMilliseconds())
-            .format('HH:mm');
+            .format('HH.mm');
 
-        setTotalHours(parseInt(formattedHours));
+        setTotalHours(formattedHours);
     }, [startHour, endHour]);
 
     // Thêm báo cáo
