@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
 import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
@@ -9,13 +6,8 @@ import styles from '../ThemNhanVien/ThemNhanVien.module.scss';
 
 const cx = classNames.bind(styles);
 
-function ChinhSuaNhanVien() {
-    const navigate = useNavigate();
-    const { dv_id, nv_id } = useParams();
-    // eslint-disable-next-line no-unused-vars
-    const [donViID, setDonViID] = useState(dv_id);
-    // eslint-disable-next-line no-unused-vars
-    const [nhanVienID, setNhanVienID] = useState(nv_id);
+function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }) {
+    const [nhanVienID] = useState(nVID);
 
     const [chinhSuaNhanVien, setChinhSuaNhanVien] = useState({
         nv_taikhoan: '',
@@ -34,7 +26,7 @@ function ChinhSuaNhanVien() {
     useEffect(() => {
         const getData = async () => {
             try {
-                const responseDonViID = await axiosClient.get(`/get_ID_NhanVien/${nv_id}`);
+                const responseDonViID = await axiosClient.get(`/get_ID_NhanVien/${nVID}`);
                 setChinhSuaNhanVien(responseDonViID.data.nhanVien);
 
                 const responseDSDonVi = await axiosClient.get('/get_DonVi');
@@ -44,7 +36,7 @@ function ChinhSuaNhanVien() {
             }
         };
         getData();
-    }, [nv_id]);
+    }, [nVID]);
 
     function handleChange(event) {
         setChinhSuaNhanVien({
@@ -81,25 +73,17 @@ function ChinhSuaNhanVien() {
         });
 
         if (response.status === 200) {
-            navigate(`/qlcv/donvi/${donViID}/nhanvien`);
+            await loadNhanVien();
+            setIsOpenEdit(false);
             cogoToast.success(`Nhân viên ${nv_ten.toUpperCase()} đã được cập nhật`, {
                 position: 'top-right',
             });
         }
     };
 
-    const handleCancel = () => {
-        navigate(`/qlcv/donvi/${donViID}/nhanvien`);
-    };
-
     return (
         <div className={cx('wrapper')}>
-            <h2>
-                <Link to={`/qlcv/donvi/${donViID}/nhanvien`}>
-                    <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
-                </Link>
-                Chỉnh sửa nhân viên
-            </h2>
+            <h2>Chỉnh sửa nhân viên</h2>
             <div className={cx('inner')}>
                 <form className={cx('form-group')}>
                     <div className={cx('form-item')}>
@@ -195,7 +179,7 @@ function ChinhSuaNhanVien() {
                 </form>
                 <div className={cx('handle')}>
                     <button onClick={handleChinhSuaNhanVien}>Cập nhật</button>
-                    <button onClick={handleCancel}>Hủy</button>
+                    <button onClick={togglePopupEdit}>Hủy</button>
                 </div>
             </div>
         </div>

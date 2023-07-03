@@ -19,6 +19,8 @@ import axiosClient from '~/api/axiosClient';
 import swal from 'sweetalert';
 import classNames from 'classnames/bind';
 import styles from './DonVi.module.scss';
+import ThemDonVi from './ThemDonVi';
+import ChinhSuaDonVi from './ChinhSuaDonVi';
 
 const cx = classNames.bind(styles);
 
@@ -28,16 +30,32 @@ function DonVi() {
     const [sortDirection, setSortDirection] = useState('');
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
+    const [infoUser, setInfoUser] = useState([]);
 
-    const PER_PAGE = 7;
+    const PER_PAGE = 8;
+
+    const getListDonVi = async () => {
+        const response = await axiosClient.get('/get_DonVi');
+        setDSDonVi(response.data.don_vis);
+    };
 
     useEffect(() => {
-        const getListProduct = async () => {
-            const response = await axiosClient.get('/get_DonVi');
-            setDSDonVi(response.data.don_vis);
-        };
-        getListProduct();
+        getListDonVi();
     }, []);
+
+    useEffect(() => {
+        const getInfoUser = async () => {
+            const token = localStorage.getItem('Token');
+            const response = await axiosClient.get(`/user-info?token=${token}`);
+            setInfoUser(response.data.result);
+        };
+        getInfoUser();
+    }, []);
+
+    const loadDonVi = async () => {
+        await getListDonVi();
+        await getDisplayDonVi();
+    };
 
     const handleXoaDonVi = (dv) => {
         swal({
@@ -52,10 +70,10 @@ function DonVi() {
                 await axiosClient.delete('/delete_DonVi', {
                     data: { deletedv_ids },
                 });
+                await loadDonVi();
                 swal(`${dv.dv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
             } else {
                 return;
             }
@@ -110,53 +128,68 @@ function DonVi() {
             : dSDonVi.length;
     const total = dSDonVi.length;
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+    // Thêm đơn vị
+    const [isOpenAdd, setIsOpenAdd] = useState(false);
 
-    const togglePopup = () => {
-        setIsOpen(!isOpen);
+    const togglePopupAdd = () => {
+        setIsOpenAdd(!isOpenAdd);
     };
 
-    const handleChange = (event) => {
-        setInputValue(event.target.value);
+    // Chỉnh sửa đơn vị
+    const [donViID, setDonViID] = useState(null);
+    const [isOpenEdit, setIsOpenEdit] = useState(false);
+
+    const togglePopupEdit = (dvID) => {
+        setDonViID(dvID);
+        setIsOpenEdit(!isOpenEdit);
     };
 
     return (
         <div>
             <div>
-                {isOpen && (
+                {isOpenAdd && (
                     <div className={cx('popup')}>
                         <div className={cx('popup-content')}>
-                            <h3>Đây là nội dung của popup</h3>
-                            <input
-                                type="text"
-                                value={inputValue}
-                                onChange={handleChange}
-                                placeholder="Nhập vào đây..."
+                            <ThemDonVi
+                                togglePopupAdd={togglePopupAdd}
+                                setIsOpenAdd={setIsOpenAdd}
+                                loadDonVi={loadDonVi}
                             />
-                            <p>Giá trị nhập vào: {inputValue}</p>
-                            <button onClick={togglePopup}>Đóng Popup</button>
+                        </div>
+                    </div>
+                )}
+                {isOpenEdit && (
+                    <div className={cx('popup')}>
+                        <div className={cx('popup-content')}>
+                            <ChinhSuaDonVi
+                                togglePopupEdit={togglePopupEdit}
+                                setIsOpenEdit={setIsOpenEdit}
+                                loadDonVi={loadDonVi}
+                                donViID={donViID}
+                            />
                         </div>
                     </div>
                 )}
             </div>
             <div className={cx('wrapper')}>
                 <h2>Danh sách đơn vị</h2>
-                <div className={cx('inner')}>
-                    <div className={cx('features')}>
-                        <div className={cx('search')}>
-                            <input
-                                type="search"
-                                placeholder="Tìm kiếm đơn vị"
-                                value={searchText}
-                                onChange={handleSearchInputChange}
-                            />
-                            <FontAwesomeIcon icon={faSearch} />
-                        </div>
-                        <Link to="them" className={cx('add-btn')}>
-                            <FontAwesomeIcon icon={faPlus} /> Thêm
-                        </Link>
+                <div className={cx('features')}>
+                    <div className={cx('search')}>
+                        <input
+                            type="search"
+                            placeholder="Tìm kiếm đơn vị"
+                            value={searchText}
+                            onChange={handleSearchInputChange}
+                        />
+                        <FontAwesomeIcon icon={faSearch} />
                     </div>
+                    {infoUser.nv_quyen === 'ld' && (
+                        <button className={cx('add-btn')} onClick={togglePopupAdd}>
+                            <FontAwesomeIcon icon={faPlus} /> Thêm
+                        </button>
+                    )}
+                </div>
+                <div className={cx('inner')}>
                     {displayedDonVi.length > 0 ? (
                         <>
                             <table className={cx('table')}>
@@ -213,7 +246,7 @@ function DonVi() {
                                             <td>{dv.dv_id_dvtruong?.nv_ten}</td>
                                             <td>{dv.dv_dvcha?.dv_ten}</td>
                                             <td>
-                                                <Link to={`${dv.dv_id}/nhanvien`}>
+                                                <Link to={`${dv.dv_id}/${dv.dv_ten}/nhanvien`}>
                                                     <Tippy
                                                         content="Xem chi tiết"
                                                         placement="bottom"
@@ -225,24 +258,36 @@ function DonVi() {
                                                         </button>
                                                     </Tippy>
                                                 </Link>
-                                                {/* <Link to={`${dv.dv_id}/chinhsua`}> */}
-                                                <Tippy content="Chỉnh sửa" placement="bottom">
-                                                    <button
-                                                        className={cx('handle', 'edit-btn')}
-                                                        onClick={togglePopup}
-                                                    >
-                                                        <FontAwesomeIcon icon={faPenToSquare} />
-                                                    </button>
-                                                </Tippy>
-                                                {/* </Link> */}
-                                                <Tippy content="Xóa" placement="bottom">
-                                                    <button
-                                                        className={cx('handle', 'delete-btn')}
-                                                        onClick={() => handleXoaDonVi(dv)}
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </button>
-                                                </Tippy>
+                                                {infoUser.nv_quyen === 'ld' && (
+                                                    <>
+                                                        <Tippy
+                                                            content="Chỉnh sửa"
+                                                            placement="bottom"
+                                                        >
+                                                            <button
+                                                                className={cx('handle', 'edit-btn')}
+                                                                onClick={() =>
+                                                                    togglePopupEdit(dv.dv_id)
+                                                                }
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={faPenToSquare}
+                                                                />
+                                                            </button>
+                                                        </Tippy>
+                                                        <Tippy content="Xóa" placement="bottom">
+                                                            <button
+                                                                className={cx(
+                                                                    'handle',
+                                                                    'delete-btn',
+                                                                )}
+                                                                onClick={() => handleXoaDonVi(dv)}
+                                                            >
+                                                                <FontAwesomeIcon icon={faTrash} />
+                                                            </button>
+                                                        </Tippy>
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

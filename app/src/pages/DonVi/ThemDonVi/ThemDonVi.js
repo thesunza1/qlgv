@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import axiosClient from '~/api/axiosClient';
 import cogoToast from 'cogo-toast';
 import classNames from 'classnames/bind';
@@ -9,9 +6,7 @@ import styles from './ThemDonVi.module.scss';
 
 const cx = classNames.bind(styles);
 
-function ThemDonVi() {
-    const navigate = useNavigate();
-
+function ThemDonVi({ togglePopupAdd, setIsOpenAdd, loadDonVi }) {
     const [dSDonViTruong, setDSDonViTruong] = useState([]);
     const [dSDonViCha, setDSDonViCha] = useState([]);
 
@@ -56,25 +51,17 @@ function ThemDonVi() {
         });
 
         if (response.status === 200) {
-            navigate('/qlcv/donvi');
+            await loadDonVi();
+            setIsOpenAdd(false);
             cogoToast.success(`Đơn vị ${dv_ten.toUpperCase()} đã được thêm`, {
                 position: 'top-right',
             });
         }
     };
 
-    const handleCancel = () => {
-        navigate('/qlcv/donvi');
-    };
-
     return (
         <div className={cx('wrapper')}>
-            <h2>
-                <Link to="/qlcv/donvi">
-                    <FontAwesomeIcon className={cx('back-icon')} icon={faCircleArrowLeft} />
-                </Link>
-                Thêm đơn vị
-            </h2>
+            <h2>Thêm đơn vị</h2>
             <div className={cx('inner')}>
                 <form className={cx('form-group')}>
                     <div className={cx('form-item')}>
@@ -93,9 +80,7 @@ function ThemDonVi() {
                             value={themDonVi.dv_id_dvtruong}
                             onChange={handleChange}
                         >
-                            <option value="" disabled>
-                                -- Chọn đơn vị trưởng --
-                            </option>
+                            <option value="">-- Chọn đơn vị trưởng --</option>
                             {dSDonViTruong.map((dvTruong) => (
                                 <option key={dvTruong.nv_id} value={dvTruong.nv_id}>
                                     {dvTruong.nv_ten}
@@ -106,9 +91,7 @@ function ThemDonVi() {
                     <div className={cx('form-item')}>
                         <label>Đơn vị cha</label>
                         <select name="dv_dvcha" value={themDonVi.dv_dvcha} onChange={handleChange}>
-                            <option value="" disabled>
-                                -- Chọn đơn vị cha --
-                            </option>
+                            <option value="">-- Chọn đơn vị cha --</option>
                             {dSDonViCha.map((dvCha) => (
                                 <option key={dvCha.dv_id} value={dvCha.dv_id}>
                                     {dvCha.dv_ten}
@@ -119,7 +102,7 @@ function ThemDonVi() {
                 </form>
                 <div className={cx('handle')}>
                     <button onClick={handleThemDonVi}>Lưu</button>
-                    <button onClick={handleCancel}>Hủy</button>
+                    <button onClick={togglePopupAdd}>Hủy</button>
                 </div>
             </div>
         </div>

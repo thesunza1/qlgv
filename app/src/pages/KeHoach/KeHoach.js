@@ -54,14 +54,16 @@ function KeHoach() {
 
     const PER_PAGE = 10;
 
-    useEffect(() => {
-        getListProduct();
-    }, []);
     const getListProduct = async () => {
         const token = localStorage.getItem('Token');
         const response = await axiosClient.get(`/get_CV_KeHoach?token=${token}`);
         setListKeHoach(response.data.ke_hoachs || []);
     };
+
+    useEffect(() => {
+        getListProduct();
+    }, []);
+
     useEffect(() => {
         setDSKeHoach(
             listKeHoach.map((cv) => ({
