@@ -10,18 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class BaoCaoHangNgayController extends Controller
 {
-<<<<<<< HEAD
-  //BaoCaoHangNgayController
-    public function update_TienDoBaoCaoHangNgay(Request $request, $bchn_id)
-    {
-=======
     public function update_TienDoBaoCaoHangNgay(Request $request)
 {
     $danhSachCongViec = $request->input('danh_sach_cong_viec_bao_cao');
 
     foreach ($danhSachCongViec as $congViecData) {
         $bchn_id = $congViecData['bchn_id'];
->>>>>>> dev
         $baoCao = BaoCaoHangNgay::find($bchn_id);
 
         if (!$baoCao) {
@@ -131,7 +125,6 @@ class BaoCaoHangNgayController extends Controller
 
     return response()->json(['message' => 'Thêm công việc báo cáo hàng ngày thành công'], 200);
 }
-
 
     public function get_CV_BC_HangNgay()
     {
@@ -250,8 +243,6 @@ class BaoCaoHangNgayController extends Controller
         return response()->json(['danh_sach_nhan_vien' => $result]);
     }
 
-<<<<<<< HEAD
-=======
     public function delete_CV_BC_HangNgay(Request $request)
     {
         $selectedIds = $request->input('deletebchn_ids'); 
@@ -277,5 +268,4 @@ class BaoCaoHangNgayController extends Controller
     
     
 
->>>>>>> dev
 }

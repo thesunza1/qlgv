@@ -63,11 +63,14 @@ function ThemDonVi({ togglePopupAdd, setIsOpenAdd, loadDonVi }) {
         <div className={cx('wrapper')}>
             <h2>Thêm đơn vị</h2>
             <div className={cx('inner')}>
-                <form className={cx('form-group')}>
+                <form className={cx('form-group')} onSubmit={handleThemDonVi}>
                     <div className={cx('form-item')}>
                         <label>Tên đơn vị</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,100}"
+                            title="Vui lòng nhập tên đơn vị (tối đa 100 ký tự)"
                             name="dv_ten"
                             value={themDonVi.dv_ten}
                             onChange={handleChange}
@@ -99,11 +102,11 @@ function ThemDonVi({ togglePopupAdd, setIsOpenAdd, loadDonVi }) {
                             ))}
                         </select>
                     </div>
+                    <div className={cx('handle')}>
+                        <button>Lưu</button>
+                        <button onClick={togglePopupAdd}>Hủy</button>
+                    </div>
                 </form>
-                <div className={cx('handle')}>
-                    <button onClick={handleThemDonVi}>Lưu</button>
-                    <button onClick={togglePopupAdd}>Hủy</button>
-                </div>
             </div>
         </div>
     );

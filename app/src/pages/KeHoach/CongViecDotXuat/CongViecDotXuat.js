@@ -560,7 +560,7 @@ function BangCongViec() {
                                                         <input
                                                             type="date"
                                                             name="cv_hanhoanthanh"
-                                                            value={cv.cv_hanhoanthanh.split(' ')[0]}
+                                                            value={cv.cv_hanhoanthanh}
                                                             onChange={(e) =>
                                                                 handleEditInputChange(
                                                                     e,
@@ -645,7 +645,7 @@ function BangCongViec() {
                                                 <td>{cv.cv_ten}</td>
                                                 <td>{cv.cv_noidung}</td>
                                                 <td>{cv.cv_thgianbatdau}</td>
-                                                <td>{cv.cv_hanhoanthanh.split(' ')[0]}</td>
+                                                <td>{cv.cv_hanhoanthanh}</td>
                                                 <td>{cv.nhan_vien_lam?.nv_ten || '--'}</td>
                                                 <td>{cv.don_vi?.dv_ten}</td>
                                                 <td className={cx('center')}>

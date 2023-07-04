@@ -115,6 +115,10 @@
                 outline: 1px solid rgba(0, 0, 0, 0.3);
             }
         }
+        input,
+        textarea {
+            width: 150px;
+        }
     }
 
     td {

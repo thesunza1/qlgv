@@ -9,14 +9,13 @@ const cx = classNames.bind(styles);
 
 function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
     const { dv_id } = useParams();
-    // eslint-disable-next-line no-unused-vars
-    const [donViID, setDonViID] = useState(dv_id);
+    const [donViID] = useState(dv_id);
 
     const [themNhanVien, setThemNhanVien] = useState({
         nv_taikhoan: '',
         nv_matkhau: '',
         nv_ten: '',
-        nv_stt: '',
+        nv_stt: '10',
         nv_quyen: 'nv',
         nv_quyenthamdinh: '0',
         nv_sdt: '',
@@ -35,9 +34,13 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
     }, []);
 
     function handleChange(event) {
+        const { name, value } = event.target;
+
+        const updatedValue = value.charAt(0).toUpperCase() + value.slice(1);
+
         setThemNhanVien({
             ...themNhanVien,
-            [event.target.name]: event.target.value,
+            [name]: updatedValue,
         });
     }
 
@@ -81,11 +84,14 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
         <div className={cx('wrapper')}>
             <h2>Thêm nhân viên</h2>
             <div className={cx('inner')}>
-                <form className={cx('form-group')}>
+                <form className={cx('form-group')} onSubmit={handleThemNhanVien}>
                     <div className={cx('form-item')}>
                         <label>Tên nhân viên</label>
                         <input
                             type="search"
+                            required
+                            pattern="[\p{L}0-9 ]{0,100}"
+                            title="Vui lòng nhập tên nhân viên (tối đa 100 ký tự, không chứa ký tự đặc biệt)"
                             name="nv_ten"
                             value={themNhanVien.nv_ten}
                             onChange={handleChange}
@@ -95,6 +101,9 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
                         <label>Tên tài khoản</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,50}"
+                            title="Vui lòng nhập tên tài khoản (tối đa 50 ký tự, không chứa ký tự đặc biệt)"
                             name="nv_taikhoan"
                             value={themNhanVien.nv_taikhoan}
                             onChange={handleChange}
@@ -104,17 +113,11 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
                         <label>Mật khẩu</label>
                         <input
                             type="password"
+                            required
+                            pattern=".{8,}"
+                            title="Mật khẩu phải có ít nhất 8 ký tự"
                             name="nv_matkhau"
                             value={themNhanVien.nv_matkhau}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className={cx('form-item')}>
-                        <label>Độ ưu tiên</label>
-                        <input
-                            type="search"
-                            name="nv_stt"
-                            value={themNhanVien.nv_stt}
                             onChange={handleChange}
                         />
                     </div>
@@ -158,6 +161,9 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
                         <label>Số điện thoại</label>
                         <input
                             type="search"
+                            required
+                            pattern="[0-9]{10}"
+                            title="Vui lòng nhập số điện thoại gồm 10 chữ số"
                             name="nv_sdt"
                             value={themNhanVien.nv_sdt}
                             onChange={handleChange}
@@ -167,16 +173,19 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
                         <label>Địa chỉ</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,255}"
+                            title="Vui lòng nhập địa chỉ (tối đa 255 ký tự)"
                             name="nv_diachi"
                             value={themNhanVien.nv_diachi}
                             onChange={handleChange}
                         />
                     </div>
+                    <div className={cx('handle')}>
+                        <button>Lưu</button>
+                        <button onClick={togglePopupAdd}>Hủy</button>
+                    </div>
                 </form>
-                <div className={cx('handle')}>
-                    <button onClick={handleThemNhanVien}>Lưu</button>
-                    <button onClick={togglePopupAdd}>Hủy</button>
-                </div>
             </div>
         </div>
     );

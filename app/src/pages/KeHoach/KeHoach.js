@@ -236,8 +236,8 @@ function KeHoach() {
                         params: { token: token },
                     });
                     if (response.status === 200) {
+                        await loadKeHoach();
                         swal(`Kế hoạch ${kh.kh_ten} đã được xóa thành công!`, { icon: 'success' });
-                        window.location.reload();
                     }
                 } catch (error) {
                     console.error(error);
@@ -285,7 +285,7 @@ function KeHoach() {
         await getDisplayKeHoach();
     };
 
-    // Duyệt kế hoạch
+    // Nộp kế hoạch
     const handleNopKeHoach = async (khID) => {
         const token = localStorage.getItem('Token');
         const data = { kh_ids: khID };
@@ -312,7 +312,7 @@ function KeHoach() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadKeHoach();
             cogoToast.success(`Kế hoạch đã được duyệt`, {
                 position: 'top-right',
             });
@@ -329,7 +329,7 @@ function KeHoach() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadKeHoach();
             cogoToast.success(`Kế hoạch đã từ chối`, {
                 position: 'top-right',
             });
@@ -362,6 +362,7 @@ function KeHoach() {
         setNewRows((prevRows) => prevRows.filter((_, i) => i !== index));
     };
 
+    // Thêm kế hoạch
     const handleThemKeHoach = async (e) => {
         e.preventDefault();
 
@@ -380,6 +381,7 @@ function KeHoach() {
 
         if (response.status === 200) {
             await loadKeHoach();
+            setNewRows([]);
             cogoToast.success('Kế hoạch đã được thêm', {
                 position: 'top-right',
             });
@@ -457,7 +459,7 @@ function KeHoach() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadKeHoach();
             cogoToast.success(`Công việc đã được cập nhật`, {
                 position: 'top-right',
             });

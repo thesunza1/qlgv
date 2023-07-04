@@ -39,16 +39,17 @@ function BangCongViec() {
 
     const PER_PAGE = 10;
 
-    useEffect(() => {
-        const getListCongViec = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.post(`/get_KeHoach_CongViec?token=${token}`, {
-                kh_id: kh_id,
-            });
-            setListCongViec(response.data.danh_sach_cong_viec);
-        };
-        getListCongViec();
+    const getListCongViec = useCallback(async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.post(`/get_KeHoach_CongViec?token=${token}`, {
+            kh_id: kh_id,
+        });
+        setListCongViec(response.data.danh_sach_cong_viec);
     }, [kh_id]);
+
+    useEffect(() => {
+        getListCongViec();
+    }, [getListCongViec]);
 
     useEffect(() => {
         setDSCongViec(
@@ -83,6 +84,17 @@ function BangCongViec() {
         };
         getListDonVi();
     }, []);
+
+    const loadCongViec = async () => {
+        await getListCongViec();
+        setDSCongViec(
+            listCongViec.map((cv) => ({
+                ...cv,
+                isEdit: false,
+            })),
+        );
+        await getDisplayCongViec();
+    };
 
     function trangThai(trangThai) {
         switch (trangThai) {
@@ -223,7 +235,8 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadCongViec();
+            setNewRows([]);
             cogoToast.success('Công việc đã được thêm', {
                 position: 'top-right',
             });
@@ -244,10 +257,10 @@ function BangCongViec() {
                 await axiosClient.delete('/delete_CongViec', {
                     data: { deletecv_ids },
                 });
+                await loadCongViec();
                 swal(`${cv.cv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
             } else {
                 return;
             }
@@ -323,7 +336,7 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadCongViec();
             cogoToast.success(`Công việc đã được cập nhật`, {
                 position: 'top-right',
             });
@@ -357,7 +370,7 @@ function BangCongViec() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('features')}>
-                {infoUser.nv_quyen !== 'ld' && (
+                {infoUser.nv_quyenthamdinh === '1' && (
                     <button className={cx('add-btn')} onClick={handleAddNewRow}>
                         <FontAwesomeIcon icon={faPlus} /> Thêm hàng
                     </button>
