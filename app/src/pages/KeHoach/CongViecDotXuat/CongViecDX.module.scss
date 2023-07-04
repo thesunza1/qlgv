@@ -28,21 +28,18 @@
     padding: 10px 20px;
 
     .save-btn {
-        margin-right: 10px;
-        padding: 6px 8px;
+        padding: 7px;
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
-        background-color: white;
-        color: black;
-        border: 2px solid #4CAF50;
+        background: none;
+        border: 1px solid #333;
+        cursor: pointer;
 
         &:hover {
-            background-color: #4CAF50;
-            color: white;
+            outline: 1.5px solid #0087E1;
         }
     }
-
 
     .add-btn {
         margin-right: 10px;
@@ -50,13 +47,13 @@
         font-size: 1.5rem;
         font-weight: 500;
         border-radius: 3px;
-        color: black;
-        background-color: white;
-        border: 2px solid #008CBA;
+        color: #e2e2e2;
+        background: linear-gradient(#27ae60, #1e8449);
+        cursor: pointer;
 
         &:hover {
-            background-color: #008CBA;
-            color: white;
+            background: linear-gradient(#15b357, #0d7d3c);
+            outline: 1.5px solid #0087E1;
         }
     }
 }
@@ -122,7 +119,7 @@
 }
 
 .b1 {
-    background-color: #d0e595;
+    background-color: #9ab64f;
     width: 130px;
     color: white;
 }
@@ -180,8 +177,8 @@
             padding: 3px 8px;
             font-size: 1.4rem;
             color: var(text-black);
-            border: 1px solid #ccc;border-radius: 2px;
-            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 2px;cursor: pointer;
         }
     }
 }

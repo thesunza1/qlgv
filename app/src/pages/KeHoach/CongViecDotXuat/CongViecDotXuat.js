@@ -36,13 +36,12 @@ function BangCongViec() {
     const [infoUser, setInfoUser] = useState([]);
 
     const PER_PAGE = 10;
-
+    const getListCongViec = async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`, {});
+        setListCongViec(response.data.danh_sach_cv_dot_xuat);
+    };
     useEffect(() => {
-        const getListCongViec = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CV_DotXuat?token=${token}`, {});
-            setListCongViec(response.data.danh_sach_cv_dot_xuat);
-        };
         getListCongViec();
     }, []);
 
@@ -54,7 +53,16 @@ function BangCongViec() {
             })),
         );
     }, [listCongViec]);
-
+    const loadCongViec = async () => {
+        await getListCongViec();
+        setDSCongViec(
+            listCongViec.map((cv) => ({
+                ...cv,
+                isEdit: false,
+            })),
+        );
+        await getDisplayCongViec();
+    };
     useEffect(() => {
         const getInfoUser = async () => {
             const token = localStorage.getItem('Token');
@@ -220,10 +228,11 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
+            setNewRows([]);
+            loadCongViec();
             cogoToast.success(`Công việc đột xuất đã được thêm`, {
                 position: 'top-right',
             });
-            window.location.reload();
         }
     };
 
@@ -244,7 +253,7 @@ function BangCongViec() {
                 swal(`${cv.cv_ten.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
+                loadCongViec();
             } else {
                 return;
             }
@@ -332,7 +341,7 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            loadCongViec();
             cogoToast.success(`Công việc đã được cập nhật`, {
                 position: 'top-right',
             });
@@ -352,7 +361,7 @@ function BangCongViec() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            loadCongViec();
             cogoToast.success(`Công việc đã từ chối`, {
                 position: 'top-right',
             });
@@ -368,22 +377,24 @@ function BangCongViec() {
 
     return (
         <div className={cx('wrapper')}>
+            <div className={cx('title')}>
+                <h2>Công Việc Đột Xuất</h2>
+            </div>
+            <div className={cx('features')}>
+                {infoUser.nv_quyen === 'ld' && (
+                    <div className={cx('btn-group')}>
+                        <button className={cx('add-btn')} onClick={handleAddNewRow}>
+                            <FontAwesomeIcon icon={faPlus} /> Thêm hàng
+                        </button>
+                        {newRows.length > 0 && (
+                            <button className={cx('save-btn')} onClick={handleThemCongViec}>
+                                <FontAwesomeIcon icon={faSave} /> Lưu
+                            </button>
+                        )}
+                    </div>
+                )}
+            </div>
             <div className={cx('inner')}>
-                <div className={cx('title')}>
-                    <h2>Công Việc Đột Xuất</h2>
-                </div>
-                <div className={cx('features')}>
-                    {infoUser.nv_quyen === 'ld' && (
-                        <div className={cx('btn-group')}>
-                            <button className={cx('add-btn')} onClick={handleAddNewRow}>
-                                <FontAwesomeIcon icon={faPlus} /> Thêm hàng
-                            </button>
-                            <button className={cx('save-btn')}>
-                                <FontAwesomeIcon icon={faSave} onClick={handleThemCongViec} /> Lưu
-                            </button>
-                        </div>
-                    )}
-                </div>
                 <table className={cx('table')}>
                     <thead>
                         <tr>
@@ -476,7 +487,7 @@ function BangCongViec() {
                                         ))}
                                     </select>
                                 </td>
-                                <td className={cx('center')}>{trangThai('0')}</td>
+                                <td className={cx('center')}>{trangThai('2')}</td>
                                 <td>
                                     <Tippy content="Hủy" placement="bottom">
                                         <button
@@ -560,7 +571,7 @@ function BangCongViec() {
                                                         <input
                                                             type="date"
                                                             name="cv_hanhoanthanh"
-                                                            value={cv.cv_hanhoanthanh.split(' ')[0]}
+                                                            value={cv.cv_hanhoanthanh}
                                                             onChange={(e) =>
                                                                 handleEditInputChange(
                                                                     e,
@@ -645,7 +656,11 @@ function BangCongViec() {
                                                 <td>{cv.cv_ten}</td>
                                                 <td>{cv.cv_noidung}</td>
                                                 <td>{cv.cv_thgianbatdau}</td>
-                                                <td>{cv.cv_hanhoanthanh.split(' ')[0]}</td>
+                                                <td>
+                                                    {cv.cv_hanhoanthanh
+                                                        ? cv.cv_hanhoanthanh.split(' ')[0]
+                                                        : '--'}
+                                                </td>
                                                 <td>{cv.nhan_vien_lam?.nv_ten || '--'}</td>
                                                 <td>{cv.don_vi?.dv_ten}</td>
                                                 <td className={cx('center')}>
