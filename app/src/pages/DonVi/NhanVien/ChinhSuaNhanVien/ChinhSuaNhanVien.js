@@ -13,7 +13,7 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
         nv_taikhoan: '',
         nv_matkhau: '',
         nv_ten: '',
-        nv_stt: '',
+        nv_stt: '10',
         nv_quyen: 'nv',
         nv_quyenthamdinh: '0',
         nv_sdt: '',
@@ -52,7 +52,6 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
             nv_taikhoan,
             nv_matkhau,
             nv_ten,
-            nv_stt,
             nv_quyen,
             nv_quyenthamdinh,
             nv_sdt,
@@ -64,7 +63,6 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
             nv_taikhoan,
             nv_matkhau,
             nv_ten,
-            nv_stt,
             nv_quyen,
             nv_quyenthamdinh,
             nv_sdt,
@@ -85,12 +83,14 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
         <div className={cx('wrapper')}>
             <h2>Chỉnh sửa nhân viên</h2>
             <div className={cx('inner')}>
-                <form className={cx('form-group')}>
+                <form className={cx('form-group')} onSubmit={handleChinhSuaNhanVien}>
                     <div className={cx('form-item')}>
                         <label>Tên nhân viên</label>
                         <input
                             type="search"
                             required
+                            pattern="[\p{L}0-9 ]{0,100}"
+                            title="Vui lòng nhập tên nhân viên (tối đa 100 ký tự, không chứa ký tự đặc biệt)"
                             name="nv_ten"
                             value={chinhSuaNhanVien.nv_ten}
                             onChange={handleChange}
@@ -100,6 +100,9 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
                         <label>Tên tài khoản</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,50}"
+                            title="Vui lòng nhập tên tài khoản (tối đa 50 ký tự)"
                             name="nv_taikhoan"
                             value={chinhSuaNhanVien.nv_taikhoan}
                             onChange={handleChange}
@@ -109,16 +112,9 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
                         <label>Mật khẩu</label>
                         <input
                             type="password"
+                            pattern=".{8,}"
+                            title="Mật khẩu phải có ít nhất 8 ký tự"
                             value={chinhSuaNhanVien.nv_matkhau}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className={cx('form-item')}>
-                        <label>Độ ưu tiên</label>
-                        <input
-                            type="search"
-                            name="nv_stt"
-                            value={chinhSuaNhanVien.nv_stt}
                             onChange={handleChange}
                         />
                     </div>
@@ -162,6 +158,9 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
                         <label>Số điện thoại</label>
                         <input
                             type="search"
+                            required
+                            pattern="[0-9]{10}"
+                            title="Vui lòng nhập số điện thoại gồm 10 chữ số"
                             name="nv_sdt"
                             value={chinhSuaNhanVien.nv_sdt}
                             onChange={handleChange}
@@ -171,16 +170,19 @@ function ChinhSuaNhanVien({ togglePopupEdit, setIsOpenEdit, loadNhanVien, nVID }
                         <label>Địa chỉ</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,255}"
+                            title="Vui lòng nhập địa chỉ (tối đa 255 ký tự)"
                             name="nv_diachi"
                             value={chinhSuaNhanVien.nv_diachi}
                             onChange={handleChange}
                         />
                     </div>
+                    <div className={cx('handle')}>
+                        <button>Cập nhật</button>
+                        <button onClick={togglePopupEdit}>Hủy</button>
+                    </div>
                 </form>
-                <div className={cx('handle')}>
-                    <button onClick={handleChinhSuaNhanVien}>Cập nhật</button>
-                    <button onClick={togglePopupEdit}>Hủy</button>
-                </div>
             </div>
         </div>
     );

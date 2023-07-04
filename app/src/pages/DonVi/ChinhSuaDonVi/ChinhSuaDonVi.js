@@ -65,11 +65,14 @@ function ChinhSuaDonVi({ togglePopupEdit, setIsOpenEdit, loadDonVi, donViID }) {
         <div className={cx('wrapper')}>
             <h2>Chỉnh sửa đơn vị</h2>
             <div className={cx('inner')}>
-                <form className={cx('form-group')}>
+                <form className={cx('form-group')} onSubmit={handleChinhSuaDonVi}>
                     <div className={cx('form-item')}>
                         <label>Tên đơn vị</label>
                         <input
                             type="search"
+                            required
+                            pattern=".{0,100}"
+                            title="Vui lòng nhập tên đơn vị (tối đa 100 ký tự)"
                             name="dv_ten"
                             value={chinhSuaDonVi.dv_ten}
                             onChange={handleChange}
@@ -103,16 +106,13 @@ function ChinhSuaDonVi({ togglePopupEdit, setIsOpenEdit, loadDonVi, donViID }) {
                                     {dvCha.dv_ten}
                                 </option>
                             ))}
-                            {chinhSuaDonVi.dv_dvcha === null ? (
-                                <option value="">-- Chưa có đơn vị cha --</option>
-                            ) : null}
                         </select>
                     </div>
+                    <div className={cx('handle')}>
+                        <button>Cập nhật</button>
+                        <button onClick={togglePopupEdit}>Hủy</button>
+                    </div>
                 </form>
-                <div className={cx('handle')}>
-                    <button onClick={handleChinhSuaDonVi}>Cập nhật</button>
-                    <button onClick={togglePopupEdit}>Hủy</button>
-                </div>
             </div>
         </div>
     );

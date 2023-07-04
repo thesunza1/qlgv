@@ -47,12 +47,13 @@ function BaoCaoHangNgay() {
     const [filterName, setFilterName] = useState('');
     const [filterState, setFilterState] = useState('');
 
+    const getDSBaoCaoHangNgay = async () => {
+        const token = localStorage.getItem('Token');
+        const response = await axiosClient.get(`/get_CV_BC_HangNgay?token=${token}`);
+        setDSBaoCaoHangNgay(response.data);
+    };
+
     useEffect(() => {
-        const getDSBaoCaoHangNgay = async () => {
-            const token = localStorage.getItem('Token');
-            const response = await axiosClient.get(`/get_CV_BC_HangNgay?token=${token}`);
-            setDSBaoCaoHangNgay(response.data);
-        };
         getDSBaoCaoHangNgay();
     }, []);
 
@@ -92,50 +93,25 @@ function BaoCaoHangNgay() {
         );
     }, [dSBaoCaoHangNgay]);
 
+    const loadBaoCaoHangNgay = async () => {
+        await getDSBaoCaoHangNgay();
+        setDSBaocao(
+            dSBaoCaoHangNgay.map((bc) => ({
+                ...bc,
+                isEdit: false,
+                isChecked: false,
+            })),
+        );
+        await filterBaocao();
+        await sortedData();
+    };
+
     const toggleBaocao = () => {
         setIsBaoCao(!isBaoCao);
         if (icon === faCaretRight) {
             setIcon(faCaretDown);
         } else {
             setIcon(faCaretRight);
-        }
-    };
-
-    const handleThemBaoCao = async (e) => {
-        e.preventDefault();
-
-        const danh_sach_cong_viec_bao_cao = [];
-
-        for (let bc of themBaoCao) {
-            const {
-                cv_id,
-                bdhn_tiendo,
-                bchn_noidung,
-                so_gio_lam,
-                bchn_giobatdau,
-                bchn_gioketthuc,
-            } = bc;
-            danh_sach_cong_viec_bao_cao.push({
-                cv_id,
-                bdhn_tiendo,
-                bchn_noidung,
-                so_gio_lam,
-                bchn_giobatdau,
-                bchn_gioketthuc,
-            });
-        }
-
-        const token = localStorage.getItem('Token');
-
-        const response = await axiosClient.post(`/add_CV_BC_HangNgay?token=${token}`, {
-            danh_sach_cong_viec_bao_cao,
-        });
-
-        if (response.status === 200) {
-            window.location.reload();
-            cogoToast.success(`Báo cáo đã được thêm`, {
-                position: 'top-right',
-            });
         }
     };
 
@@ -272,6 +248,46 @@ function BaoCaoHangNgay() {
         setThemBaoCao((prevRows) => prevRows.filter((_, i) => i !== index));
     };
 
+    // Thêm báo cáo
+    const handleThemBaoCao = async (e) => {
+        e.preventDefault();
+
+        const danh_sach_cong_viec_bao_cao = [];
+
+        for (let bc of themBaoCao) {
+            const {
+                cv_id,
+                bdhn_tiendo,
+                bchn_noidung,
+                so_gio_lam,
+                bchn_giobatdau,
+                bchn_gioketthuc,
+            } = bc;
+            danh_sach_cong_viec_bao_cao.push({
+                cv_id,
+                bdhn_tiendo,
+                bchn_noidung,
+                so_gio_lam,
+                bchn_giobatdau,
+                bchn_gioketthuc,
+            });
+        }
+
+        const token = localStorage.getItem('Token');
+
+        const response = await axiosClient.post(`/add_CV_BC_HangNgay?token=${token}`, {
+            danh_sach_cong_viec_bao_cao,
+        });
+
+        if (response.status === 200) {
+            setThemBaoCao([]);
+            await loadBaoCaoHangNgay();
+            cogoToast.success(`Báo cáo đã được thêm`, {
+                position: 'top-right',
+            });
+        }
+    };
+
     // Xóa báo cáo
     const handleXoaBaoCao = (bc) => {
         swal({
@@ -286,10 +302,10 @@ function BaoCaoHangNgay() {
                 await axiosClient.delete('/delete_CV_BC_HangNgay', {
                     data: { deletebchn_ids },
                 });
+                await loadBaoCaoHangNgay();
                 swal(`${bc.cong_viec.ten_cong_viec.toUpperCase()} đã được xóa`, {
                     icon: 'success',
                 });
-                window.location.reload();
             } else {
                 return;
             }
@@ -358,7 +374,7 @@ function BaoCaoHangNgay() {
         });
 
         if (response.status === 200) {
-            window.location.reload();
+            await loadBaoCaoHangNgay();
             cogoToast.success(`Báo cáo đã được cập nhật`, {
                 position: 'top-right',
             });
