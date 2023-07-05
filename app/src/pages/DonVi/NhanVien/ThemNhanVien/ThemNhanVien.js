@@ -23,6 +23,8 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
         nv_diachi: '',
     });
 
+    console.log(themNhanVien);
+
     const [dSDonVi, setDSDonVi] = useState([]);
 
     useEffect(() => {
@@ -34,13 +36,9 @@ function ThemNhanVien({ togglePopupAdd, setIsOpenAdd, loadNhanVien }) {
     }, []);
 
     function handleChange(event) {
-        const { name, value } = event.target;
-
-        const updatedValue = value.charAt(0).toUpperCase() + value.slice(1);
-
         setThemNhanVien({
             ...themNhanVien,
-            [name]: updatedValue,
+            [event.target.name]: event.target.value,
         });
     }
 
